@@ -73,12 +73,12 @@ void test_rehashing() {
 
 void test_string_keys() {
     Hashmap<const char*, int> map;
-    map.put("apple", 1);
+    map.put("apple+pen", 1);
     map.put("banana", 2);
 
-    RUNTIME_ASSERT(map.has("apple"));
+    RUNTIME_ASSERT(map.has("apple+pen"));
     RUNTIME_ASSERT(map.has("banana"));
-    RUNTIME_ASSERT(map.get("apple") == 1);
+    RUNTIME_ASSERT(map.get("apple+pen") == 1);
     RUNTIME_ASSERT(map.get("banana") == 2);
     LOG_INFO("test_string_keys passed\n");
 }
