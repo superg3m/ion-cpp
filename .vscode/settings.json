@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.mysql": "sql",
+        "core.hpp": "c",
+        "container.hpp": "c",
+        "__config": "cpp",
+        "__locale": "cpp",
+        "array": "cpp",
+        "bitset": "cpp",
+        "ios": "cpp",
+        "iterator": "cpp",
+        "locale": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "string": "cpp",
+        "string_view": "cpp"
+    }
+}
