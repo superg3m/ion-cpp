@@ -8,16 +8,14 @@ int main(int argc, char** argv) {
     }
 
     char* file_name = argv[1];
-    ION::Memory::Allocator allocator = ION::Memory::Allocator::libc();
+    Memory::Allocator allocator = Memory::Allocator::libc();
 
     byte_t file_size = 0;
-    IonError error = ION_ERROR_SUCCESS;
-    ION::Platform::read_entire_file(allocator, file_name, file_size, error);
-    if (error != ION_ERROR_SUCCESS) {
-        LOG_ERROR("Error failed to read file: %s\n", ion_error_str(error));
+    Error error = ERROR_SUCCESS;
+    Platform::read_entire_file(allocator, file_name, file_size, error);
+    if (error != ERROR_SUCCESS) {
+        LOG_ERROR("Error failed to read file: %s\n", error_str(error));
     }
-
-    ION::Container::Hashmap<int, int>map = ION::Container::Hashmap<int, int>();
 
     return 0;
 }

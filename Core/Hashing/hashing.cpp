@@ -23,7 +23,7 @@
     #endif
 #endif
 
-namespace ION::Hashing {
+namespace Hashing {
     #define ROTATE(x, b) (u64)( ((x) << (b)) | ( (x) >> (64 - (b))) )
 
     #define HALF_ROUND(a,b,c,d,s,t)	\
@@ -107,15 +107,15 @@ namespace ION::Hashing {
         (void)c1_size;
         (void)c2_size;
 
-        u64 c1_length = ION::String::length((const char*)c1);
-        u64 c2_length = ION::String::length((const char*)c2);
+        u64 c1_length = String::length((const char*)c1);
+        u64 c2_length = String::length((const char*)c2);
         
-        return ION::String::equal((const char*)c1, c1_length, (const char*)c2, c2_length);
+        return String::equal((const char*)c1, c1_length, (const char*)c2, c2_length);
     }
 
     u64 string_view_hash(const void* view, u64 str_length) {
         (void)str_length;
-        ION::Container::View<char>* str_view = (ION::Container::View<char>*)view;
+        Container::View<char>* str_view = (Container::View<char>*)view;
         u64 hash = 5381;
         int c;
 
@@ -131,9 +131,9 @@ namespace ION::Hashing {
         (void)c1_size;
         (void)c2_size;
 
-        ION::Container::View<char>* s1 = (ION::Container::View<char>*)c1;
-        ION::Container::View<char>* s2 = (ION::Container::View<char>*)c2;
+        Container::View<char>* s1 = (Container::View<char>*)c1;
+        Container::View<char>* s2 = (Container::View<char>*)c2;
 
-        return ION::String::equal(s1->data, s1->length, s2->data, s2->length);
+        return String::equal(s1->data, s1->length, s2->data, s2->length);
     }
 }

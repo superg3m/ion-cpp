@@ -9,7 +9,7 @@
 
 #define HASHMAP_DEFAULT_LOAD_FACTOR 0.7f
 
-namespace ION::Container {
+namespace Container {
     typedef u64(HashFunction)(const void*, byte_t);
     typedef bool(EqualFunction)(const void*, byte_t, const void*, byte_t);
 
@@ -22,10 +22,10 @@ namespace ION::Container {
             bool dead;
         };
 
-        Hashmap(u64 capacity = 1, ION::Memory::Allocator allocator = ION::Memory::Allocator::libc()) {
+        Hashmap(u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
             constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
             constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            // constexpr bool string_view_key_type = std::is_same_v<K, ION::Container::View<char>>;
+            // constexpr bool string_view_key_type = std::is_same_v<K, Container::View<char>>;
             STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type);
 
             this->m_count = 0;
@@ -35,22 +35,22 @@ namespace ION::Container {
             this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
 
             if constexpr (is_trivially_copyable_non_pointer_v) {
-                this->m_hash_func = ION::Hashing::siphash24;
-                this->m_equal_func = ION::Memory::equal;
+                this->m_hash_func = Hashing::siphash24;
+                this->m_equal_func = Memory::equal;
             } else if constexpr (cstring_key_type) {
-                this->m_hash_func = ION::Hashing::cstring_hash;
-                this->m_equal_func = ION::Hashing::cstring_equality;
+                this->m_hash_func = Hashing::cstring_hash;
+                this->m_equal_func = Hashing::cstring_equality;
             }
 
             /*
             else if constexpr (string_view_key_type) {
-                this->m_hash_func = ION::Hashing::string_view_hash;
-                this->m_equal_func = ION::Hashing::string_view_equality;
+                this->m_hash_func = Hashing::string_view_hash;
+                this->m_equal_func = Hashing::string_view_equality;
             }
             */
         }
 
-        Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, ION::Memory::Allocator allocator = ION::Memory::Allocator::libc()) {
+        Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
             constexpr bool supported_key_type = std::is_trivially_copyable_v<K> || std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
             STATIC_ASSERT(supported_key_type);
 
@@ -130,7 +130,7 @@ namespace ION::Container {
         HashmapEntry* m_entries = nullptr;
         HashFunction* m_hash_func = nullptr;
         EqualFunction* m_equal_func = nullptr;
-        ION::Memory::Allocator m_allocator = ION::Memory::Allocator::invalid();
+        Memory::Allocator m_allocator = Memory::Allocator::invalid();
         bool is_key_pointer_type = std::is_pointer_v<K>;
 
         void grow_and_rehash() {

@@ -1,10 +1,10 @@
 #include "string.hpp"
 #include "../Container/view.hpp"
 
-namespace ION::String {
-    char* allocate(ION::Memory::Allocator& allocator, const char* s1, u64 length) {
+namespace String {
+    char* allocate(Memory::Allocator& allocator, const char* s1, u64 length) {
         char* ret = (char*)allocator.malloc(length + 1);
-        ION::Memory::copy(ret, length + 1, s1, length + 1);
+        Memory::copy(ret, length + 1, s1, length + 1);
 
         return ret;
     }
@@ -48,8 +48,8 @@ namespace ION::String {
                 continue;
             }
 
-            ION::Container::View<char> current_view = ION::Container::View(str + i, substring_length);
-            if (ION::String::equal(substring, substring_length, current_view.data, current_view.length)) {
+            Container::View<char> current_view = Container::View(str + i, substring_length);
+            if (String::equal(substring, substring_length, current_view.data, current_view.length)) {
                 ret_index = (s64)i;
                 break;
             }
@@ -62,7 +62,7 @@ namespace ION::String {
         RUNTIME_ASSERT(str);
         RUNTIME_ASSERT(contains);
 
-        return ION::String::index_of(str, str_length, contains, contains_length) != -1;  
+        return String::index_of(str, str_length, contains, contains_length) != -1;  
     }
 
     s64 last_index_of(const char* str, u64 str_length, const char* substring, u64 substring_length) {
@@ -87,8 +87,8 @@ namespace ION::String {
                 continue;
             }
 
-            ION::Container::View<char> current_view = ION::Container::View(str + i, substring_length);
-            if (ION::String::equal(current_view.data, current_view.length, substring, substring_length)) {
+            Container::View<char> current_view = Container::View(str + i, substring_length);
+            if (String::equal(current_view.data, current_view.length, substring, substring_length)) {
                 ret_index = (s64)i;
             }
         }
@@ -106,7 +106,7 @@ namespace ION::String {
             return false;
         }
         
-        if (ION::String::equal(str, starts_with_length, starts_with, starts_with_length)) {
+        if (String::equal(str, starts_with_length, starts_with, starts_with_length)) {
             return true;
         }
 
@@ -128,7 +128,7 @@ namespace ION::String {
             return false;
         }
 
-        if (ION::String::equal(str + start_index, ends_with_length, ends_with, ends_with_length)) {
+        if (String::equal(str + start_index, ends_with_length, ends_with, ends_with_length)) {
             return true;
         }
 
@@ -136,8 +136,8 @@ namespace ION::String {
     }
 
     void copy(char* s1, byte_t s1_capacity, const char* s2, u64 s2_length) {
-        ION::Memory::zero(s1, s1_capacity);
-        ION::Memory::copy(s1, s1_capacity, s2, s2_length);
+        Memory::zero(s1, s1_capacity);
+        Memory::copy(s1, s1_capacity, s2, s2_length);
     }
 
     void insert(char* str, u64 str_length, byte_t str_capacity, const char* to_insert, u64 to_insert_length, u64 index) {
@@ -150,9 +150,9 @@ namespace ION::String {
         u8* move_source_ptr = (u8*)(str + index);
         u8* move_dest_ptr = (u8*)(move_source_ptr + to_insert_length);
 
-        ION::Memory::copy(move_dest_ptr, str_capacity - (index + to_insert_length), move_source_ptr, str_length - index);
+        Memory::copy(move_dest_ptr, str_capacity - (index + to_insert_length), move_source_ptr, str_length - index);
         u8* copy_dest_ptr = (u8*)(str + index);
-        ION::Memory::copy(copy_dest_ptr, str_capacity, to_insert, to_insert_length);
+        Memory::copy(copy_dest_ptr, str_capacity, to_insert, to_insert_length);
     }
 
     void insert(char* str, u64 str_length, byte_t str_capacity, char to_insert, u64 index) {
@@ -164,15 +164,15 @@ namespace ION::String {
         RUNTIME_ASSERT_MSG(expression, "ckg_str_insert_char: str overflow new_capacity_required: %d >= current_capacity: %lld\n",  str_length + to_insert_length, str_capacity);
 
         char* source_ptr = str + index;
-        ION::Memory::copy(source_ptr + 1, str_capacity - (index + 1), source_ptr, str_length - index);
+        Memory::copy(source_ptr + 1, str_capacity - (index + 1), source_ptr, str_length - index);
         str[index] = to_insert;
     }
 
     void append(char* str, u64 str_length, byte_t str_capacity, const char* to_append, u64 to_append_length) {
-        ION::String::insert(str, str_length, str_capacity, to_append, to_append_length, str_length);
+        String::insert(str, str_length, str_capacity, to_append, to_append_length, str_length);
     }
 
     void append(char* str, u64 str_length, byte_t str_capacity, char to_append) {
-        ION::String::insert(str, str_length, str_capacity, to_append, str_length);
+        String::insert(str, str_length, str_capacity, to_append, str_length);
     }
 }

@@ -6,7 +6,7 @@
 #include "../Memory/memory.hpp"
 #include "../Common/common.hpp"
 
-namespace ION::Container {
+namespace Container {
     template <typename T>
     struct Vector {
         Vector(std::initializer_list<T> list) {

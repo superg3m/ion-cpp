@@ -6,7 +6,7 @@
 #include "../Memory/memory.hpp"
 #include "../Common/common.hpp"
 
-namespace ION::Container {
+namespace Container {
     template <typename T>
     struct View {
         const T* const data;

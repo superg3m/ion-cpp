@@ -20,11 +20,13 @@ cc: CompilerConfig = CompilerConfig(
     compiler_name = C_BUILD_COMPILER_NAME() if C_BUILD_IS_DEPENDENCY() else "INVALID_COMPILER",
 )
 
+ion_source = "ion.exe ../../Test/Compiler/001_parse_expression.ion"
+
 pc: ProjectConfig = ProjectConfig(
     project_name = "Ion-Cpp",
     project_dependencies = [],
     project_debug_with_visual_studio = True,
-    project_executable_names = ["test_core.exe", "ion.exe"]
+    project_executable_names = ["test_core.exe", ]
 )
 
 if IS_WINDOWS() and not C_BUILD_IS_DEPENDENCY():

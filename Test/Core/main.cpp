@@ -1,6 +1,6 @@
 #include <Core/core.hpp>
 
-using namespace ION::Container;
+using namespace Container;
 
 // ---------- Tests ----------
 void test_basic_put_get() {

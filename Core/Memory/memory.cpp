@@ -2,7 +2,7 @@
 
 #include "memory.hpp"
 
-namespace ION::Memory {
+namespace Memory {
     void zero(void* data, byte_t data_size_in_bytes) {
         RUNTIME_ASSERT(data);
         
@@ -62,7 +62,7 @@ namespace ION::Memory {
     void* Allocator::malloc(byte_t allocation_size) const {
         RUNTIME_ASSERT(allocation_size != 0);
         void* ret = this->m_alloc(this, allocation_size);
-        ION::Memory::zero(ret, allocation_size);
+        Memory::zero(ret, allocation_size);
 
         return ret;
     }
