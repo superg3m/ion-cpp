@@ -4,10 +4,8 @@ int main(int argc, char** argv) {
     char* executable_name = argv[0];
     if (argc < 2) {
         LOG_ERROR("Usage: %s <filename>\n", executable_name);
-        LOG_ERROR("Reads the contents of the file into memory.\n");
         return 0;
     }
-
 
     char* file_name = argv[1];
     ION::Memory::Allocator allocator = ION::Memory::Allocator::libc();
