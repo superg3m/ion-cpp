@@ -13,6 +13,23 @@
         "ostream": "cpp",
         "sstream": "cpp",
         "string": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "__bit_reference": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "cstddef": "cpp",
+        "cwchar": "cpp",
+        "__memory": "cpp",
+        "memory_resource": "cpp",
+        "type_traits": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "mutex": "cpp",
+        "new": "cpp",
+        "ratio": "cpp",
+        "streambuf": "cpp",
+        "tuple": "cpp",
+        "typeinfo": "cpp",
+        "variant": "cpp"
     }
 }

@@ -24,7 +24,7 @@ pc: ProjectConfig = ProjectConfig(
     project_name = "Ion-Cpp",
     project_dependencies = [],
     project_debug_with_visual_studio = True,
-    project_executable_names = ["ion.exe"]
+    project_executable_names = ["test_core.exe", "ion.exe"]
 )
 
 if IS_WINDOWS() and not C_BUILD_IS_DEPENDENCY():
@@ -43,10 +43,6 @@ else:
 
 
 build_postfix = f"build_{cc.compiler_name}/{C_BUILD_BUILD_TYPE()}"
-libs = [
-    f"../../{build_postfix}/{GET_LIB_NAME(cc, 'core')}"
-]
-
 
 procedures: Dict[str, ProcedureConfig] = {
     "core": ProcedureConfig(
@@ -60,13 +56,29 @@ procedures: Dict[str, ProcedureConfig] = {
         ]
     ),
 
+    "test_core": ProcedureConfig(
+        build_directory=f"./Test/Core/{build_postfix}",
+        output_name=f"{"test_core.exe"}",
+        source_files=[
+            "../../../../Test/Core/**/*.cpp",
+        ],
+        additional_libs=[
+            f"../../../../{build_postfix}/{GET_LIB_NAME(cc, 'core')}"
+        ],
+        include_paths=[
+            "../../../.."
+        ]
+    ),
+
     "compiler": ProcedureConfig(
         build_directory=f"./{build_postfix}",
         output_name="ion.exe",
         source_files=[
             "../../Compiler/main.cpp",
         ],
-        additional_libs=libs,
+        additional_libs=[
+            f"../../{build_postfix}/{GET_LIB_NAME(cc, 'core')}"
+        ],
         include_paths=[
             "../../"
         ]

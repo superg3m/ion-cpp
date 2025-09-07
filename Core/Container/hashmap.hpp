@@ -115,8 +115,9 @@ namespace ION::Container {
             this->m_count = 0;
             this->m_capacity = capacity;
 
-            this->m_entries = nullptr;
             this->m_allocator = allocator;
+            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
+
             this->m_hash_func = siphash24;
             this->m_equal_func = ION::Memory::equal;
         }
@@ -128,8 +129,9 @@ namespace ION::Container {
             this->m_count = 0;
             this->m_capacity = capacity;
 
-            this->m_entries = nullptr;
             this->m_allocator = allocator;
+            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
+
             this->m_hash_func = hash_func;
             this->m_equal_func = equal_func;
         }
@@ -139,8 +141,8 @@ namespace ION::Container {
                 this->grow_and_rehash();
             }
 
-            u64 hash = this->hash_func(key, sizeof(K));
-            u64 index = this->resolve_collision(key, hash % this->m_entries.capacity());
+            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 index = this->resolve_collision(key, hash % this->m_capacity);
 
             HashmapEntry* entry = &this->m_entries[index];
             if (!entry->filled || entry->dead) {
@@ -153,16 +155,16 @@ namespace ION::Container {
         }
 
         bool has(K key) {
-            u64 hash = this->hash_func(&key, sizeof(K));
-            u64 index = this->resolve_collision(key, hash % this->m_entries.capacity());
+            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 index = this->resolve_collision(key, hash % this->m_capacity);
             HashmapEntry* entry = &this->m_entries[index];
 
             return entry->filled && !entry->dead;
         }
 
-        K get(K key) {
-            u64 hash = this->hash_func(&key, sizeof(K));
-            u64 index = this->resolve_collision(key, hash % this->m_entries.capacity());
+        V get(K key) {
+            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 index = this->resolve_collision(key, hash % this->m_capacity);
             HashmapEntry* entry = &this->m_entries[index];
             RUNTIME_ASSERT_MSG(this->has(key), "Key doesn't exist\n");
 
@@ -170,8 +172,8 @@ namespace ION::Container {
         }
 
         V remove(K key) {
-            u64 hash = this->hash_func(&key, sizeof(K));
-            u64 index = this->resolve_collision(key, hash % this->m_entries.capacity());
+            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 index = this->resolve_collision(key, hash % this->m_capacity);
             HashmapEntry* entry = &this->m_entries[index];
             RUNTIME_ASSERT_MSG(this->has(key), "Key doesn't exist\n");
 
@@ -182,38 +184,37 @@ namespace ION::Container {
             return entry->value;
         }
     private:
-        V* m_entries;
         u64 m_count = 0;
         u64 m_capacity = 0;
         u64 m_dead_count = 0;
-        bool is_key_pointer_type = std::is_pointer_v<K>;
+        HashmapEntry* m_entries = nullptr;
         HashFunction* m_hash_func = nullptr;
         EqualFunction* m_equal_func = nullptr;
         ION::Memory::Allocator m_allocator = ION::Memory::Allocator::invalid();
+        bool is_key_pointer_type = std::is_pointer_v<K>;
 
         void grow_and_rehash() {
             u64 old_capacity = this->m_capacity;
+            HashmapEntry* old_entries = this->m_entries;
 
             this->m_capacity *= 2;
-            byte_t new_allocation_size = (this->m_capacity * sizeof(V));
-
-            V* new_entries = this->m_allocator.malloc(this->m_data, new_allocation_size);
+            byte_t new_allocation_size = (this->m_capacity * sizeof(HashmapEntry));
+            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(new_allocation_size);
 
             // rehash
             for (u64 i = 0; i < old_capacity; i++) {
-                HashmapEntry* entry = &this->m_entries[i];
-                if (!entry->filled) {
+                HashmapEntry old_entry = old_entries[i];
+                if (!old_entry.filled || old_entry.dead) {
                     continue;
                 }
 
-                u64 hash = this->hash_func(entry->key, sizeof(K));
-                u64 index = this->resolve_collision(entry->key, hash % this->capacity);
+                u64 hash = this->m_hash_func(&old_entry.key, sizeof(K));
+                u64 index = this->resolve_collision(old_entry.key, hash % this->m_capacity);
 
-                new_entries[index] = *entry;
+                this->m_entries[index] = old_entry;
             }
 
-            this->m_allocator.free(this->m_entries);
-            this->m_entries = new_entries;
+            this->m_allocator.free(old_entries);
         }
 
         u64 resolve_collision(K key, u64 inital_hash_index) {
@@ -225,7 +226,7 @@ namespace ION::Container {
                     break;
                 }
 
-                bool equality_match = this->equal_func(key, sizeof(K), &entry->key, sizeof(K));
+                bool equality_match = this->m_equal_func(&key, sizeof(K), &entry->key, sizeof(K));
                 if (equality_match) {
                     break;
                 }
@@ -238,7 +239,7 @@ namespace ION::Container {
         }
 
         float load_factor() {
-            return (float)(this->dead_count + this->m_entries.count()) / (float)this->m_entries.capacity();
+            return (float)(this->m_dead_count + this->m_count) / (float)this->m_capacity;
         }
     };
 }
