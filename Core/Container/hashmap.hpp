@@ -175,6 +175,8 @@ namespace ION::Container {
             HashmapEntry* entry = &this->m_entries[index];
             RUNTIME_ASSERT_MSG(this->has(key), "Key doesn't exist\n");
 
+            this->m_count -= 1;
+            this->m_dead_count += 1;
             entry->dead = true;
 
             return entry->value;
@@ -184,24 +186,18 @@ namespace ION::Container {
         u64 m_count = 0;
         u64 m_capacity = 0;
         u64 m_dead_count = 0;
+        bool is_key_pointer_type = std::is_pointer_v<K>;
         HashFunction* m_hash_func = nullptr;
         EqualFunction* m_equal_func = nullptr;
         ION::Memory::Allocator m_allocator = ION::Memory::Allocator::invalid();
 
         void grow_and_rehash() {
-            byte_t old_allocation_size = (this->m_capacity * sizeof(V));
+            u64 old_capacity = this->m_capacity;
+
             this->m_capacity *= 2;
             byte_t new_allocation_size = (this->m_capacity * sizeof(V));
 
-            this->m_data = (V*)this->m_allocator.realloc(this->m_data, old_allocation_size, new_allocation_size);
-
-            /*
-            u64 old_capacity = meta->capacity;
-            meta->capacity *= 2;
-            void* new_entries = ckg_alloc(meta->capacity * meta->entry_size);
-            ckg_memory_copy((u8*)map + meta->entries_offset, sizeof(void*), &new_entries, sizeof(void*));
-
-            this->m_entries = Vector<V>();
+            V* new_entries = this->m_allocator.malloc(this->m_data, new_allocation_size);
 
             // rehash
             for (u64 i = 0; i < old_capacity; i++) {
@@ -210,16 +206,14 @@ namespace ION::Container {
                     continue;
                 }
 
-                u64 hash = meta->hash_fn(entry_key, meta->key_size);
-                u64 index = this->resolve_collision((u8*)map, entry_key, hash % this->capacity);
+                u64 hash = this->hash_func(entry->key, sizeof(K));
+                u64 index = this->resolve_collision(entry->key, hash % this->capacity);
 
-                u8* new_entry = (u8*)new_entries + (real_index * meta->entry_size);
-                HashmapEntry* new_entry = new_entries[real_index]
-                ckg_memory_copy(new_entry, sizeof(HashmapEntry), entry, sizeof(HashmapEntry));
+                new_entries[index] = *entry;
             }
 
-            ckg_free(entries_base_address);
-            */
+            this->m_allocator.free(this->m_entries);
+            this->m_entries = new_entries;
         }
 
         u64 resolve_collision(K key, u64 inital_hash_index) {
