@@ -28,6 +28,8 @@ int main(int argc, char** argv) {
         LOG_DEBUG("%s(%.*s)\n", token_type_string, token.source_view.length, token.source_view.data);
     }
 
+    // AST* ast = Frontend::Parser::generate_ast(allocator, tokens);
+
     allocator.free(data);
 
     return 0;

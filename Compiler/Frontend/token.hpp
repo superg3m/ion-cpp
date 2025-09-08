@@ -40,10 +40,11 @@ STATIC_ASSERT(ArrayCount(token_strings) == TOKEN_COUNT);
 
 struct Token {
     TokenType type = TOKEN_ILLEGAL_TOKEN;
-    u32 line;
+    u32 line = 1;
 
     Container::View<char> source_view; // used for identifer names, string literals, the source_view
 
+    Token() = default;
     Token(Container::View<char> sv) : source_view(sv) {}
 
     union {
