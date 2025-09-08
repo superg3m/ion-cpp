@@ -30,6 +30,7 @@
         "streambuf": "cpp",
         "tuple": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "initializer_list": "cpp"
     }
 }

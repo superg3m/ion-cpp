@@ -41,19 +41,44 @@ namespace Container {
 
         // Prevent move
         Vector(Vector&&) = delete;
-        Vector& operator=(Vector&&) = delete;
+        Vector& operator=(Vector&& other) {
+            this->destroy();
+
+            this->m_count = other.m_count;
+            this->m_capacity = other.m_capacity;
+            this->m_data = other.m_data;
+            this->m_allocator = other.m_allocator;
+
+            // Leave other in a valid empty state
+            other.m_count    = 0;
+            other.m_capacity = 0;
+            other.m_data     = nullptr;
+            other.m_allocator = Memory::Allocator::invalid();
+
+            return *this;
+        }
 
         ~Vector() {
+            this->destroy();
+        }
+
+        void resize(u64 count) {
+            RUNTIME_ASSERT_MSG(false, "resize not implemented!\n");
+        }
+
+        void destroy() {
+            if (this->m_data) {
+                for (byte_t i = 0; i < m_count; ++i) {
+                    this->m_data[i].~T();
+                }
+            }
+
             this->m_allocator.free(this->m_data);
 
             this->m_data = nullptr;
             this->m_count = 0;
             this->m_capacity = 0;
             this->m_allocator = Memory::Allocator::invalid();
-        }
-
-        void resize(u64 count) {
-            RUNTIME_ASSERT_MSG(false, "resize not implemented!\n");
         }
 
         void push(T value) {

@@ -3,7 +3,7 @@
 
 #include "../Memory/memory.hpp"
 #include "../Common/common.hpp"
-#include "../Container/contiguous.hpp"
+#include "../Container/view.hpp"
 #include "../String/string.hpp"
 #include "../Hashing/hashing.hpp"
 
@@ -22,11 +22,16 @@ namespace Container {
             bool dead;
         };
 
+        struct InitPair {
+            K key;
+            V value;
+        };
+
         Hashmap(u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
             constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
             constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            // constexpr bool string_view_key_type = std::is_same_v<K, Container::View<char>>;
-            STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type);
+            constexpr bool string_view_key_type = std::is_same_v<K, Container::View<char>> || std::is_same_v<K, Container::View<u8>>;
+            STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type || string_view_key_type);
 
             this->m_count = 0;
             this->m_capacity = capacity;
@@ -40,14 +45,37 @@ namespace Container {
             } else if constexpr (cstring_key_type) {
                 this->m_hash_func = Hashing::cstring_hash;
                 this->m_equal_func = Hashing::cstring_equality;
-            }
-
-            /*
-            else if constexpr (string_view_key_type) {
+            } else if constexpr (string_view_key_type) {
                 this->m_hash_func = Hashing::string_view_hash;
                 this->m_equal_func = Hashing::string_view_equality;
             }
-            */
+        }
+
+        Hashmap(std::initializer_list<InitPair> list, Memory::Allocator allocator = Memory::Allocator::libc()) {
+            constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
+            constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
+            constexpr bool string_view_key_type = std::is_same_v<K, Container::View<char>>;
+            STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type || string_view_key_type);
+
+            this->m_count = list.size();
+            this->m_capacity = this->m_count * 2;
+            this->m_allocator = allocator;
+            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
+
+            if constexpr (is_trivially_copyable_non_pointer_v) {
+                this->m_hash_func = Hashing::siphash24;
+                this->m_equal_func = Memory::equal;
+            } else if constexpr (cstring_key_type) {
+                this->m_hash_func = Hashing::cstring_hash;
+                this->m_equal_func = Hashing::cstring_equality;
+            } else if constexpr (string_view_key_type) {
+                this->m_hash_func = Hashing::string_view_hash;
+                this->m_equal_func = Hashing::string_view_equality;
+            }
+
+            for (InitPair pair : list) {
+                this->put(pair.key, pair.value);
+            }
         }
 
         Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {

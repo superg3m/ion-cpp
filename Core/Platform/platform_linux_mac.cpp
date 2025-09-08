@@ -27,7 +27,7 @@
         }
 
         int copy_file(const char* source_path, const char* dest_path, int block_until_success) {
-            const size_t BUFFER_SIZE = 4096;
+            const byte_t BUFFER_SIZE = 4096;
 
             for (;;) {
                 FILE* in = fopen(source_path, "rb");
@@ -46,7 +46,7 @@
                 }
 
                 char buffer[BUFFER_SIZE];
-                size_t bytes;
+                byte_t bytes;
                 int success = 1;
 
                 while ((bytes = fread(buffer, 1, BUFFER_SIZE, in)) > 0) {

@@ -26,7 +26,7 @@ pc: ProjectConfig = ProjectConfig(
     project_name = "Ion-Cpp",
     project_dependencies = [],
     project_debug_with_visual_studio = True,
-    project_executable_names = ["test_core.exe", ]
+    project_executable_names = ["test_core.exe", ion_source]
 )
 
 if IS_WINDOWS() and not C_BUILD_IS_DEPENDENCY():
@@ -76,7 +76,7 @@ procedures: Dict[str, ProcedureConfig] = {
         build_directory=f"./{build_postfix}",
         output_name="ion.exe",
         source_files=[
-            "../../Compiler/main.cpp",
+            "../../Compiler/**/*.cpp",
         ],
         additional_libs=[
             f"../../{build_postfix}/{GET_LIB_NAME(cc, 'core')}"

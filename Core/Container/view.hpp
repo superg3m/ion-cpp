@@ -9,9 +9,18 @@
 namespace Container {
     template <typename T>
     struct View {
-        const T* const data;
+        const T* data;
         u64 length;
 
-        View(const T* const data, u64 length): data(data), length(length) {}
+        View(const T* data, u64 length): data(data), length(length) {}
+
+        Container::View<T>& operator=(const Container::View<T>& other) {
+            if (this != &other) {
+                this->data  = other.data;
+                this->length = other.length;
+            }
+
+            return *this;
+        }
     };
 }

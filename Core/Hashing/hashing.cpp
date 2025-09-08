@@ -127,7 +127,7 @@ namespace Hashing {
         return hash;
     }
 
-    bool string_view_equality(const void* c1, size_t c1_size, const void* c2, size_t c2_size) {
+    bool string_view_equality(const void* c1, byte_t c1_size, const void* c2, byte_t c2_size) {
         (void)c1_size;
         (void)c2_size;
 
