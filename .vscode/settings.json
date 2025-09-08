@@ -31,6 +31,8 @@
         "tuple": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "initializer_list": "cpp"
+        "initializer_list": "cpp",
+        "cstdarg": "cpp",
+        "cstdio": "cpp"
     }
 }
