@@ -2,6 +2,18 @@
 #include <cstdarg>
 #include <cstdio>
 
+// Date: May 13, 2025
+// NOTE(Jovanni): Try to keep this updated
+// Expression Precedence (highest at bottom)
+//  └── Logical (||, &&)                       -- control flow style decisions
+//       └── Equality (==, !=)                 -- same/different checks
+//            └── Comparison (<, >, <=, >=).   -- ordering comparisons
+//                 └── Bitwise (|, ^, &)       -- low-level operations
+//                      └── Additive (+, -)     -- sequence-style math
+//                           └── Multiplicative (*, /, %) -- scaling-style math
+//                                └── Unary (!, ~, -, +, *, &) -- single-value ops
+//                                     └── Primary (identifiers, literals, calls, grouping)
+
 struct T_Parser {
     Memory::Allocator& allocator;
     const Container::Vector<Token>& tokens;
