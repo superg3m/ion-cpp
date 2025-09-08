@@ -5,5 +5,5 @@
 #include "token.hpp"
 
 namespace Frontend::Parser {
-    ASTNode* generate_ast(const Container::Vector<Token>& tokens);
+    ASTNode* generate_ast(Memory::Allocator& allocator, const Container::Vector<Token>& tokens);
 }

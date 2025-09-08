@@ -5,12 +5,14 @@
 struct T_Parser {
     Memory::Allocator& allocator;
     const Container::Vector<Token>& tokens;
-    int current;
+    int current = 0;
 
     T_Parser(Memory::Allocator& allocator, const Container::Vector<Token>& tokens) : allocator(allocator), tokens(tokens) {}
 
     Token peek_nth_token(int n = 0) {
-        RUNTIME_ASSERT(this->current + n < this->tokens.count());
+        if (this->current + n >= this->tokens.count()) {
+            return Token(); // invalid
+        }
 
         return this->tokens[this->current + n];
     }
@@ -19,7 +21,7 @@ struct T_Parser {
         return this->tokens[this->current - 1];
     }
 
-    void report_error(char* fmt, ...) {
+    void report_error(const char* fmt, ...) {
         Token token = this->peek_nth_token();
 
         va_list args;
@@ -37,7 +39,7 @@ struct T_Parser {
 
     void expect(TokenType expected_type) {
         if (expected_type && peek_nth_token().type != expected_type) {
-            this->report_error("Expected: %s | Got: %s\n", (char*)token_strings[expected_type], token_strings[peek_nth_token().type]);
+            this->report_error("Expected: %s | Got: %s\n", token_strings[expected_type], token_strings[peek_nth_token().type]);
         }
 
         this->consume_next_token();
@@ -66,10 +68,40 @@ struct T_Parser {
 
             return Expression::Grouping(this->allocator, expression, previous_token().line);
         }
+
+        return nullptr;
+    }
+
+    // <multiplicative> ::= <primary> (("*" | "/" | "%" | "<<" | ">>") <primary>)*
+    Expression* parse_multiplicative_expression() {
+        Expression* expression = this->parse_primary_expression();
+
+        while (this->consume_on_match(TOKEN_STAR) || this->consume_on_match(TOKEN_DIVISION) || this->consume_on_match(TOKEN_MODULUS)) {
+            Token op = this->previous_token();
+            Expression* right = this->parse_primary_expression();
+
+            expression = Expression::Binary(this->allocator, op, expression, right, op.line);
+        }
+
+        return expression;
+    }
+
+    // <additive> ::= <multiplicative> (("+" | "-") <multiplicative>)*
+    Expression* parse_additive_expression() {
+        Expression* expression = this->parse_multiplicative_expression();
+        while (this->consume_on_match(TOKEN_PLUS) || this->consume_on_match(TOKEN_MINUS)) {
+
+            Token op = this->previous_token();
+            Expression* right = this->parse_multiplicative_expression();
+
+            expression = Expression::Binary(this->allocator, op, expression, right, op.line);
+        }
+
+        return expression;
     }
 
     Expression* parse_expression() {
-        return parse_primary_expression();
+        return this->parse_additive_expression();
     }
 };
 

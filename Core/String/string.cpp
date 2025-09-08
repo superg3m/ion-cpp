@@ -8,6 +8,25 @@ namespace String {
 
         return ret;
     }
+    
+    char* sprintf(Memory::Allocator& allocator, u64* out_buffer_length, const char* fmt, va_list args) {
+        va_list args_copy;
+        va_copy(args_copy, args);
+        u64 allocation_ret = (u64)vsnprintf(nullptr, 0, fmt, args_copy) + 1; // +1 for null terminator
+        va_end(args_copy);
+
+        char* buffer = (char*)allocator.malloc(allocation_ret);
+
+        va_copy(args_copy, args);
+        vsnprintf(buffer, allocation_ret, fmt, args_copy);
+        va_end(args_copy);
+
+        if (out_buffer_length) {
+            *out_buffer_length = allocation_ret - 1;
+        }
+
+        return buffer;
+    }
 
     u64 length(const char* c_string) {
         u64 ret = 0;
