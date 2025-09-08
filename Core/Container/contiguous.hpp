@@ -161,7 +161,17 @@ namespace Container {
         }
 
         ~Stack() {
-            this->m_allocator->free(this->data);
+            this->free();
+        }
+
+        void free() {
+            if (this->m_data) {
+                for (byte_t i = 0; i < m_count; ++i) {
+                    this->m_data[i].~T();
+                }
+            }
+
+            this->m_allocator.free(this->m_data);
 
             this->m_data = nullptr;
             this->m_count = 0;

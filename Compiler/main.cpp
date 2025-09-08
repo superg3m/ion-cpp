@@ -4,6 +4,16 @@
 #include "Frontend/lexer.hpp"
 #include "Frontend/parser.hpp"
 
+void* arena_allocator(const Memory::Allocator* allocator, void* data, byte_t allocation_size) {
+    return nullptr;
+}
+
+void* arena_free(const Memory::Allocator* allocator, void* data) {
+
+}
+
+#define PROGRAM_MEMORY MB(500)
+
 int main(int argc, char** argv) {
     char* executable_name = argv[0];
     if (argc < 2) {
@@ -11,11 +21,15 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    u8* program_memory[PROGRAM_MEMORY] = {0};
+
+
+    Memory::Allocator allocator = Memory::Allocator(arena_allocator, arena_free, program_memory);
+
     char* file_name = argv[1];
-    Memory::Allocator allocator = Memory::Allocator::libc();
+    Error error = ERROR_SUCCESS;
 
     byte_t file_size = 0;
-    Error error = ERROR_SUCCESS;
     u8 * data = Platform::read_entire_file(allocator, file_name, file_size, error);
     if (error != ERROR_SUCCESS) {
         LOG_ERROR("Error failed to read file: %s\n", error_str(error));
