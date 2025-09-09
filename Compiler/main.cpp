@@ -28,7 +28,6 @@ int main(int argc, char** argv) {
     u8 program_memory[PROGRAM_MEMORY] = {0};
     Memory::Arena arena = Memory::Arena::Fixed(program_memory, PROGRAM_MEMORY, true);
     Memory::Allocator allocator = Memory::Allocator(arena_allocator, arena_free, (void*)&arena);
-    // Memory::Allocator allocator = Memory::Allocator::libc();
 
     char* file_name = argv[1];
     Error error = ERROR_SUCCESS;
@@ -50,8 +49,6 @@ int main(int argc, char** argv) {
     ASTNode* ast = Frontend::Parser::generate_ast(allocator, tokens);
     // Frontend::AST::pretty_print_ast(ast);
     (void)ast;
-
-    arena.free();
 
     return 0;
 }

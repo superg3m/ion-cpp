@@ -21,7 +21,6 @@ namespace Memory {
             this->allocator.free(this->base_address);
         }
 
-        this->size_stack.free();
         this->flags = ARENA_FLAG_INVALID;
     }
 
