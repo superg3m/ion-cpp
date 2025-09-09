@@ -14,7 +14,7 @@ Token token_from_string(TokenType token_type, Container::View<char> sv, int line
     
     char* endptr_int = NULL;
     long i = strtol(buffer, &endptr_int, 10);
-    if ((size_t)(endptr_int - buffer) == sv.length) {
+    if ((byte_t)(endptr_int - buffer) == sv.length) {
         token.type = TOKEN_INTEGER_LITERAL;
         token.i = (int)i;
 
@@ -23,7 +23,7 @@ Token token_from_string(TokenType token_type, Container::View<char> sv, int line
     
     char* endptr = NULL;
     float f = strtof(buffer, &endptr);
-    if ((size_t)(endptr - buffer) == sv.length) {
+    if ((byte_t)(endptr - buffer) == sv.length) {
         token.type = TOKEN_FLOAT_LITERAL;
         token.f = f;
 

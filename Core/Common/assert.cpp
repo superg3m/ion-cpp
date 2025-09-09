@@ -34,7 +34,7 @@ void MACRO_RUNTIME_ASSERT_MSG(bool expression, const char* function, const char*
     va_start(args, msg);
 
     if (!(expression)) {            
-        #define BUFFER_LENGTH 128
+        #define BUFFER_LENGTH 256
         char message[BUFFER_LENGTH] = {0};
         byte_t message_size = va_sprint(message, BUFFER_LENGTH, msg, args);
         u64 message_length = message_size - 1;
@@ -43,6 +43,7 @@ void MACRO_RUNTIME_ASSERT_MSG(bool expression, const char* function, const char*
         LOG_FATAL("%.*s", message_length, message);                                 
         char msg[] = "Func: %s, File: %s:%d\n";          
         LOG_FATAL(msg, function, file, line);
+
         CRASH();                                                
     }   
 

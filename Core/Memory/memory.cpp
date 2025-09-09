@@ -85,6 +85,10 @@ namespace Memory {
         return ret;
     }
 
+    bool Allocator::valid() const {
+        return this->m_alloc && this->m_free;
+    }
+
     Allocator Allocator::invalid() {
         return Allocator(nullptr, nullptr);
     }

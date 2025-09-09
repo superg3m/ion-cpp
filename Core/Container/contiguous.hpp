@@ -86,7 +86,7 @@ namespace Container {
                 this->grow();
             }
 
-            this->m_data[this->count()] = value;
+            this->m_data[this->m_count] = value;
             this->m_count += 1;
         }
 
@@ -96,7 +96,7 @@ namespace Container {
 
             this->m_count -= 1;
             if (this->m_count == 0) {
-                this->m_data[i] = this->m_data[this->count()];
+                this->m_data[i] = this->m_data[this->m_count];
             }
         }
 
@@ -152,12 +152,12 @@ namespace Container {
 
     template <typename T>
     struct Stack {
-        Stack(u64 capacity = 1, Memory::Allocator* allocator = nullptr) {
+        Stack(u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
             this->m_count = 0;
             this->m_capacity = capacity;
             this->m_allocator = allocator;
 
-            this->m_allocator->malloc(this->m_capacity * sizeof(T));
+            this->m_data = (T*)this->m_allocator.malloc(this->m_capacity * sizeof(T));
         }
 
         ~Stack() {
@@ -182,23 +182,23 @@ namespace Container {
         T peek() const {
             RUNTIME_ASSERT_MSG(!this->empty(), "You may not peek if the stack is empty!\n");
 
-            return this->data[this->count() - 1];
+            return this->m_data[this->count() - 1];
         }
 
         void push(T value) {
-            if (this->capactiy < this->m_count + 1) {
+            if (this->m_capacity < this->m_count + 1) {
                 this->grow();
             }
 
-            this->data[this->count()] = value;
-            this->count += 1;
+            this->m_data[this->m_count] = value;
+            this->m_count += 1;
         }
 
         T pop() {
             RUNTIME_ASSERT_MSG(!this->empty(), "You may not pop if the stack is empty!\n");
 
             this->m_count -= 1;
-            return this->data[this->m_count()];
+            return this->m_data[this->m_count];
         }
 
         bool empty() const {
@@ -214,16 +214,16 @@ namespace Container {
         }
 
         void grow() {
-            byte_t old_allocation_size = (this->m_capactiy * sizeof(T));
-            this->capactiy *= 2;
-            byte_t new_allocation_size = (this->m_capactiy * sizeof(T));
-            this->m_data = this->m_allocator->realloc(this->data, old_allocation_size, new_allocation_size);
+            byte_t old_allocation_size = (this->m_capacity * sizeof(T));
+            this->m_capacity *= 2;
+            byte_t new_allocation_size = (this->m_capacity * sizeof(T));
+            this->m_data = (T*)this->m_allocator.realloc(this->m_data, old_allocation_size, new_allocation_size);
         }
     private:
-        T* m_data;
-        u64 m_count;
-        u64 m_capacity;
-        Memory::Allocator* m_allocator;
+        T* m_data = nullptr;
+        u64 m_count = 0;
+        u64 m_capacity = 0;
+        Memory::Allocator m_allocator = Memory::Allocator::invalid();
     };
     
     template <typename T>

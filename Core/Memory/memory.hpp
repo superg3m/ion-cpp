@@ -11,19 +11,21 @@ namespace Memory {
     typedef void*(T_Alloc)(const Allocator* allocator, byte_t allocation_size);
     typedef void(T_Free)(const Allocator* allocator, void* data);
 
-    typedef struct Allocator {
+    struct Allocator {
         void* m_ctx = nullptr;
 
         Allocator() = delete;
         Allocator(T_Alloc* alloc, T_Free* free, void* ctx = nullptr);
+        
         void* malloc(byte_t allocation_size) const;
         void free(void* data) const;
         void* realloc(void* data, byte_t old_allocation_size, byte_t new_allocation_size) const;
+        bool valid() const;
 
         static Allocator invalid();
         static Allocator libc();
     private:
         T_Alloc* m_alloc = nullptr;
         T_Free* m_free = nullptr;
-    } Allocator;
+    };
 }

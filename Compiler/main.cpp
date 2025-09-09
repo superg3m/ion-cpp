@@ -4,15 +4,19 @@
 #include "Frontend/lexer.hpp"
 #include "Frontend/parser.hpp"
 
-void* arena_allocator(const Memory::Allocator* allocator, void* data, byte_t allocation_size) {
-    return nullptr;
+void* arena_allocator(const Memory::Allocator* allocator, byte_t allocation_size) {
+    Memory::Arena* arena = (Memory::Arena*)allocator->m_ctx;
+
+    return arena->push(allocation_size);
 }
 
-void* arena_free(const Memory::Allocator* allocator, void* data) {
+void arena_free(const Memory::Allocator* allocator, void* data) {
+    Memory::Arena* arena = (Memory::Arena*)allocator->m_ctx;
 
+    arena->pop(data);
 }
 
-#define PROGRAM_MEMORY MB(500)
+#define PROGRAM_MEMORY KB(500)
 
 int main(int argc, char** argv) {
     char* executable_name = argv[0];
@@ -21,16 +25,16 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    u8* program_memory[PROGRAM_MEMORY] = {0};
-
-
-    Memory::Allocator allocator = Memory::Allocator(arena_allocator, arena_free, program_memory);
+    u8 program_memory[PROGRAM_MEMORY] = {0};
+    Memory::Arena arena = Memory::Arena::Fixed(program_memory, PROGRAM_MEMORY, true);
+    Memory::Allocator allocator = Memory::Allocator(arena_allocator, arena_free, (void*)&arena);
+    // Memory::Allocator allocator = Memory::Allocator::libc();
 
     char* file_name = argv[1];
     Error error = ERROR_SUCCESS;
 
     byte_t file_size = 0;
-    u8 * data = Platform::read_entire_file(allocator, file_name, file_size, error);
+    u8* data = Platform::read_entire_file(allocator, file_name, file_size, error);
     if (error != ERROR_SUCCESS) {
         LOG_ERROR("Error failed to read file: %s\n", error_str(error));
     }
@@ -47,7 +51,7 @@ int main(int argc, char** argv) {
     // Frontend::AST::pretty_print_ast(ast);
     (void)ast;
 
-    allocator.free(data);
+    arena.free();
 
     return 0;
 }
