@@ -4,6 +4,25 @@
 #include "ast.hpp"
 #include "token.hpp"
 
-namespace Frontend::Parser {
-    ASTNode* generate_ast(Memory::Allocator& allocator, const Container::Vector<Token>& tokens);
+namespace Frontend {
+    struct Parser {
+        static ASTNode* generate_ast(Memory::Allocator& allocator, const Container::Vector<Token>& tokens);
+
+    private:
+        Memory::Allocator& allocator;
+        const Container::Vector<Token>& tokens;
+        int current = 0;
+
+        Parser(Memory::Allocator& allocator, const Container::Vector<Token>& tokens);
+        Token peek_nth_token(int n = 0);
+        Token previous_token();
+        void report_error(const char* fmt, ...);
+        Token consume_next_token();
+        void expect(TokenType expected_type);
+        bool consume_on_match(TokenType expected_type);
+        Expression* parse_primary_expression();
+        Expression* parse_multiplicative_expression();
+        Expression* parse_additive_expression();
+        Expression* parse_expression();
+    };
 }
