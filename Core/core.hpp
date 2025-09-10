@@ -7,5 +7,4 @@
 #include "Platform/platform.hpp"
 
 #include "Lexer/lexer.hpp"
-
-#include "JSON/json_type.hpp"
+#include "JSON/json.hpp"

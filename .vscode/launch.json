@@ -8,8 +8,8 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build_clang/debug/ion.exe",
-            "args": ["../../Test/Compiler/001_parse_expression.ion"],
+            "program": "${workspaceRoot}/Test/Core/build_clang/debug/test_core.exe",
+            "args": [""],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -19,3 +19,13 @@
 
     ]
 }
+
+/*
+"program": "${workspaceRoot}/build_clang/debug/ion.exe",
+"args": ["../../Test/Compiler/001_parse_expression.ion"],
+*/
+
+/*
+"program": "${workspaceRoot}/Test/Core/build_clang/debug/test_core.exe",
+"args": [""],
+*/
