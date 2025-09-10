@@ -6,3 +6,5 @@
 #include "Memory/arena.hpp"
 #include "String/string.hpp"
 #include "Platform/platform.hpp"
+
+#include "Lexer/lexer.hpp"

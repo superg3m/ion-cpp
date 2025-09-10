@@ -42,7 +42,7 @@ namespace Frontend {
 
         va_list args;
         va_start(args, fmt);
-        LOG_ERROR("String: %s\n", token_strings[token.type]);
+        LOG_ERROR("String: %s\n", token.type_to_string());
         LOG_ERROR("Error Line: %d | %s", token.line, String::sprintf(this->allocator, nullptr, fmt, args));
         va_end(args);
 
@@ -54,8 +54,11 @@ namespace Frontend {
     }
 
     void Parser::expect(TokenType expected_type) {
+        Token expected_token = Token();
+        expected_token.type = expected_type;
+
         if (expected_type && peek_nth_token().type != expected_type) {
-            this->report_error("Expected: %s | Got: %s\n", token_strings[expected_type], token_strings[peek_nth_token().type]);
+            this->report_error("Expected: %s | Got: %s\n", expected_token.type_to_string(), peek_nth_token().type_to_string());
         }
 
         this->consume_next_token();
@@ -74,13 +77,13 @@ namespace Frontend {
     Expression* Parser::parse_primary_expression() {
         Token current_token = this->peek_nth_token();
 
-        if (this->consume_on_match(TOKEN_INTEGER_LITERAL)) {
+        if (this->consume_on_match(TOKEN_LITERAL_INTEGER)) {
             return Expression::Integer(this->allocator, current_token.i, current_token.line);
-        } else if (this->consume_on_match(TOKEN_FLOAT_LITERAL)) {
+        } else if (this->consume_on_match(TOKEN_LITERAL_FLOAT)) {
             return Expression::Float(this->allocator, current_token.f, current_token.line);
-        } else if (this->consume_on_match(TOKEN_LEFT_PAREN)) {
+        } else if (this->consume_on_match(TOKEN_SYNTAX_LEFT_PAREN)) {
             Expression* expression = this->parse_expression();
-            expect(TOKEN_RIGHT_PAREN);
+            expect(TOKEN_SYNTAX_RIGHT_PAREN);
 
             return Expression::Grouping(this->allocator, expression, previous_token().line);
         }
@@ -92,7 +95,7 @@ namespace Frontend {
     Expression* Parser::parse_multiplicative_expression() {
         Expression* expression = this->parse_primary_expression();
 
-        while (this->consume_on_match(TOKEN_STAR) || this->consume_on_match(TOKEN_DIVISION) || this->consume_on_match(TOKEN_MODULUS)) {
+        while (this->consume_on_match(TOKEN_SYNTAX_STAR) || this->consume_on_match(TOKEN_SYNTAX_DIVISION) || this->consume_on_match(TOKEN_SYNTAX_MODULUS)) {
             Token op = this->previous_token();
             Expression* right = this->parse_primary_expression();
 
@@ -105,7 +108,7 @@ namespace Frontend {
     // <additive> ::= <multiplicative> (("+" | "-") <multiplicative>)*
     Expression* Parser::parse_additive_expression() {
         Expression* expression = this->parse_multiplicative_expression();
-        while (this->consume_on_match(TOKEN_PLUS) || this->consume_on_match(TOKEN_MINUS)) {
+        while (this->consume_on_match(TOKEN_SYNTAX_PLUS) || this->consume_on_match(TOKEN_SYNTAX_MINUS)) {
 
             Token op = this->previous_token();
             Expression* right = this->parse_multiplicative_expression();

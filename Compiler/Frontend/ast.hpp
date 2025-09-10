@@ -2,7 +2,6 @@
 
 #include <Core/core.hpp>
 #include "expression.hpp"
-#include "token.hpp"
 
 enum NodeType {
     AST_NODE_PROGRAM,

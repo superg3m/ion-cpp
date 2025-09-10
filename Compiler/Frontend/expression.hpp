@@ -1,5 +1,4 @@
 #include <Core/core.hpp>
-#include "token.hpp"
 
 typedef struct Expression Expression;
 

@@ -2,7 +2,6 @@
 
 #include <Core/core.hpp>
 #include "ast.hpp"
-#include "token.hpp"
 
 namespace Frontend {
     struct Parser {

@@ -1,7 +1,4 @@
 #include <Core/core.hpp>
-
-#include "Frontend/token.hpp"
-#include "Frontend/lexer.hpp"
 #include "Frontend/parser.hpp"
 
 void* arena_allocator(const Memory::Allocator* allocator, byte_t allocation_size) {
@@ -39,11 +36,11 @@ int main(int argc, char** argv) {
     }
 
     Container::Vector<Token> tokens = Container::Vector<Token>(50, allocator);
-    Frontend::Lexer::generate_tokens(data, file_size, tokens);
+    Lexer::generate_tokens(data, file_size, tokens);
 
     for (const Token& token : tokens) {
-        const char* token_type_string = token.to_string();
-        LOG_DEBUG("%s(%.*s)\n", token_type_string, token.source_view.length, token.source_view.data);
+        const char* token_type_string = token.type_to_string();
+        LOG_DEBUG("%s(%.*s)\n", token_type_string, token.sv.length, token.sv.data);
     }
 
     ASTNode* ast = Frontend::Parser::generate_ast(allocator, tokens);
