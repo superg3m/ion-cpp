@@ -9,16 +9,7 @@
 namespace DS {
     template <typename T>
     struct Vector {
-        Vector(std::initializer_list<T> list) {
-            this->m_count = list.size();
-            this->m_capacity = this->m_count * 2;
-            this->m_allocator = Memory::Allocator::libc();
-
-            this->m_data = (T*)this->m_allocator.malloc(this->m_capacity * sizeof(T));
-            Memory::copy(this->m_data, this->m_capacity * sizeof(T), list.begin(), list.size() * sizeof(T));
-        }
-
-        Vector(std::initializer_list<T> list, Memory::Allocator allocator) {
+        Vector(std::initializer_list<T> list, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = list.size();
             this->m_capacity = this->m_count * 2;
             this->m_allocator = allocator;
@@ -27,7 +18,7 @@ namespace DS {
             Memory::copy(this->m_data, this->m_capacity * sizeof(T), list.begin(), list.size() * sizeof(T));
         }
 
-        Vector(u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
+        Vector(u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = 0;
             this->m_capacity = capacity;
             this->m_allocator = allocator;
@@ -42,43 +33,27 @@ namespace DS {
         // Prevent move
         Vector(Vector&&) = delete;
         Vector& operator=(Vector&& other) {
-            this->destroy();
+            this->destory();
 
             this->m_count = other.m_count;
             this->m_capacity = other.m_capacity;
             this->m_data = other.m_data;
             this->m_allocator = other.m_allocator;
 
-            // Leave other in a valid empty state
+            // Leave other in a invalid empty state
             other.m_count    = 0;
             other.m_capacity = 0;
             other.m_data     = nullptr;
-            other.m_allocator = Memory::Allocator::invalid();
 
             return *this;
         }
 
         ~Vector() {
-            this->destroy();
+            this->destory();
         }
 
         void resize(u64 count) {
             RUNTIME_ASSERT_MSG(false, "resize not implemented!\n");
-        }
-
-        void destroy() {
-            if (this->m_data) {
-                for (byte_t i = 0; i < m_count; ++i) {
-                    this->m_data[i].~T();
-                }
-            }
-
-            this->m_allocator.free(this->m_data);
-
-            this->m_data = nullptr;
-            this->m_count = 0;
-            this->m_capacity = 0;
-            this->m_allocator = Memory::Allocator::invalid();
         }
 
         void push(T value) {
@@ -147,12 +122,16 @@ namespace DS {
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::Allocator m_allocator = Memory::Allocator::invalid();
+        Memory::BaseAllocator& m_allocator;
+
+        void destory() {
+
+        }
     };
 
     template <typename T>
     struct Stack {
-        Stack(u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
+        Stack(u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = 0;
             this->m_capacity = capacity;
             this->m_allocator = allocator;
@@ -176,7 +155,6 @@ namespace DS {
             this->m_data = nullptr;
             this->m_count = 0;
             this->m_capacity = 0;
-            this->m_allocator = Memory::Allocator::invalid();
         }
 
         T peek() const {
@@ -223,12 +201,12 @@ namespace DS {
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::Allocator m_allocator = Memory::Allocator::invalid();
+        Memory::BaseAllocator& m_allocator;
     };
     
     template <typename T>
     struct RingQueue {
-        RingQueue(byte_t capacity = 1, Memory::Allocator allocator = Memory::Allocator::invalid()) {
+        RingQueue(byte_t capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
             RUNTIME_ASSERT(capacity > 0);
             
             this->m_count = 0;
@@ -242,7 +220,7 @@ namespace DS {
             this->m_data = nullptr;
             this->m_count = 0;
             this->m_capacity = 0;
-            this->m_allocator = Memory::Allocator::invalid();
+
         }
 
         bool enqueue(T value) {
@@ -283,7 +261,7 @@ namespace DS {
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::Allocator m_allocator = Memory::Allocator::invalid();
+        Memory::BaseAllocator& m_allocator;
 
         byte_t m_read = 0;
         byte_t m_write = 0;

@@ -7,6 +7,8 @@ Token::Token(TokenType token_type, DS::View<char> sv, int line) : sv(sv) {
 }
 
 Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
+    Memory::GeneralAllocator general_allocator = Memory::GeneralAllocator();
+
     static DS::Hashmap<DS::View<char>, TokenType> syntax_map = {
         { DS::View<char>("if",     sizeof("if") - 1),     TOKEN_KEYWORD_IF     },
         { DS::View<char>("else",   sizeof("else") - 1),   TOKEN_KEYWORD_ELSE   },

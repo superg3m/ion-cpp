@@ -68,21 +68,21 @@
             return time_in_seconds;
         }
 
-        internal void* win32_malloc(const Memory::Allocator* allocator, byte_t allocation_size) {
+        internal void* win32_malloc(const Memory::BaseAllocator&* allocator, byte_t allocation_size) {
             (void)allocator;
             return VirtualAlloc(NULL, allocation_size, MEM_COMMIT, PAGE_READWRITE);
         }
 
-        internal void win32_free(const Memory::Allocator* allocator, void* data) {
+        internal void win32_free(const Memory::BaseAllocator&* allocator, void* data) {
             (void)allocator;
             VirtualFree(data, 0, MEM_RELEASE);
         }
 
-        Memory::Allocator get_allocator() {
-            return Memory::Allocator(win32_malloc, win32_free);
+        Memory::BaseAllocator& get_allocator() {
+            return Memory::BaseAllocator&(win32_malloc, win32_free);
         }
 
-        u8* read_entire_file(Memory::Allocator& allocator, const char* file_path, byte_t& out_file_size, Error& error) {
+        u8* read_entire_file(Memory::BaseAllocator& allocator, const char* file_path, byte_t& out_file_size, Error& error) {
             HANDLE file_handle = CreateFileA(file_path, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
             if (file_handle == INVALID_HANDLE_VALUE) {
                 LOG_ERROR("CreateFileA() returned an INVALID_HANDLE_VALUE, the file_path/path is likely wrong: read_entire_file(%s)\n", file_path);

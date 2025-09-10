@@ -69,12 +69,8 @@
             usleep(ms * 1000);
         }
 
-        Memory::Allocator get_allocator() {
-            return Memory::Allocator::libc();
-        }
-
-        u8* read_entire_file(Memory::Allocator& allocator, const char* file_name, byte_t& out_file_size, Error& error) {
-            FILE* file_handle = fopen(file_name, "rb");
+        u8* read_entire_file(Memory::BaseAllocator& allocator, const char* file_name, byte_t& out_file_size, Error& error) {
+            FILE* file_handle = fopen(file_name, "r");
             if (file_handle == nullptr) {
                 LOG_ERROR("Invalid file_handle, the file_name/path is likely wrong: read_entire_file(%s)\n", file_name);
                 error = ERROR_RESOURCE_NOT_FOUND;

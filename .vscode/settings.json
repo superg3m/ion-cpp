@@ -47,6 +47,7 @@
         "iosfwd": "cpp",
         "iostream": "cpp",
         "stdexcept": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "utility": "cpp"
     }
 }

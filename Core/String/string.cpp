@@ -2,14 +2,14 @@
 #include "../DataStructure/view.hpp"
 
 namespace String {
-    char* allocate(Memory::Allocator& allocator, const char* s1, u64 length) {
+    char* allocate(Memory::BaseAllocator& allocator, const char* s1, u64 length) {
         char* ret = (char*)allocator.malloc(length + 1);
         Memory::copy(ret, length + 1, s1, length + 1);
 
         return ret;
     }
     
-    char* sprintf(Memory::Allocator& allocator, u64* out_buffer_length, const char* fmt, va_list args) {
+    char* sprintf(Memory::BaseAllocator& allocator, u64* out_buffer_length, const char* fmt, va_list args) {
         va_list args_copy;
         va_copy(args_copy, args);
         u64 allocation_ret = (u64)vsnprintf(nullptr, 0, fmt, args_copy) + 1; // +1 for null terminator

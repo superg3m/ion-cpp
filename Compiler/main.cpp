@@ -1,19 +1,7 @@
 #include <Core/core.hpp>
 #include "Frontend/parser.hpp"
 
-void* arena_allocator(const Memory::Allocator* allocator, byte_t allocation_size) {
-    Memory::Arena* arena = (Memory::Arena*)allocator->m_ctx;
-
-    return arena->push(allocation_size);
-}
-
-void arena_free(const Memory::Allocator* allocator, void* data) {
-    Memory::Arena* arena = (Memory::Arena*)allocator->m_ctx;
-
-    arena->pop(data);
-}
-
-#define PROGRAM_MEMORY KB(500)
+#define PROGRAM_CAPACITY KB(10)
 
 int main(int argc, char** argv) {
     char* executable_name = argv[0];
@@ -22,9 +10,8 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    u8 program_memory[PROGRAM_MEMORY] = {0};
-    Memory::Arena arena = Memory::Arena::Fixed(program_memory, PROGRAM_MEMORY, true);
-    Memory::Allocator allocator = Memory::Allocator(arena_allocator, arena_free, (void*)&arena);
+    u8 program_memory[PROGRAM_CAPACITY] = {0};
+    Memory::ArenaAllocator allocator = Memory::ArenaAllocator::Fixed(program_memory, PROGRAM_CAPACITY, true);
 
     char* file_name = argv[1];
     Error error = ERROR_SUCCESS;

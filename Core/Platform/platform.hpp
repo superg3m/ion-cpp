@@ -14,7 +14,6 @@ namespace Platform {
     void sleep(u32 ms);
     double get_seconds_elapsed();
     bool file_path_exists(const char* path);
-    Memory::Allocator get_allocator();
     /**
      * @brief returns true if copy succeeded
      * 
@@ -23,7 +22,7 @@ namespace Platform {
      * @param block_until_success
      */
     bool copy_file(const char* source_path, const char* dest_path, bool block_until_success = true);
-    u8* read_entire_file(Memory::Allocator& allocator, const char* file_path, byte_t& out_file_size, Error& error);
+    u8* read_entire_file(Memory::BaseAllocator& allocator, const char* file_path, byte_t& out_file_size, Error& error);
     DLL load_dll(const char* dll_path, Error& error);
     DLL free_dll(DLL dll, Error& error);
     void* get_proc_address(DLL dll, const char* proc_name, Error& error);

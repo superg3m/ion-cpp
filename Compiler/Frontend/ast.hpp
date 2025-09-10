@@ -15,7 +15,7 @@ struct ASTNode {
         Expression* expression;
     };
 
-    static ASTNode* Expression(Memory::Allocator& allocator, Expression* expression) {
+    static ASTNode* Expression(Memory::BaseAllocator& allocator, Expression* expression) {
         ASTNode* ret = (ASTNode*)allocator.malloc(sizeof(ASTNode));
         ret->type = AST_NODE_EXPRESSION;
         ret->expression = expression;

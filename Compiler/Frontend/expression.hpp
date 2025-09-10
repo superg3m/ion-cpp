@@ -78,7 +78,7 @@ typedef struct Expression {
         GroupingExpression* grouping;
     };
 
-    static Expression* String(Memory::Allocator& allocator, DS::View<char> name, int line) {
+    static Expression* String(Memory::BaseAllocator& allocator, DS::View<char> name, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_STRING;
         ret->str = (StringExpression*)allocator.malloc(sizeof(StringExpression));
@@ -87,7 +87,7 @@ typedef struct Expression {
         
         return ret;
     }
-    static Expression* Integer(Memory::Allocator& allocator, int value, int line) {
+    static Expression* Integer(Memory::BaseAllocator& allocator, int value, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_INTEGER;
         ret->integer = (IntegerExpression*)allocator.malloc(sizeof(IntegerExpression));
@@ -96,7 +96,7 @@ typedef struct Expression {
     
         return ret;
     }
-    static Expression* Float(Memory::Allocator& allocator, float value, int line) {
+    static Expression* Float(Memory::BaseAllocator& allocator, float value, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_FLOAT;
         ret->floating = (FloatExpression*)allocator.malloc(sizeof(FloatExpression));
@@ -105,7 +105,7 @@ typedef struct Expression {
         
         return ret;
     }
-    static Expression* Bool(Memory::Allocator& allocator, bool value, int line) {
+    static Expression* Bool(Memory::BaseAllocator& allocator, bool value, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_BOOLEAN;
         ret->boolean = (BoolExpression*)allocator.malloc(sizeof(BoolExpression));
@@ -115,7 +115,7 @@ typedef struct Expression {
         return ret;
     }
 
-    static Expression* Identifier(Memory::Allocator& allocator, DS::View<char> name, int line) {
+    static Expression* Identifier(Memory::BaseAllocator& allocator, DS::View<char> name, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_IDENTIFER;
         ret->identifier = (IdentifierExpression*)allocator.malloc(sizeof(IdentifierExpression));
@@ -124,7 +124,7 @@ typedef struct Expression {
         
         return ret;
     }
-    static Expression* Unary(Memory::Allocator& allocator, Token operation, Expression* operand, int line) {
+    static Expression* Unary(Memory::BaseAllocator& allocator, Token operation, Expression* operand, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_UNARY_OPERATION;
         ret->unary = (UnaryOperationExpression*)allocator.malloc(sizeof(UnaryOperationExpression));
@@ -134,7 +134,7 @@ typedef struct Expression {
         
         return ret;
     }
-    static Expression* Binary(Memory::Allocator& allocator, Token operation, Expression* left, Expression* right, int line) {
+    static Expression* Binary(Memory::BaseAllocator& allocator, Token operation, Expression* left, Expression* right, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_BINARY_OPERATION;
         ret->binary = (BinaryOperationExpression*)allocator.malloc(sizeof(BinaryOperationExpression));
@@ -145,7 +145,7 @@ typedef struct Expression {
 
         return ret;
     }
-    static Expression* Logical(Memory::Allocator& allocator, Token operation, Expression* left, Expression* right, int line) {
+    static Expression* Logical(Memory::BaseAllocator& allocator, Token operation, Expression* left, Expression* right, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_LOGICAL_OPERATION;
         ret->logical = (LogicalOperationExpression*)allocator.malloc(sizeof(LogicalOperationExpression));
@@ -156,7 +156,7 @@ typedef struct Expression {
 
         return ret;
     }
-    static Expression* Grouping(Memory::Allocator& allocator, Expression* value, int line) {
+    static Expression* Grouping(Memory::BaseAllocator& allocator, Expression* value, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_GROUPING;
         ret->grouping = (GroupingExpression*)allocator.malloc(sizeof(GroupingExpression));
