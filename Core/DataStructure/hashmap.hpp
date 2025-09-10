@@ -28,44 +28,48 @@ namespace DS {
         };
 
         Hashmap(u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
-            constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
-            constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<u8>>;
-            STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type || string_view_key_type);
+            constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
+            constexpr bool key_is_pointer = std::is_pointer_v<K>;
+            constexpr bool key_is_cstring = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
+            constexpr bool key_is_string_view = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<const char>>;
+            
+            STATIC_ASSERT((key_is_trivial && !key_is_pointer) || key_is_cstring || key_is_string_view);
 
             this->m_count = 0;
             this->m_capacity = capacity;
             this->m_entries = (HashmapEntry*)this->m_allocator->malloc(this->m_capacity * sizeof(HashmapEntry));
 
-            if constexpr (is_trivially_copyable_non_pointer_v) {
+            if constexpr (key_is_trivial && !key_is_pointer) {
                 this->m_hash_func = Hashing::siphash24;
                 this->m_equal_func = Memory::equal;
-            } else if constexpr (cstring_key_type) {
+            } else if constexpr (key_is_cstring) {
                 this->m_hash_func = Hashing::cstring_hash;
                 this->m_equal_func = Hashing::cstring_equality;
-            } else if constexpr (string_view_key_type) {
+            } else if constexpr (key_is_string_view) {
                 this->m_hash_func = Hashing::string_view_hash;
                 this->m_equal_func = Hashing::string_view_equality;
             }
         }
 
         Hashmap(std::initializer_list<InitPair> list, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
-            constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
-            constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>>;
-            STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type || string_view_key_type);
+            constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
+            constexpr bool key_is_pointer = std::is_pointer_v<K>;
+            constexpr bool key_is_cstring = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
+            constexpr bool key_is_string_view = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<const char>>;
+
+            STATIC_ASSERT((key_is_trivial && !key_is_pointer) || key_is_cstring || key_is_string_view);
 
             this->m_count = list.size();
             this->m_capacity = this->m_count * 2;
             this->m_entries = (HashmapEntry*)this->m_allocator->malloc(this->m_capacity * sizeof(HashmapEntry));
 
-            if constexpr (is_trivially_copyable_non_pointer_v) {
+            if constexpr (key_is_trivial && !key_is_pointer) {
                 this->m_hash_func = Hashing::siphash24;
                 this->m_equal_func = Memory::equal;
-            } else if constexpr (cstring_key_type) {
+            } else if constexpr (key_is_cstring) {
                 this->m_hash_func = Hashing::cstring_hash;
                 this->m_equal_func = Hashing::cstring_equality;
-            } else if constexpr (string_view_key_type) {
+            } else if constexpr (key_is_string_view) {
                 this->m_hash_func = Hashing::string_view_hash;
                 this->m_equal_func = Hashing::string_view_equality;
             }
@@ -76,8 +80,9 @@ namespace DS {
         }
 
         Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
-            constexpr bool supported_key_type = std::is_trivially_copyable_v<K> || std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            STATIC_ASSERT(supported_key_type);
+            constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
+            constexpr bool key_is_pointer = std::is_pointer_v<K>;
+            STATIC_ASSERT(key_is_trivial && !key_is_pointer);
 
             this->m_count = 0;
             this->m_capacity = capacity;
@@ -116,25 +121,7 @@ namespace DS {
                 this->grow_and_rehash();
             }
 
-            /*
-            constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
-            constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>>;
-
-            u64 hash = 0;
-            if constexpr (is_trivially_copyable_non_pointer_v) {
-                
-            } else if constexpr (cstring_key_type) {
-                hash = this->m_hash_func(&key, usable_key_size);
-            } else if constexpr (string_view_key_type) {
-                hash = this->m_hash_func(&key, usable_key_size);
-            }
-
-            byte_t usable_key_size = is_trivially_copyable_non_pointer_v;
-            */
-
-
-            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 hash = this->safe_hash(key);
             s64 index = this->resolve_collision(key, hash % this->m_capacity);
             RUNTIME_ASSERT(index != -1);
 
@@ -149,7 +136,7 @@ namespace DS {
         }
 
         bool has(K key) {
-            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 hash = this->safe_hash(key);
             s64 index = this->resolve_collision(key, hash % this->m_capacity);
             if (index == -1) {
                 return false;
@@ -163,7 +150,7 @@ namespace DS {
         V get(K key) {
             RUNTIME_ASSERT_MSG(this->has(key), "Key doesn't exist\n");
 
-            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 hash = this->safe_hash(key);
             s64 index = this->resolve_collision(key, hash % this->m_capacity);
             RUNTIME_ASSERT(index != -1);
             
@@ -176,7 +163,7 @@ namespace DS {
         V remove(K key) {
             RUNTIME_ASSERT_MSG(this->has(key), "Key doesn't exist\n");
 
-            u64 hash = this->m_hash_func(&key, sizeof(K));
+            u64 hash = this->safe_hash(key);
             s64 index = this->resolve_collision(key, hash % this->m_capacity);
             RUNTIME_ASSERT(index != -1);
             
@@ -205,8 +192,7 @@ namespace DS {
         HashmapEntry* m_entries = nullptr;
         HashFunction* m_hash_func = nullptr;
         EqualFunction* m_equal_func = nullptr;
-        Memory::BaseAllocator* m_allocator = nullptr;;
-        bool is_key_pointer_type = std::is_pointer_v<K>;
+        Memory::BaseAllocator* m_allocator = nullptr;
 
         void grow_and_rehash() {
             u64 old_capacity = this->m_capacity;
@@ -216,7 +202,7 @@ namespace DS {
             byte_t new_allocation_size = (this->m_capacity * sizeof(HashmapEntry));
             this->m_entries = (HashmapEntry*)this->m_allocator->malloc(new_allocation_size);
             Memory::zero(this->m_entries, new_allocation_size);
-            
+
             // rehash
             for (u64 i = 0; i < old_capacity; i++) {
                 HashmapEntry old_entry = old_entries[i];
@@ -224,10 +210,9 @@ namespace DS {
                     continue;
                 }
 
-                u64 hash = this->m_hash_func(&old_entry.key, sizeof(K));
+                u64 hash = this->safe_hash(old_entry.key);
                 s64 index = this->resolve_collision(old_entry.key, hash % this->m_capacity);
                 RUNTIME_ASSERT(index != -1);
-
 
                 this->m_entries[index] = old_entry;
             }
@@ -245,7 +230,7 @@ namespace DS {
                     break;
                 }
 
-                bool equality_match = this->m_equal_func(&key, sizeof(K), &entry->key, sizeof(K));
+                bool equality_match = this->safe_equality(key, entry->key);
                 if (equality_match) {
                     break;
                 }
@@ -265,5 +250,43 @@ namespace DS {
         float load_factor() {
             return (float)(this->m_dead_count + this->m_count) / (float)this->m_capacity;
         }
+        
+        #define NOT_USED 0
+
+        u64 safe_hash(K key) {
+            constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
+            constexpr bool key_is_pointer = std::is_pointer_v<K>;
+            constexpr bool key_is_cstring = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
+            constexpr bool key_is_string_view = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<const char>>;
+
+            if constexpr (key_is_trivial && !key_is_pointer) {
+                return this->m_hash_func(&key, sizeof(K));
+            } else if constexpr (key_is_cstring) {
+                return this->m_hash_func((void*)key, NOT_USED);
+            } else if constexpr (key_is_string_view) {
+                return this->m_hash_func(&key, NOT_USED);
+            } else {
+                RUNTIME_ASSERT("WE ARE IN HELL?\n");
+            }
+        }
+
+        bool safe_equality(K k1, K k2) {
+            constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
+            constexpr bool key_is_pointer = std::is_pointer_v<K>;
+            constexpr bool key_is_cstring = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
+            constexpr bool key_is_string_view = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<const char>>;
+
+            if constexpr (key_is_trivial && !key_is_pointer) {
+                return this->m_equal_func(&k1, sizeof(K), &k2, sizeof(K));
+            } else if constexpr (key_is_cstring) {
+                return this->m_equal_func(k1, NOT_USED, k2, NOT_USED);
+            } else if constexpr (key_is_string_view) {
+                return this->m_equal_func(&k1, NOT_USED, &k2, NOT_USED);
+            } else {
+                RUNTIME_ASSERT("WE ARE IN HELL?\n");
+            }
+        }
+
+        #undef NOT_USED
     };
 }
