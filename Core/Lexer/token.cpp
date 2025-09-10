@@ -35,6 +35,12 @@ Token Token::SyntaxTokenFromSourceView(Container::View<char> sv, int line) {
         { Container::View<char>("*", sizeof("*") - 1), TOKEN_SYNTAX_STAR },
         { Container::View<char>("/", sizeof("/") - 1), TOKEN_SYNTAX_DIVISION },
         { Container::View<char>("%", sizeof("%") - 1), TOKEN_SYNTAX_MODULUS },
+        { Container::View<char>("{", sizeof("{") - 1), TOKEN_SYNTAX_LEFT_PAREN },
+        { Container::View<char>("}", sizeof("}") - 1), TOKEN_SYNTAX_RIGHT_PAREN },
+        { Container::View<char>("[", sizeof("[") - 1), TOKEN_SYNTAX_LEFT_BRACKET },
+        { Container::View<char>("]", sizeof("]") - 1), TOKEN_SYNTAX_RIGHT_BRACKET },
+        { Container::View<char>(":", sizeof(":") - 1), TOKEN_SYNTAX_COLON },
+        { Container::View<char>(",", sizeof(",") - 1), TOKEN_SYNTAX_COMMA },
     };
 
     Token ret = Token(); // Invalid
@@ -109,31 +115,35 @@ void Token::print() {
 const char* Token::type_to_string() const {
     static const char* token_strings[] = {
         stringify(TOKEN_ILLEGAL_TOKEN),
-        stringify(TOKEN_EOF),        
-
+        stringify(TOKEN_EOF),
+        
         stringify(TOKEN_SYNTAX_LEFT_PAREN), 
         stringify(TOKEN_SYNTAX_RIGHT_PAREN),
+        stringify(TOKEN_SYNTAX_LEFT_BRACKET),
+        stringify(TOKEN_SYNTAX_RIGHT_BRACKET),
+        stringify(TOKEN_SYNTAX_COLON),
+        stringify(TOKEN_SYNTAX_COMMA),
         stringify(TOKEN_SYNTAX_STAR),       
         stringify(TOKEN_SYNTAX_PLUS),       
         stringify(TOKEN_SYNTAX_MINUS),      
         stringify(TOKEN_SYNTAX_DIVISION),   
         stringify(TOKEN_SYNTAX_MODULUS),    
 
-        stringify(TOKEN_LITERAL_INTEGER),    
+        stringify(TOKEN_LITERAL_INTEGER),     
         stringify(TOKEN_LITERAL_FLOAT),    
-        stringify(TOKEN_LITERAL_STRING),    
+        stringify(TOKEN_LITERAL_STRING),   
         stringify(TOKEN_LITERAL_CHARACTER),
-        stringify(TOKEN_LITERAL_TRUE),    
-        stringify(TOKEN_LITERAL_FALSE),
+        stringify(TOKEN_LITERAL_TRUE),        
+        stringify(TOKEN_LITERAL_FALSE), 
 
         stringify(TOKEN_KEYWORD_IF),
-        stringify(TOKEN_KEYWORD_ELSE), 
-        stringify(TOKEN_KEYWORD_FOR),         
-        stringify(TOKEN_KEYWORD_WHILE),            
+        stringify(TOKEN_KEYWORD_ELSE),
+        stringify(TOKEN_KEYWORD_FOR),
+        stringify(TOKEN_KEYWORD_WHILE),
         stringify(TOKEN_KEYWORD_FUNC),
         stringify(TOKEN_KEYWORD_VAR),
-        stringify(TOKEN_KEYWORD_NULL),      
-        stringify(TOKEN_KEYWORD_RETURN),  
+        stringify(TOKEN_KEYWORD_NULL),
+        stringify(TOKEN_KEYWORD_RETURN),
         
         stringify(TOKEN_IDENTIFIER),
     };

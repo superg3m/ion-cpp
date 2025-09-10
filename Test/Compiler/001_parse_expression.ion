@@ -1,1 +1,10 @@
-+1.0 - -3 * 4 - "wowseresfsfdsfdsfds"
+{
+    "test": 5.323,
+    "arr": [
+        3,
+        2, 
+        {
+            "test": "342"
+        }
+    ]
+}
