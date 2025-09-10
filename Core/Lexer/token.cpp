@@ -1,13 +1,12 @@
 #include "token.hpp"
 #include <stdlib.h>
 
-Token::Token() = default;
 Token::Token(TokenType token_type, Container::View<char> sv, int line) : sv(sv) {
     this->type = token_type;
     this->line = line;
 }
 
-static Token Token::SyntaxTokenFromSourceView(Container::View<char> sv, int line) {
+Token Token::SyntaxTokenFromSourceView(Container::View<char> sv, int line) {
     static Container::Hashmap<Container::View<char>, TokenType> syntax_map = {
         { Container::View<char>("+", sizeof("+") - 1), TOKEN_PLUS },
         { Container::View<char>("-", sizeof("-") - 1), TOKEN_MINUS },
@@ -26,7 +25,7 @@ static Token Token::SyntaxTokenFromSourceView(Container::View<char> sv, int line
     return ret;
 }
 
-static Token Token::LiteralTokenFromSourceView(Container::View<char> sv, int line) {
+Token Token::LiteralTokenFromSourceView(Container::View<char> sv, int line) {
     Token ret = Token();
     ret.sv = sv;
     ret.line = line;
@@ -77,6 +76,8 @@ static Token Token::LiteralTokenFromSourceView(Container::View<char> sv, int lin
 
         return ret;
     }
+
+    return ret;
 }
 
 void Token::print() {

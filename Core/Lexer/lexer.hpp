@@ -3,9 +3,8 @@
 #include <Core/core.hpp>
 #include "token.hpp"
 
-
-    struct Lexer {
-        static void generate_tokens(u8* data, byte_t file_size, Container::Vector<Token>& out_tokens);
+struct Lexer {
+    static void generate_tokens(u8* data, byte_t file_size, Container::Vector<Token>& out_tokens);
 
     private:
         Container::View<char> source;
@@ -24,8 +23,6 @@
         void report_error(const char* msg);
         bool consume_on_match(char expected);
 
-
-        void add_token(TokenType token_type);
         void consume_digit_literal();
         void consume_string_literal();
         void consume_character_literal();

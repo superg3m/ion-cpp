@@ -144,7 +144,8 @@ struct T_Lexer {
     */
 
     bool consume_literal() {
-        if (char_is_digit(this->c) || (this->c == '-' && char_is_digit(peek_nth_char()))) {
+        bool has_unary = (this->c == '-' || this->c == '+' );
+        if (char_is_digit(this->c) || (has_unary && char_is_digit(peek_nth_char()))) {
             this->consume_digit_literal();
             return true;
         }

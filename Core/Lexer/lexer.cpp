@@ -88,27 +88,17 @@ struct T_Lexer {
         return true;
     }
 
-
-    void add_token(TokenType token_type) {
-        Container::View<char> sv = this->get_scratch_buffer();
-        Token token = token_from_string(token_type, sv, line);
-        this->tokens.push(token);
-    }
-
     void consume_digit_literal() {
-        TokenType token_type = TOKEN_INTEGER_LITERAL;
-
-        this->consume_on_match('-');
-
+        if (this->consume_on_match('-')) {}
+        else if (this->consume_on_match('+')) {}
+        
         while (char_is_digit(peek_nth_char()) || peek_nth_char() == '.') {
-            if (this->c == '.') {
-                token_type = TOKEN_FLOAT_LITERAL;
-            }
-
             this->consume_next_char();
         }
 
-        this->add_token(token_type);
+        Container::View<char> sv = this->get_scratch_buffer();
+        Token token = Token::LiteralTokenFromSourceView(sv, this->line);
+        this->tokens.push(token);
     }
 
     /*
@@ -144,7 +134,8 @@ struct T_Lexer {
     */
 
     bool consume_literal() {
-        if (char_is_digit(this->c) || (this->c == '-' && char_is_digit(peek_nth_char()))) {
+        bool has_unary = (this->c == '-' || this->c == '+' );
+        if (char_is_digit(this->c) || (has_unary && char_is_digit(peek_nth_char()))) {
             this->consume_digit_literal();
             return true;
         }
@@ -249,10 +240,10 @@ struct T_Lexer {
             this->consume_on_match('=');
         }
 
-        Container::View<char> buffer = this->get_scratch_buffer();
-        TokenType token_type = token_type_from_syntax(buffer.data, buffer.length);
-        if (token_type != TOKEN_ILLEGAL_TOKEN) {
-            this->add_token(token_type);
+        Container::View<char> sv = this->get_scratch_buffer();
+        Token token = Token::SyntaxTokenFromSourceView(sv, this->line);
+        if (token.type != TOKEN_ILLEGAL_TOKEN) {
+            this->tokens.push(token);
             return true;
         }
 
