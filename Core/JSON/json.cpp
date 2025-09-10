@@ -29,42 +29,42 @@ JSON* JSON::Null(Memory::BaseAllocator* allocator) {
 
 void JSON::push(const char* key, int value) {
     RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-    RUNTIME_ASSERT_MSG(this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+    RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
 
     this->object.key_value_map.put(key, JSON::Integer(this->allocator, value));
 }
 
 void JSON::push(const char* key, float value) {
     RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-    RUNTIME_ASSERT_MSG(this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+    RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
 
     this->object.key_value_map.put(key, JSON::Floating(this->allocator, value));
 }
 
 void JSON::push(const char* key, bool value) {
     RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-    RUNTIME_ASSERT_MSG(this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+    RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
 
     this->object.key_value_map.put(key, JSON::Boolean(this->allocator, value));
 }
 
 void JSON::push(const char* key, char* value) {
     RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-    RUNTIME_ASSERT_MSG(this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+    RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
 
     this->object.key_value_map.put(key, JSON::String(this->allocator, value));
 }
 
 void JSON::push(const char* key, const char* value) {
     RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-    RUNTIME_ASSERT_MSG(this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+    RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
 
     this->object.key_value_map.put(key, JSON::String(this->allocator, value));
 }
 
 void JSON::push(const char* key, DS::View<char> value) {
     RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-    RUNTIME_ASSERT_MSG(this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+    RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
 
     this->object.key_value_map.put(key, JSON::String(this->allocator, value));
 }
