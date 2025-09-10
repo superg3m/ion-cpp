@@ -266,7 +266,7 @@ int main() {
     LOG_INFO("All tests passed ✅\n");
     JSON* root = JSON::Object(&Memory::global_general_allocator);
     root->push("Hello", "World!");
-    root->push("Hello", 2);
+    root->push("Hello1", 2);
 
     return 0;
 }
