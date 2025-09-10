@@ -6,7 +6,7 @@
 #include "../Memory/memory.hpp"
 #include "../Common/common.hpp"
 
-namespace Container {
+namespace DS {
     template <typename T>
     struct View {
         const T* data = nullptr;
@@ -15,8 +15,7 @@ namespace Container {
         View() = default;
         View(const T* data, u64 length): data(data), length(length) {}
 
-
-        Container::View<T>& operator=(const Container::View<T>& other) {
+        DS::View<T>& operator=(const DS::View<T>& other) {
             if (this != &other) {
                 this->data  = other.data;
                 this->length = other.length;

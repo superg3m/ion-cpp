@@ -17,15 +17,15 @@ UNUSED_FUNCTION static bool char_is_alpha_numeric(char c) {
     return char_is_alpha(c) || char_is_digit(c);
 }
 
-Lexer::Lexer(Container::View<char> source, Container::Vector<Token>& tokens) : source(source), tokens(tokens) {
+Lexer::Lexer(DS::View<char> source, DS::Vector<Token>& tokens) : source(source), tokens(tokens) {
     this->left_pos = 0;
     this->right_pos = 0;
     this->line = 1;
     this->c = '\0';
 };
 
-void Lexer::generate_tokens(u8* data, byte_t file_size, Container::Vector<Token>& out_tokens) {
-    Lexer lexer = Lexer(Container::View<char>((char*)data, file_size), out_tokens);
+void Lexer::generate_tokens(u8* data, byte_t file_size, DS::Vector<Token>& out_tokens) {
+    Lexer lexer = Lexer(DS::View<char>((char*)data, file_size), out_tokens);
     while (!lexer.is_eof()) {
         lexer.consume_next_token();
     }
@@ -57,12 +57,12 @@ char Lexer::peek_nth_char(u64 n) {
     return this->source.data[this->right_pos + n];
 }
 
-Container::View<char> Lexer::get_scratch_buffer() {
-    return Container::View<char>((char*)this->source.data + this->left_pos, this->right_pos - this->left_pos);
+DS::View<char> Lexer::get_scratch_buffer() {
+    return DS::View<char>((char*)this->source.data + this->left_pos, this->right_pos - this->left_pos);
 }
 
 void Lexer::report_error(const char* msg) {
-    Container::View<char> scratch = this->get_scratch_buffer();
+    DS::View<char> scratch = this->get_scratch_buffer();
     LOG_ERROR("String: %.*s\n", (int)scratch.length, scratch.data); 
 
     LOG_ERROR("Bytes: ");
@@ -95,7 +95,7 @@ void Lexer::consume_digit_literal() {
         this->consume_next_char();
     }
 
-    Container::View<char> sv = this->get_scratch_buffer();
+    DS::View<char> sv = this->get_scratch_buffer();
     Token token = Token::LiteralTokenFromSourceView(sv, this->line);
     this->tokens.push(token);
 }
@@ -111,7 +111,7 @@ void Lexer::consume_string_literal() {
 
     this->consume_next_char();
 
-    Container::View<char> sv = this->get_scratch_buffer();
+    DS::View<char> sv = this->get_scratch_buffer();
     Token token = Token::LiteralTokenFromSourceView(sv, this->line);
     this->tokens.push(token);
 }
@@ -131,7 +131,7 @@ void Lexer::consume_character_literal() {
 
     this->consume_next_char();
 
-    Container::View<char> sv = this->get_scratch_buffer();
+    DS::View<char> sv = this->get_scratch_buffer();
     Token token = Token::LiteralTokenFromSourceView(sv, this->line);
     this->tokens.push(token);
 }
@@ -173,7 +173,7 @@ bool Lexer::consume_word() {
         return false;
     }
 
-    Container::View<char> sv = this->get_scratch_buffer();
+    DS::View<char> sv = this->get_scratch_buffer();
 
     Token token = Token::KeywordTokenFromSourceView(sv, this->line);
     if (token.type != TOKEN_ILLEGAL_TOKEN) {
@@ -240,7 +240,7 @@ bool Lexer::consume_syntax() {
         this->consume_on_match('=');
     }
 
-    Container::View<char> sv = this->get_scratch_buffer();
+    DS::View<char> sv = this->get_scratch_buffer();
     Token token = Token::SyntaxTokenFromSourceView(sv, this->line);
     if (token.type != TOKEN_ILLEGAL_TOKEN) {
         this->tokens.push(token);

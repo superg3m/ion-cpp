@@ -3,7 +3,7 @@
 typedef struct Expression Expression;
 
 typedef struct StringExpression {
-    Container::View<char> name;
+    DS::View<char> name;
     int line;
 } StringExpression;
 
@@ -23,7 +23,7 @@ typedef struct BoolExpression {
 } BoolExpression;
 
 typedef struct IdentifierExpression {
-    Container::View<char> name;
+    DS::View<char> name;
     int line;
 } IdentifierExpression;
 
@@ -78,7 +78,7 @@ typedef struct Expression {
         GroupingExpression* grouping;
     };
 
-    static Expression* String(Memory::Allocator& allocator, Container::View<char> name, int line) {
+    static Expression* String(Memory::Allocator& allocator, DS::View<char> name, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_STRING;
         ret->str = (StringExpression*)allocator.malloc(sizeof(StringExpression));
@@ -115,7 +115,7 @@ typedef struct Expression {
         return ret;
     }
 
-    static Expression* Identifier(Memory::Allocator& allocator, Container::View<char> name, int line) {
+    static Expression* Identifier(Memory::Allocator& allocator, DS::View<char> name, int line) {
         Expression* ret = (Expression*)allocator.malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_IDENTIFER;
         ret->identifier = (IdentifierExpression*)allocator.malloc(sizeof(IdentifierExpression));

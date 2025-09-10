@@ -1,21 +1,21 @@
 #include "token.hpp"
 #include <stdlib.h>
 
-Token::Token(TokenType token_type, Container::View<char> sv, int line) : sv(sv) {
+Token::Token(TokenType token_type, DS::View<char> sv, int line) : sv(sv) {
     this->type = token_type;
     this->line = line;
 }
 
-Token Token::KeywordTokenFromSourceView(Container::View<char> sv, int line) {
-    static Container::Hashmap<Container::View<char>, TokenType> syntax_map = {
-        { Container::View<char>("if",     sizeof("if") - 1),     TOKEN_KEYWORD_IF     },
-        { Container::View<char>("else",   sizeof("else") - 1),   TOKEN_KEYWORD_ELSE   },
-        { Container::View<char>("for",    sizeof("for") - 1),    TOKEN_KEYWORD_FOR    },
-        { Container::View<char>("while",  sizeof("while") - 1),  TOKEN_KEYWORD_WHILE  },
-        { Container::View<char>("func",   sizeof("func") - 1),   TOKEN_KEYWORD_FUNC   },
-        { Container::View<char>("var",    sizeof("var") - 1),    TOKEN_KEYWORD_VAR    },
-        { Container::View<char>("null",   sizeof("null") - 1),   TOKEN_KEYWORD_NULL   },
-        { Container::View<char>("return", sizeof("return") - 1), TOKEN_KEYWORD_RETURN },
+Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
+    static DS::Hashmap<DS::View<char>, TokenType> syntax_map = {
+        { DS::View<char>("if",     sizeof("if") - 1),     TOKEN_KEYWORD_IF     },
+        { DS::View<char>("else",   sizeof("else") - 1),   TOKEN_KEYWORD_ELSE   },
+        { DS::View<char>("for",    sizeof("for") - 1),    TOKEN_KEYWORD_FOR    },
+        { DS::View<char>("while",  sizeof("while") - 1),  TOKEN_KEYWORD_WHILE  },
+        { DS::View<char>("func",   sizeof("func") - 1),   TOKEN_KEYWORD_FUNC   },
+        { DS::View<char>("var",    sizeof("var") - 1),    TOKEN_KEYWORD_VAR    },
+        { DS::View<char>("null",   sizeof("null") - 1),   TOKEN_KEYWORD_NULL   },
+        { DS::View<char>("return", sizeof("return") - 1), TOKEN_KEYWORD_RETURN },
     };
 
     Token ret = Token(); // Invalid
@@ -28,19 +28,19 @@ Token Token::KeywordTokenFromSourceView(Container::View<char> sv, int line) {
     return ret;
 }
 
-Token Token::SyntaxTokenFromSourceView(Container::View<char> sv, int line) {
-    static Container::Hashmap<Container::View<char>, TokenType> syntax_map = {
-        { Container::View<char>("+", sizeof("+") - 1), TOKEN_SYNTAX_PLUS },
-        { Container::View<char>("-", sizeof("-") - 1), TOKEN_SYNTAX_MINUS },
-        { Container::View<char>("*", sizeof("*") - 1), TOKEN_SYNTAX_STAR },
-        { Container::View<char>("/", sizeof("/") - 1), TOKEN_SYNTAX_DIVISION },
-        { Container::View<char>("%", sizeof("%") - 1), TOKEN_SYNTAX_MODULUS },
-        { Container::View<char>("{", sizeof("{") - 1), TOKEN_SYNTAX_LEFT_PAREN },
-        { Container::View<char>("}", sizeof("}") - 1), TOKEN_SYNTAX_RIGHT_PAREN },
-        { Container::View<char>("[", sizeof("[") - 1), TOKEN_SYNTAX_LEFT_BRACKET },
-        { Container::View<char>("]", sizeof("]") - 1), TOKEN_SYNTAX_RIGHT_BRACKET },
-        { Container::View<char>(":", sizeof(":") - 1), TOKEN_SYNTAX_COLON },
-        { Container::View<char>(",", sizeof(",") - 1), TOKEN_SYNTAX_COMMA },
+Token Token::SyntaxTokenFromSourceView(DS::View<char> sv, int line) {
+    static DS::Hashmap<DS::View<char>, TokenType> syntax_map = {
+        { DS::View<char>("+", sizeof("+") - 1), TOKEN_SYNTAX_PLUS },
+        { DS::View<char>("-", sizeof("-") - 1), TOKEN_SYNTAX_MINUS },
+        { DS::View<char>("*", sizeof("*") - 1), TOKEN_SYNTAX_STAR },
+        { DS::View<char>("/", sizeof("/") - 1), TOKEN_SYNTAX_DIVISION },
+        { DS::View<char>("%", sizeof("%") - 1), TOKEN_SYNTAX_MODULUS },
+        { DS::View<char>("{", sizeof("{") - 1), TOKEN_SYNTAX_LEFT_PAREN },
+        { DS::View<char>("}", sizeof("}") - 1), TOKEN_SYNTAX_RIGHT_PAREN },
+        { DS::View<char>("[", sizeof("[") - 1), TOKEN_SYNTAX_LEFT_BRACKET },
+        { DS::View<char>("]", sizeof("]") - 1), TOKEN_SYNTAX_RIGHT_BRACKET },
+        { DS::View<char>(":", sizeof(":") - 1), TOKEN_SYNTAX_COLON },
+        { DS::View<char>(",", sizeof(",") - 1), TOKEN_SYNTAX_COMMA },
     };
 
     Token ret = Token(); // Invalid
@@ -53,7 +53,7 @@ Token Token::SyntaxTokenFromSourceView(Container::View<char> sv, int line) {
     return ret;
 }
 
-Token Token::LiteralTokenFromSourceView(Container::View<char> sv, int line) {
+Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
     Token ret = Token();
     ret.sv = sv;
     ret.line = line;

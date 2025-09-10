@@ -1,25 +1,25 @@
 #pragma once
 
-#include "../Container/container.hpp"
+#include "../DataStructure/ds.hpp"
 #include "token.hpp"
 
 struct Lexer {
-    static void generate_tokens(u8* data, byte_t file_size, Container::Vector<Token>& out_tokens);
+    static void generate_tokens(u8* data, byte_t file_size, DS::Vector<Token>& out_tokens);
 
     private:
-        Container::View<char> source;
-        Container::Vector<Token>& tokens;
+        DS::View<char> source;
+        DS::Vector<Token>& tokens;
         u32 left_pos;
         u32 right_pos;
         u32 line;
         char c;
 
-        Lexer(Container::View<char> source, Container::Vector<Token>& tokens);
+        Lexer(DS::View<char> source, DS::Vector<Token>& tokens);
 
         void consume_next_char();
         bool consume_whitespace();
         char peek_nth_char(u64 n = 0);
-        Container::View<char> get_scratch_buffer();
+        DS::View<char> get_scratch_buffer();
         void report_error(const char* msg);
         bool consume_on_match(char expected);
 

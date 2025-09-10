@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Container/container.hpp"
+#include "../DataStructure/ds.hpp"
 
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
@@ -44,7 +44,7 @@ struct Token {
     TokenType type = TOKEN_ILLEGAL_TOKEN;
     u32 line = 1;
 
-    Container::View<char> sv; // used for identifer names, string literals, the source_view
+    DS::View<char> sv; // used for identifer names, string literals, the source_view
 
     union {
         s32 i;
@@ -54,11 +54,11 @@ struct Token {
     };
 
     Token() = default;
-    Token(TokenType token_type, Container::View<char> sv, int line);
+    Token(TokenType token_type, DS::View<char> sv, int line);
 
-    static Token KeywordTokenFromSourceView(Container::View<char> sv, int line);
-    static Token SyntaxTokenFromSourceView(Container::View<char> sv, int line);
-    static Token LiteralTokenFromSourceView(Container::View<char> sv, int line);
+    static Token KeywordTokenFromSourceView(DS::View<char> sv, int line);
+    static Token SyntaxTokenFromSourceView(DS::View<char> sv, int line);
+    static Token LiteralTokenFromSourceView(DS::View<char> sv, int line);
 
     void print();
     const char* type_to_string() const;

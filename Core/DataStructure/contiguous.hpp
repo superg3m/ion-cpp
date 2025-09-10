@@ -6,7 +6,7 @@
 #include "../Memory/memory.hpp"
 #include "../Common/common.hpp"
 
-namespace Container {
+namespace DS {
     template <typename T>
     struct Vector {
         Vector(std::initializer_list<T> list) {

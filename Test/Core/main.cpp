@@ -1,10 +1,8 @@
 #include <Core/core.hpp>
 
-using namespace Container;
-
 // ---------- Tests ----------
 void test_basic_put_get() {
-    Hashmap<int, int> map;
+    DS::Hashmap<int, int> map;
     map.put(1, 10);
     map.put(2, 20);
 
@@ -16,7 +14,7 @@ void test_basic_put_get() {
 }
 
 void test_overwrite() {
-    Hashmap<int, int> map;
+    DS::Hashmap<int, int> map;
     map.put(1, 10);
     map.put(1, 99);
 
@@ -26,7 +24,7 @@ void test_overwrite() {
 }
 
 void test_remove() {
-    Hashmap<int, int> map;
+    DS::Hashmap<int, int> map;
     map.put(42, 100);
     RUNTIME_ASSERT(map.has(42));
 
@@ -47,7 +45,7 @@ bool bad_equal(const void* a, byte_t, const void* b, byte_t) {
 }
 
 void test_collisions() {
-    Hashmap<int, int> map((HashFunction*)BadHash::hash, bad_equal, 4);
+    DS::Hashmap<int, int> map((DS::HashFunction*)BadHash::hash, bad_equal, 4);
     map.put(1, 100);
     map.put(2, 200);
     map.put(3, 300);
@@ -59,7 +57,7 @@ void test_collisions() {
 }
 
 void test_rehashing() {
-    Hashmap<int, int> map(2);
+    DS::Hashmap<int, int> map(2);
     for (int i = 0; i < 4; i++) {
         map.put(i, i * 10);
     }
@@ -72,7 +70,7 @@ void test_rehashing() {
 }
 
 void test_string_keys() {
-    Hashmap<const char*, int> map;
+    DS::Hashmap<const char*, int> map;
     map.put("apple+pen", 1);
     map.put("banana", 2);
 
@@ -84,7 +82,7 @@ void test_string_keys() {
 }
 
 void test_dead_entries() {
-    Hashmap<int, int> map;
+    DS::Hashmap<int, int> map;
     map.put(1, 10);
     map.put(2, 20);
     map.remove(1);
@@ -99,7 +97,7 @@ void test_dead_entries() {
 }
 
 void test_stress() {
-    Hashmap<int, int> map;
+    DS::Hashmap<int, int> map;
     for (int i = 0; i < 1000; i++) {
         map.put(i, i);
     }

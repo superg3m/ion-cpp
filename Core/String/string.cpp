@@ -1,5 +1,5 @@
 #include "string.hpp"
-#include "../Container/view.hpp"
+#include "../DataStructure/view.hpp"
 
 namespace String {
     char* allocate(Memory::Allocator& allocator, const char* s1, u64 length) {
@@ -67,7 +67,7 @@ namespace String {
                 continue;
             }
 
-            Container::View<char> current_view = Container::View(str + i, substring_length);
+            DS::View<char> current_view = DS::View(str + i, substring_length);
             if (String::equal(substring, substring_length, current_view.data, current_view.length)) {
                 ret_index = (s64)i;
                 break;
@@ -106,7 +106,7 @@ namespace String {
                 continue;
             }
 
-            Container::View<char> current_view = Container::View(str + i, substring_length);
+            DS::View<char> current_view = DS::View(str + i, substring_length);
             if (String::equal(current_view.data, current_view.length, substring, substring_length)) {
                 ret_index = (s64)i;
             }

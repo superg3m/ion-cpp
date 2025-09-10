@@ -1,6 +1,6 @@
 #include "hashing.hpp"
 #include "../String/string.hpp"
-#include "../Container/container.hpp"
+#include "../DataStructure/ds.hpp"
 
 // Original location:
 // https://github.com/majek/csiphash/1
@@ -115,7 +115,7 @@ namespace Hashing {
 
     u64 string_view_hash(const void* view, u64 str_length) {
         (void)str_length;
-        Container::View<char>* str_view = (Container::View<char>*)view;
+        DS::View<char>* str_view = (DS::View<char>*)view;
         u64 hash = 5381;
         int c;
 
@@ -131,8 +131,8 @@ namespace Hashing {
         (void)c1_size;
         (void)c2_size;
 
-        Container::View<char>* s1 = (Container::View<char>*)c1;
-        Container::View<char>* s2 = (Container::View<char>*)c2;
+        DS::View<char>* s1 = (DS::View<char>*)c1;
+        DS::View<char>* s2 = (DS::View<char>*)c2;
 
         return String::equal(s1->data, s1->length, s2->data, s2->length);
     }

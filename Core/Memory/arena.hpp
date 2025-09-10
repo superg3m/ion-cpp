@@ -20,7 +20,7 @@ namespace Memory {
         byte_t capacity;
         u8 alignment;
         u8* base_address;
-        Container::Stack<byte_t> size_stack;
+        DS::Stack<byte_t> size_stack;
         Memory::Allocator allocator;
 
         Arena(Memory::Allocator allocator, void* memory, byte_t allocation_size, int flags, u8 alignment);

@@ -3,13 +3,13 @@
 
 #include "../Memory/memory.hpp"
 #include "../Common/common.hpp"
-#include "../Container/view.hpp"
+#include "../DataStructure/view.hpp"
 #include "../String/string.hpp"
 #include "../Hashing/hashing.hpp"
 
 #define HASHMAP_DEFAULT_LOAD_FACTOR 0.7f
 
-namespace Container {
+namespace DS {
     typedef u64(HashFunction)(const void*, byte_t);
     typedef bool(EqualFunction)(const void*, byte_t, const void*, byte_t);
 
@@ -30,7 +30,7 @@ namespace Container {
         Hashmap(u64 capacity = 1, Memory::Allocator allocator = Memory::Allocator::libc()) {
             constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
             constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            constexpr bool string_view_key_type = std::is_same_v<K, Container::View<char>> || std::is_same_v<K, Container::View<u8>>;
+            constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<u8>>;
             STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type || string_view_key_type);
 
             this->m_count = 0;
@@ -54,7 +54,7 @@ namespace Container {
         Hashmap(std::initializer_list<InitPair> list, Memory::Allocator allocator = Memory::Allocator::libc()) {
             constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
             constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
-            constexpr bool string_view_key_type = std::is_same_v<K, Container::View<char>>;
+            constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>>;
             STATIC_ASSERT(is_trivially_copyable_non_pointer_v || cstring_key_type || string_view_key_type);
 
             this->m_count = list.size();
