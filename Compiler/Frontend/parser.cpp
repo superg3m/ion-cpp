@@ -120,6 +120,7 @@ namespace Frontend {
     }
 
     Expression* Parser::parse_expression() {
-        return this->parse_additive_expression();
+        // return this->parse_additive_expression();
+        return nullptr;
     }
 }
