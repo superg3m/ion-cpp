@@ -9,21 +9,21 @@
 namespace DS {
     template <typename T>
     struct Vector {
-        Vector(std::initializer_list<T> list, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        Vector(std::initializer_list<T> list, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = list.size();
             this->m_capacity = this->m_count * 2;
             this->m_allocator = allocator;
 
-            this->m_data = (T*)this->m_allocator.malloc(this->m_capacity * sizeof(T));
+            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
             Memory::copy(this->m_data, this->m_capacity * sizeof(T), list.begin(), list.size() * sizeof(T));
         }
 
-        Vector(u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        Vector(u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = 0;
             this->m_capacity = capacity;
             this->m_allocator = allocator;
 
-            this->m_data = (T*)this->m_allocator.malloc(this->m_capacity * sizeof(T));
+            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
         }
 
         // Prevent copy
@@ -33,18 +33,18 @@ namespace DS {
         // Prevent move
         Vector(Vector&&) = delete;
         Vector& operator=(Vector&& other) {
-            RUNTIME_ASSERT(&this->m_allocator == &other.m_allocator && "Cannot move between vectors with different allocators!");
-
             this->destory();
 
             this->m_count = other.m_count;
             this->m_capacity = other.m_capacity;
             this->m_data = other.m_data;
+            this->m_allocator = other.m_allocator;
 
             // Leave other in a invalid empty state
             other.m_count    = 0;
             other.m_capacity = 0;
             other.m_data     = nullptr;
+            other.m_allocator = nullptr;
 
             return *this;
         }
@@ -117,16 +117,16 @@ namespace DS {
             byte_t old_allocation_size = (this->m_capacity * sizeof(T));
             this->m_capacity *= 2;
             byte_t new_allocation_size = (this->m_capacity * sizeof(T));
-            this->m_data = (T*)this->m_allocator.realloc(this->m_data, old_allocation_size, new_allocation_size);
+            this->m_data = (T*)this->m_allocator->realloc(this->m_data, old_allocation_size, new_allocation_size);
         }
     private:
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::BaseAllocator& m_allocator;
+        Memory::BaseAllocator* m_allocator;
 
         void destory() {
-            this->m_allocator.free(this->m_data);
+            this->m_allocator->free(this->m_data);
 
             this->m_count = 0;
             this->m_capacity = 0;
@@ -136,11 +136,11 @@ namespace DS {
 
     template <typename T>
     struct Stack {
-        Stack(u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        Stack(u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = 0;
             this->m_capacity = capacity;
 
-            this->m_data = (T*)this->m_allocator.malloc(this->m_capacity * sizeof(T));
+            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
         }
 
         ~Stack() {
@@ -154,7 +154,7 @@ namespace DS {
                 }
             }
 
-            this->m_allocator.free(this->m_data);
+            this->m_allocator->free(this->m_data);
 
             this->m_data = nullptr;
             this->m_count = 0;
@@ -199,18 +199,18 @@ namespace DS {
             byte_t old_allocation_size = (this->m_capacity * sizeof(T));
             this->m_capacity *= 2;
             byte_t new_allocation_size = (this->m_capacity * sizeof(T));
-            this->m_data = (T*)this->m_allocator.realloc(this->m_data, old_allocation_size, new_allocation_size);
+            this->m_data = (T*)this->m_allocator->realloc(this->m_data, old_allocation_size, new_allocation_size);
         }
     private:
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::BaseAllocator& m_allocator;
+        Memory::BaseAllocator* m_allocator;
     };
     
     template <typename T>
     struct RingQueue {
-        RingQueue(byte_t capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        RingQueue(byte_t capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             RUNTIME_ASSERT(capacity > 0);
             
             this->m_count = 0;
@@ -265,7 +265,7 @@ namespace DS {
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::BaseAllocator& m_allocator;
+        Memory::BaseAllocator* m_allocator;
 
         byte_t m_read = 0;
         byte_t m_write = 0;

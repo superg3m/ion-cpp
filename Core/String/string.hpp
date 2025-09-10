@@ -7,8 +7,8 @@
 #include <cstdio>
 
 namespace String {
-    char* allocate(Memory::BaseAllocator& allocator, const char* s1, u64 length);
-    char* sprintf(Memory::BaseAllocator& allocator, u64* out_buffer_length, const char* fmt, va_list args);
+    char* allocate(Memory::BaseAllocator* allocator, const char* s1, u64 length);
+    char* sprintf(Memory::BaseAllocator* allocator, u64* out_buffer_length, const char* fmt, va_list args);
 
     u64 length(const char* c_string);
     bool equal(const char* s1, u64 s1_length, const char* s2, u64 s2_length);

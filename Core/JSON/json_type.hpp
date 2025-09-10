@@ -22,7 +22,7 @@ struct JsonValueArray {
 
 struct JSON {
     JsonValueType type;
-    Memory::BaseAllocator& allocator;
+    Memory::BaseAllocator* allocator;
 
     union {
         int integer;
@@ -34,24 +34,24 @@ struct JSON {
         JsonValueArray array;
     };
 
-    static JSON* Object(Memory::BaseAllocator& allocator) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* Object(Memory::BaseAllocator* allocator) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_OBJECT;
         ret->object.key_value_map = DS::Hashmap<char*, JSON*>(1, allocator);
         return ret;
     }
 
-    static JSON* Array(Memory::BaseAllocator& allocator) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* Array(Memory::BaseAllocator* allocator) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_ARRAY;
         ret->array.elements = DS::Vector<JSON*>(1, allocator);
         return ret;
     }
 
-    static JSON* Null(Memory::BaseAllocator& allocator) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* Null(Memory::BaseAllocator* allocator) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_NULL;
         ret->null = "null";
@@ -109,39 +109,39 @@ struct JSON {
         this->array.elements.push(JSON::String(this->allocator, value));
     }
 private:
-    static JSON* Integer(Memory::BaseAllocator& allocator, int value) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* Integer(Memory::BaseAllocator* allocator, int value) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_INT;
         ret->integer = value;
         return ret;
     }
 
-    static JSON* Floating(Memory::BaseAllocator& allocator, float value) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* Floating(Memory::BaseAllocator* allocator, float value) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_FLOAT;
         ret->floating = value;
         return ret;
     }
 
-    static JSON* Boolean(Memory::BaseAllocator& allocator, bool value) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* Boolean(Memory::BaseAllocator* allocator, bool value) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_BOOL;
         ret->boolean = value;
         return ret;
     }
 
-    static JSON* String(Memory::BaseAllocator& allocator, DS::View<char> value) {
-        JSON* ret = (JSON*)allocator.malloc(sizeof(JSON));
+    static JSON* String(Memory::BaseAllocator* allocator, DS::View<char> value) {
+        JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
         ret->allocator = allocator;
         ret->type = JSON_VALUE_STRING;
         ret->string = value;
         return ret;
     }
 
-    static JSON* String(Memory::BaseAllocator& allocator, char* str) {
+    static JSON* String(Memory::BaseAllocator* allocator, char* str) {
         u64 str_length = String::length(str);
         return JSON::String(allocator, DS::View<char>(str, str_length));
     }

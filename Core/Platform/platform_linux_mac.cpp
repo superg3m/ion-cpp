@@ -69,7 +69,7 @@
             usleep(ms * 1000);
         }
 
-        u8* read_entire_file(Memory::BaseAllocator& allocator, const char* file_name, byte_t& out_file_size, Error& error) {
+        u8* read_entire_file(Memory::BaseAllocator* allocator, const char* file_name, byte_t& out_file_size, Error& error) {
             FILE* file_handle = fopen(file_name, "r");
             if (file_handle == nullptr) {
                 LOG_ERROR("Invalid file_handle, the file_name/path is likely wrong: read_entire_file(%s)\n", file_name);
@@ -101,11 +101,11 @@
                 return NULL;
             }
 
-            u8* file_data = (u8*)allocator.malloc((byte_t)out_file_size + 1); // +1 for null terminator
+            u8* file_data = (u8*)allocator->malloc((byte_t)out_file_size + 1); // +1 for null terminator
             if (fread(file_data, out_file_size, 1, file_handle) != 1) {
                 LOG_ERROR("fread() failed: read_entire_file(%s)\n", file_name);
                 error = ERROR_RESOURCE_NOT_FOUND;
-                allocator.free(file_data);
+                allocator->free(file_data);
                 fclose(file_handle);
 
                 return nullptr;

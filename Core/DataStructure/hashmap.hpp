@@ -27,7 +27,7 @@ namespace DS {
             V value;
         };
 
-        Hashmap(u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        Hashmap(u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
             constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
             constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>> || std::is_same_v<K, DS::View<u8>>;
@@ -35,7 +35,7 @@ namespace DS {
 
             this->m_count = 0;
             this->m_capacity = capacity;
-            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
+            this->m_entries = (HashmapEntry*)this->m_allocator->malloc(this->m_capacity * sizeof(HashmapEntry));
 
             if constexpr (is_trivially_copyable_non_pointer_v) {
                 this->m_hash_func = Hashing::siphash24;
@@ -49,7 +49,7 @@ namespace DS {
             }
         }
 
-        Hashmap(std::initializer_list<InitPair> list, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        Hashmap(std::initializer_list<InitPair> list, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             constexpr bool is_trivially_copyable_non_pointer_v = std::is_trivially_copyable_v<K> && !std::is_pointer_v<K>;
             constexpr bool cstring_key_type = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
             constexpr bool string_view_key_type = std::is_same_v<K, DS::View<char>>;
@@ -57,7 +57,7 @@ namespace DS {
 
             this->m_count = list.size();
             this->m_capacity = this->m_count * 2;
-            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
+            this->m_entries = (HashmapEntry*)this->m_allocator->malloc(this->m_capacity * sizeof(HashmapEntry));
 
             if constexpr (is_trivially_copyable_non_pointer_v) {
                 this->m_hash_func = Hashing::siphash24;
@@ -75,7 +75,7 @@ namespace DS {
             }
         }
 
-        Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
+        Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             constexpr bool supported_key_type = std::is_trivially_copyable_v<K> || std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
             STATIC_ASSERT(supported_key_type);
 
@@ -83,7 +83,7 @@ namespace DS {
             this->m_capacity = capacity;
 
             this->m_allocator = allocator;
-            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(this->m_capacity * sizeof(HashmapEntry));
+            this->m_entries = (HashmapEntry*)this->m_allocator->malloc(this->m_capacity * sizeof(HashmapEntry));
 
             this->m_hash_func = hash_func;
             this->m_equal_func = equal_func;
@@ -91,11 +91,11 @@ namespace DS {
 
         Hashmap& operator=(const Hashmap& other) {
             if (this != &other) {
-                m_allocator.free(m_entries);
+                m_allocator->free(m_entries);
                 m_allocator = other.m_allocator;
                 m_count = other.m_count;
                 m_capacity = other.m_capacity;
-                m_entries = (HashmapEntry*)m_allocator.malloc(m_capacity * sizeof(HashmapEntry));
+                m_entries = (HashmapEntry*)m_allocator->malloc(m_capacity * sizeof(HashmapEntry));
             }
 
             return *this;
@@ -167,7 +167,7 @@ namespace DS {
         HashmapEntry* m_entries = nullptr;
         HashFunction* m_hash_func = nullptr;
         EqualFunction* m_equal_func = nullptr;
-        Memory::BaseAllocator& m_allocator;
+        Memory::BaseAllocator* m_allocator;
         bool is_key_pointer_type = std::is_pointer_v<K>;
 
         void grow_and_rehash() {
@@ -176,7 +176,7 @@ namespace DS {
 
             this->m_capacity *= 2;
             byte_t new_allocation_size = (this->m_capacity * sizeof(HashmapEntry));
-            this->m_entries = (HashmapEntry*)this->m_allocator.malloc(new_allocation_size);
+            this->m_entries = (HashmapEntry*)this->m_allocator->malloc(new_allocation_size);
 
             // rehash
             for (u64 i = 0; i < old_capacity; i++) {
@@ -193,7 +193,7 @@ namespace DS {
                 this->m_entries[index] = old_entry;
             }
 
-            this->m_allocator.free(old_entries);
+            this->m_allocator->free(old_entries);
         }
 
         s64 resolve_collision(K key, u64 inital_hash_index) {

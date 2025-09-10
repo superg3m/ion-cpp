@@ -5,14 +5,14 @@
 
 namespace Frontend {
     struct Parser {
-        static ASTNode* generate_ast(Memory::BaseAllocator& allocator, const DS::Vector<Token>& tokens);
+        static ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens);
 
     private:
-        Memory::BaseAllocator& allocator;
+        Memory::BaseAllocator* allocator;
         const DS::Vector<Token>& tokens;
         int current = 0;
 
-        Parser(Memory::BaseAllocator& allocator, const DS::Vector<Token>& tokens);
+        Parser(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens);
         Token peek_nth_token(int n = 0);
         Token previous_token();
         void report_error(const char* fmt, ...);

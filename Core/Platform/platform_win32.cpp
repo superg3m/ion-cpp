@@ -68,21 +68,21 @@
             return time_in_seconds;
         }
 
-        internal void* win32_malloc(const Memory::BaseAllocator&* allocator, byte_t allocation_size) {
+        internal void* win32_malloc(const Memory::BaseAllocator** allocator, byte_t allocation_size) {
             (void)allocator;
             return VirtualAlloc(NULL, allocation_size, MEM_COMMIT, PAGE_READWRITE);
         }
 
-        internal void win32_free(const Memory::BaseAllocator&* allocator, void* data) {
+        internal void win32_free(const Memory::BaseAllocator** allocator, void* data) {
             (void)allocator;
             VirtualFree(data, 0, MEM_RELEASE);
         }
 
-        Memory::BaseAllocator& get_allocator() {
-            return Memory::BaseAllocator&(win32_malloc, win32_free);
+        Memory::BaseAllocator* get_allocator() {
+            return Memory::BaseAllocator*(win32_malloc, win32_free);
         }
 
-        u8* read_entire_file(Memory::BaseAllocator& allocator, const char* file_path, byte_t& out_file_size, Error& error) {
+        u8* read_entire_file(Memory::BaseAllocator* allocator, const char* file_path, byte_t& out_file_size, Error& error) {
             HANDLE file_handle = CreateFileA(file_path, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
             if (file_handle == INVALID_HANDLE_VALUE) {
                 LOG_ERROR("CreateFileA() returned an INVALID_HANDLE_VALUE, the file_path/path is likely wrong: read_entire_file(%s)\n", file_path);
@@ -110,7 +110,7 @@
                 return nullptr;
             }
 
-            u8* file_data = (u8*)allocator.malloc(file_size + 1); // +1 for null-terminator
+            u8* file_data = (u8*)allocator->malloc(file_size + 1); // +1 for null-terminator
 
             DWORD bytes_read = 0;
             success = ReadFile(file_handle, file_data, (DWORD)file_size, &bytes_read, nullptr);
@@ -118,7 +118,7 @@
             if (!success && bytes_read == file_size) {
                 LOG_ERROR("ReadFile() Failed to get the file data or bytes read doesn't match file_size: read_entire_file(%s)\n", file_path);
                 error = ERROR_RESOURCE_NOT_FOUND;
-                allocator.free(file_data);
+                allocator->free(file_data);
                 return nullptr;
             }
 

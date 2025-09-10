@@ -17,9 +17,9 @@
 //                                     └── Primary (identifiers, literals, calls, grouping)
 
 namespace Frontend {
-    Parser::Parser(Memory::BaseAllocator& allocator, const DS::Vector<Token>& tokens) : allocator(allocator), tokens(tokens) {}
+    Parser::Parser(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) : allocator(allocator), tokens(tokens) {}
 
-    ASTNode* Parser::generate_ast(Memory::BaseAllocator& allocator, const DS::Vector<Token>& tokens) {
+    ASTNode* Parser::generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
         Parser parser = Parser(allocator, tokens);
 
         return ASTNode::Expression(allocator, parser.parse_expression());
