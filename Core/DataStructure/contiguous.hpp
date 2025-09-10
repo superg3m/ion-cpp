@@ -33,12 +33,13 @@ namespace DS {
         // Prevent move
         Vector(Vector&&) = delete;
         Vector& operator=(Vector&& other) {
+            RUNTIME_ASSERT(&this->m_allocator == &other.m_allocator && "Cannot move between vectors with different allocators!");
+
             this->destory();
 
             this->m_count = other.m_count;
             this->m_capacity = other.m_capacity;
             this->m_data = other.m_data;
-            this->m_allocator = other.m_allocator;
 
             // Leave other in a invalid empty state
             other.m_count    = 0;
@@ -125,7 +126,11 @@ namespace DS {
         Memory::BaseAllocator& m_allocator;
 
         void destory() {
+            this->m_allocator.free(this->m_data);
 
+            this->m_count = 0;
+            this->m_capacity = 0;
+            this->m_data = nullptr;
         }
     };
 
@@ -134,7 +139,6 @@ namespace DS {
         Stack(u64 capacity = 1, Memory::BaseAllocator& allocator = Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = 0;
             this->m_capacity = capacity;
-            this->m_allocator = allocator;
 
             this->m_data = (T*)this->m_allocator.malloc(this->m_capacity * sizeof(T));
         }

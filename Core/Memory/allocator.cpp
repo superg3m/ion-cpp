@@ -1,6 +1,7 @@
 #include "allocator.hpp"
 #include "../DataStructure/ds.hpp"
 #include <cstdlib>
+#include <new>
 
 namespace Memory {
     GeneralAllocator::GeneralAllocator() {
@@ -41,8 +42,6 @@ namespace Memory {
             this->free(this->base_address);
         }
 
-        delete this->size_stack;
-
         this->valid = false;
     }
 
@@ -59,7 +58,8 @@ namespace Memory {
         this->capacity = allocation_size;
         this->alignment = alignment;
         this->base_address = (u8*)memory;
-        this->size_stack = new DS::Stack<byte_t>();
+        DS::Stack<byte_t>* address = (DS::Stack<byte_t>*)this->malloc(sizeof(DS::Stack<byte_t>));
+        this->size_stack = new (address) DS::Stack<byte_t>();
     }
 
     ArenaAllocator ArenaAllocator::Fixed(void* memory, byte_t capacity, bool is_stack_memory) {
@@ -92,7 +92,9 @@ namespace Memory {
             this->used += (this->alignment - (this->used & (this->alignment - 1)));
         }
 
-        this->size_stack->push(this->used - previous_used);
+        if (this->size_stack) {
+            this->size_stack->push(this->used - previous_used);
+        }
 
         return ret;
     }

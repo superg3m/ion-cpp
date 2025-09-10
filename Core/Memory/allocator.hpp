@@ -61,8 +61,7 @@ namespace Memory {
         byte_t capacity = 0;
         u8 alignment = 0;
         u8* base_address = nullptr;
-
-        DS::Stack<byte_t>* size_stack;
+        DS::Stack<byte_t>* size_stack = nullptr;
 
         bool data_is_poppable(void* data);
     };
