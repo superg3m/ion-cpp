@@ -49,7 +49,7 @@ bool Lexer::consume_whitespace() {
     return false;
 }
 
-char Lexer::peek_nth_char(u64 n = 0) {
+char Lexer::peek_nth_char(u64 n) {
     if ((this->right_pos + n) >= this->source.length) {
         return '\0';
     }
@@ -152,40 +152,41 @@ bool Lexer::consume_literal() {
     return false;
 }
 
-/*
-bool try_consume_word() {
-    if (!ckg_char_is_alpha(this->c)) {
+bool Lexer::try_consume_word() {
+    if (!char_is_alpha(this->c)) {
         return false;
     }
 
-    while (ckg_char_is_alpha_numeric(peek_nth_char(lexer, 0)) || peek_nth_char(lexer, 0) == '_') {
-        if (is_EOF(lexer)) {
+    while (char_is_alpha_numeric(peek_nth_char()) || peek_nth_char() == '_') {
+        if (this->is_eof()) {
             break;
         }
 
-        consume_next_char(lexer);
+        this->consume_next_char();
     }
 
     return true;
 }
 
-bool consume_word() {
-    if (!try_consume_word(lexer)) {
+bool Lexer::consume_word() {
+    if (!this->try_consume_word()) {
         return false;
     }
 
-    Container::View<u8> scratch = get_scratch_buffer(lexer);
+    Container::View<char> sv = this->get_scratch_buffer();
 
-    SPL_TokenType token_type = token_get_keyword(scratch.data, scratch.length);
-    if (token_type != SPL_TOKEN_ILLEGAL_TOKEN) {
-        add_token(lexer, token_type);
+    Token token = Token::KeywordTokenFromSourceView(sv, this->line);
+    if (token.type != TOKEN_ILLEGAL_TOKEN) {
+        this->tokens.push(token);
+        
         return true;
     }
 
-    add_token(lexer, SPL_TOKEN_IDENTIFIER);
+    token.type = TOKEN_IDENTIFIER;
+    this->tokens.push(token);
+
     return true;
 }
-*/
 
 void Lexer::consume_until_new_line() {
     while (!this->is_eof() && peek_nth_char() != '\n') {
