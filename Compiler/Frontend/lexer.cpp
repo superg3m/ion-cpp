@@ -111,7 +111,6 @@ struct T_Lexer {
         this->add_token(token_type);
     }
 
-    /*
     void consume_string_literal() {
         while (this->peek_nth_char() != '\"') {
             if (this->is_eof()) {
@@ -122,35 +121,33 @@ struct T_Lexer {
         }
 
         this->consume_next_char();
-        // this->add_token(lexer, TOKEN_STRING_LITERAL);
+
+        this->add_token(TOKEN_STRING_LITERAL);
     }
 
     void consume_character_literal() {
-        if (consume_on_match(lexer, '\'')) {
-            report_error(lexer, "character literal doesn't have any ascii data in between\n");
+        if (this->consume_on_match('\'')) {
+            this->report_error("character literal doesn't have any ascii data in between\n");
         }
 
-        while (peek_nth_char(lexer, 0) != '\'') {
-            if (is_EOF(lexer)) {
-                report_error(lexer, "String literal doesn't have a closing double quote!\n");
+        while (this->peek_nth_char() != '\'') {
+            if (this->is_eof()) {
+                this->report_error("String literal doesn't have a closing double quote!\n");
             }
             
-            consume_next_char(lexer);
+            this->consume_next_char();
         }
 
-        consume_next_char(lexer);
-        add_token(lexer, SPL_TOKEN_CHARACTER_LITERAL);
+        this->consume_next_char();
+
+        this->add_token(TOKEN_CHARACTER_LITERAL);
     }
-    */
 
     bool consume_literal() {
         bool has_unary = (this->c == '-' || this->c == '+' );
         if (char_is_digit(this->c) || (has_unary && char_is_digit(peek_nth_char()))) {
             this->consume_digit_literal();
             return true;
-        }
-        
-        /*
         } else if (this->c == '\"') {
             this->consume_string_literal();
             return true;
@@ -158,7 +155,6 @@ struct T_Lexer {
             this->consume_character_literal();
             return true;
         }
-        */
 
         return false;
     }

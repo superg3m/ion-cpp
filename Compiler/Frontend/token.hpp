@@ -16,6 +16,11 @@ enum TokenType {
 
     TOKEN_INTEGER_LITERAL,            // 32, -12
     TOKEN_FLOAT_LITERAL,              // 0.23423
+    TOKEN_STRING_LITERAL,             // "sdfdsfdsf"
+    TOKEN_CHARACTER_LITERAL,          // '\0'
+
+    TOKEN_TRUE,                       // true
+    TOKEN_FALSE,                      // false
 
     TOKEN_COUNT
 };
@@ -34,6 +39,11 @@ static const char* token_strings[] = {
 
     stringify(TOKEN_INTEGER_LITERAL),    
     stringify(TOKEN_FLOAT_LITERAL),    
+    stringify(TOKEN_STRING_LITERAL),    
+    stringify(TOKEN_CHARACTER_LITERAL), 
+
+    stringify(TOKEN_TRUE),    
+    stringify(TOKEN_FALSE),
 };
 
 STATIC_ASSERT(ArrayCount(token_strings) == TOKEN_COUNT);
