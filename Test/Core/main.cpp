@@ -270,12 +270,8 @@ int main() {
 
     JSON* nested = JSON::Object(&Memory::global_general_allocator);
     nested->push("address1", "San Francisco");
-    nested->push("address2", DS::View<char>("Californialjlkjklkljkljljklkjkl", sizeof("Californialjlkjklkljkljljklkjkl") - 1));
-    
-    root->push("address", nested);
+    nested->push("address2", DS::View<char>("Californialjlkjklkljkljljklkjkl", 10));
 
-    LOG_TRACE("%s\n", JSON::to_string(root));
-    /*
     JSON* nested_twice = JSON::Object(&Memory::global_general_allocator);
     nested_twice->push("KylE", true);
     nested_twice->push("ANdY", 84);
@@ -292,7 +288,8 @@ int main() {
     hobbies->array_push("Coding");
 
     root->push("hobbies", hobbies);
-    */
+        
+    LOG_TRACE("%s\n", JSON::to_string(root));
 
     return 0;
 }
