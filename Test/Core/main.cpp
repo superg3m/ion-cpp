@@ -267,6 +267,9 @@ int main() {
     JSON* root = JSON::Object(&Memory::global_general_allocator);
     root->push("Hello", "World!");
     root->push("Hello1", 2);
+    root->push("Hello2", 2.0);
+
+    
 
     return 0;
 }

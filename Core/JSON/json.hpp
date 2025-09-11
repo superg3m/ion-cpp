@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../DataStructure/ds.hpp"
+#include <type_traits>
 
 enum JsonValueType {
     JSON_VALUE_INT,
@@ -22,6 +23,18 @@ struct JsonValueArray {
     DS::Vector<JSON*> elements;
 };
 
+template<typename T>
+concept SupportedType = (
+    std::is_same_v<T, int> ||
+    std::is_same_v<T, float> || 
+    std::is_same_v<T, double> || 
+    std::is_same_v<T, bool> ||
+    std::is_same_v<T, char*> ||
+    std::is_same_v<T, const char*> || 
+    std::is_same_v<T, DS::View<char>> ||
+    std::is_same_v<T, JSON*>
+);
+
 struct JSON {
     JsonValueType type;
     Memory::BaseAllocator* allocator;
@@ -40,21 +53,45 @@ struct JSON {
     static JSON* Array(Memory::BaseAllocator* allocator);
     static JSON* Null(Memory::BaseAllocator* allocator);
 
-    void push(const char* key, int value);
-    void push(const char* key, float value);
-    void push(const char* key, bool value);
-    void push(const char* key, char* value);
-    void push(const char* key, const char* value);
-    void push(const char* key, DS::View<char> value);
-    void push(const char* key, JSON* value);
+    template<typename T>
+    constexpr JSON* MAKE_JSON_VALUE(T value) {
+        if constexpr (std::is_same_v<T, int>) {
+            return JSON::Integer(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, float>) {
+            return JSON::Floating(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, double>) {
+            return JSON::Floating(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, bool>) {
+            return JSON::Boolean(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, char*>) {
+            return JSON::String(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, const char*>) {
+            return JSON::String(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, DS::View<char>>) {
+            return JSON::String(this->allocator, value);
+        } else if constexpr (std::is_same_v<T, JSON*>) {
+            return JSON::Object(this->allocator, value);
+        }
 
-    void array_push(int value);
-    void array_push(float value);
-    void array_push(bool value);
-    void array_push(char* value);
-    void array_push(const char* value);
-    void array_push(DS::View<char> value);
-    void array_push(JSON* value);
+        RUNTIME_ASSERT(false);
+
+        return nullptr;
+    }
+
+    template<SupportedType T>
+    void push(const char* key, T value) {
+        RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
+        RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+
+        this->object.key_value_map.put(key, MAKE_JSON_VALUE(value));
+    }
+
+    template<SupportedType T>
+    void array_push(T value) {
+        RUNTIME_ASSERT(this->type == JSON_VALUE_ARRAY);
+    
+        this->array.elements.push(MAKE_JSON_VALUE(value));
+    }
 private:
     static JSON* Integer(Memory::BaseAllocator* allocator, int value);
     static JSON* Floating(Memory::BaseAllocator* allocator, float value);
