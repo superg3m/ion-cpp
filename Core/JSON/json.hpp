@@ -15,8 +15,14 @@ enum JsonValueType {
 
 struct JSON;
 
+struct KeyJsonPair {
+    const char* key;
+    JSON* value;
+};
+
 struct JsonValueObject {
-    DS::Hashmap<const char*, JSON*> key_value_map;
+    DS::Hashmap<const char*, bool> keys;
+    DS::Vector<KeyJsonPair> order;
 };
 
 struct JsonValueArray {
@@ -43,7 +49,6 @@ struct JSON {
         int integer;
         float floating;
         bool boolean;
-        const char* null;
         DS::View<char> string;
         JsonValueObject object;
         JsonValueArray array;
@@ -53,7 +58,7 @@ struct JSON {
     static JSON* Array(Memory::BaseAllocator* allocator);
     static JSON* Null(Memory::BaseAllocator* allocator);
 
-    template<typename T>
+    template<SupportedType T>
     constexpr JSON* MAKE_JSON_VALUE(T value) {
         if constexpr (std::is_same_v<T, int>) {
             return JSON::Integer(this->allocator, value);
@@ -79,9 +84,10 @@ struct JSON {
     template<SupportedType T>
     void push(const char* key, T value) {
         RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-        RUNTIME_ASSERT_MSG(!this->object.key_value_map.has(key), "Duplicate key: %s\n", key);
+        RUNTIME_ASSERT_MSG(!this->object.keys.has(key), "Duplicate key: %s\n", key);
 
-        this->object.key_value_map.put(key, MAKE_JSON_VALUE(value));
+        this->object.keys.put(key, true);
+        this->object.order.push((KeyJsonPair){key , MAKE_JSON_VALUE(value)});
     }
 
     template<SupportedType T>
@@ -90,6 +96,9 @@ struct JSON {
     
         this->array.elements.push(MAKE_JSON_VALUE(value));
     }
+
+    static char* to_string(JSON* root, const char* indent = "    ");
+    
 private:
     static JSON* Integer(Memory::BaseAllocator* allocator, int value);
     static JSON* Floating(Memory::BaseAllocator* allocator, float value);

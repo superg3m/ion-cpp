@@ -48,6 +48,7 @@
         "iostream": "cpp",
         "stdexcept": "cpp",
         "algorithm": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "memory": "cpp"
     }
 }

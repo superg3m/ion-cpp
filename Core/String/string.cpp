@@ -8,8 +8,28 @@ namespace String {
 
         return ret;
     }
+
+    char* sprintf(Memory::BaseAllocator* allocator, u64* out_buffer_length, const char* fmt ...) {
+        va_list args, copy_args;
+        va_start(args, fmt);
+            va_copy(copy_args, args);
+            u64 allocation_ret = (u64)vsnprintf(nullptr, 0, fmt, copy_args) + 1; // +1 for null terminator
+            va_end(copy_args);
+        va_end(args);
+        char* buffer = (char*)allocator->malloc(allocation_ret);
+
+        va_copy(copy_args, args);
+        vsnprintf(buffer, allocation_ret, fmt, copy_args);
+        va_end(copy_args);
+
+        if (out_buffer_length) {
+            *out_buffer_length = allocation_ret - 1;
+        }
+
+        return buffer;
+    }
     
-    char* sprintf(Memory::BaseAllocator* allocator, u64* out_buffer_length, const char* fmt, va_list args) {
+    char* sprintf_va(Memory::BaseAllocator* allocator, u64* out_buffer_length, const char* fmt, va_list args) {
         va_list args_copy;
         va_copy(args_copy, args);
         u64 allocation_ret = (u64)vsnprintf(nullptr, 0, fmt, args_copy) + 1; // +1 for null terminator
@@ -191,7 +211,7 @@ namespace String {
         String::insert(str, str_length, str_capacity, to_append, to_append_length, str_length);
     }
 
-    void append(char* str, u64 str_length, byte_t str_capacity, char to_append) {
+    void append(char* str, byte_t str_length, byte_t str_capacity, char to_append) {
         String::insert(str, str_length, str_capacity, to_append, str_length);
     }
 }

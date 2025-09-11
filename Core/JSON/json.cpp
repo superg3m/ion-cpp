@@ -1,10 +1,119 @@
 #include "json.hpp"
 
+static const char* indent_from_depth(Memory::BaseAllocator* allocator, int depth, const char* indent) {
+    if (depth == 0) {
+        return "";
+    }
+
+    byte_t allocation_size = String::length(indent) * depth;
+    char* ret = (char*)allocator->malloc(allocation_size);
+    for (int i = 0; i < allocation_size; i++) {
+        ret[i] = ' ';
+    }
+
+    return ret;
+}
+
+static char* to_string_helper(JSON* root, const char* indent, int depth) {
+    switch (root->type) {
+        case JSON_VALUE_BOOL: {
+            return String::sprintf(root->allocator, nullptr, "%s", root->boolean ? "true" : "false");
+        } break;
+
+        case JSON_VALUE_INT: {
+            return String::sprintf(root->allocator, nullptr, "%d", root->integer);
+        } break;
+
+        case JSON_VALUE_FLOAT: {
+            return String::sprintf(root->allocator, nullptr, "%f", root->floating);
+        } break;
+
+        case JSON_VALUE_STRING: {
+            return String::sprintf(root->allocator, nullptr, "\"%.*s\"", root->string.data, root->string.data);
+        } break;
+
+        case JSON_VALUE_NULL: {
+            return String::allocate(root->allocator, "null", sizeof("null") - 1);
+        } break;
+
+        case JSON_VALUE_ARRAY: {
+            int object_member_count = root->object.order.count();
+            DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>(object_member_count, root->allocator);
+            const char** buffers = (const char**)root->allocator->malloc(sizeof(char*) * object_member_count);
+
+            byte_t total_allocation_size = 1; // 1 for the null term
+            const char* member_indent = indent_from_depth(root->allocator, depth + 1, indent);
+            for (int i = 0; i < object_member_count; i++) {
+                KeyJsonPair pair = root->object.order[i];
+                byte_t temp_size = 0;
+
+                const char* value = to_string_helper(pair.value, indent, depth + 1);
+                if (i == object_member_count - 1) {
+                    buffers[i] = String::sprintf(root->allocator, &temp_size, "%s\"%s\": %s", member_indent, pair.key, value);
+                } else {
+                    buffers[i] = String::sprintf(root->allocator, &temp_size, "%s\"%s\": %s,\n", member_indent, pair.key, value);
+                }
+
+                buffer_sizes.push(temp_size);
+                total_allocation_size += temp_size;
+            }
+            
+            byte_t offset = 0;
+            char* buffer = (char*)root->allocator->malloc(total_allocation_size);
+            for (int i = 0; i < object_member_count; i++) {
+                Memory::copy(buffer + offset,  buffer_sizes[i], buffers[i],  buffer_sizes[i]);
+                offset += buffer_sizes[i];
+            }
+
+            return String::sprintf(root->allocator, nullptr, "{\n%s\n%s}", buffer, indent_from_depth(root->allocator, depth, indent));
+        } break;
+
+        case JSON_VALUE_OBJECT: {
+            int object_member_count = root->object.order.count();
+            DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>(object_member_count, root->allocator);
+            const char** buffers = (const char**)root->allocator->malloc(sizeof(char*) * object_member_count);
+
+            byte_t total_allocation_size = 1; // 1 for the null terminator
+            const char* member_indent = indent_from_depth(root->allocator, depth + 1, indent);
+            for (int i = 0; i < object_member_count; i++) {
+                KeyJsonPair pair = root->object.order[i];
+                byte_t temp_size = 0;
+
+                const char* value = to_string_helper(pair.value, indent, depth + 1);
+                if (i == object_member_count - 1) {
+                    buffers[i] = String::sprintf(root->allocator, &temp_size, "%s\"%s\": %s", member_indent, pair.key, value);
+                } else {
+                    buffers[i] = String::sprintf(root->allocator, &temp_size, "%s\"%s\": %s,\n", member_indent, pair.key, value);
+                }
+
+                buffer_sizes.push(temp_size);
+                total_allocation_size += temp_size;
+            }
+            
+            byte_t string_length = 0;
+            char* buffer = (char*)root->allocator->malloc(total_allocation_size);
+            for (int i = 0; i < object_member_count; i++) {
+                String::append(buffer, string_length, total_allocation_size, buffers[i], buffer_sizes[i]);
+                string_length += buffer_sizes[i];
+            }
+
+            return String::sprintf(root->allocator, nullptr, "{\n%s\n%s}", buffer, indent_from_depth(root->allocator, depth, indent));
+        } break;
+    }
+
+    return nullptr;
+}
+
+char* JSON::to_string(JSON* root, const char* indent) {
+    return to_string_helper(root, indent, 0);
+}
+
 JSON* JSON::Object(Memory::BaseAllocator* allocator) {
     JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
     ret->allocator = allocator;
     ret->type = JSON_VALUE_OBJECT;
-    ret->object.key_value_map = DS::Hashmap<const char*, JSON*>(1, allocator);
+    ret->object.keys = DS::Hashmap<const char*, bool>(1, allocator);
+    ret->object.order = DS::Vector<KeyJsonPair>(1, allocator);
 
     return ret;
 }
@@ -22,7 +131,6 @@ JSON* JSON::Null(Memory::BaseAllocator* allocator) {
     JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
     ret->allocator = allocator;
     ret->type = JSON_VALUE_NULL;
-    ret->null = "null";
 
     return ret;
 }
