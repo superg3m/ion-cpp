@@ -126,7 +126,9 @@ namespace DS {
         Memory::BaseAllocator* m_allocator;
 
         void destory() {
-            this->m_allocator->free(this->m_data);
+            if (this->m_allocator && this->m_data) {
+                this->m_allocator->free(this->m_data);
+            }
 
             this->m_count = 0;
             this->m_capacity = 0;

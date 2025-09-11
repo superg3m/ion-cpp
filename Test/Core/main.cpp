@@ -265,9 +265,30 @@ int main() {
 
     LOG_INFO("All tests passed ✅\n");
     JSON* root = JSON::Object(&Memory::global_general_allocator);
-    root->push("Hello", "World!");
-    root->push("Hello1", 2);
-    root->push("Hello2", 2.0);
+    root->push("name", "Example");
+    root->push("age", 200.000);
+
+
+    JSON* nested = JSON::Object(&Memory::global_general_allocator);
+    nested->push("address1", "San Francisco");
+    nested->push("address2", DS::View<char>("Californialjlkjklkljkljljklkjkl", sizeof("Californialjlkjklkljkljljklkjkl") - 1));
+    
+    JSON* nested_twice = JSON::Object(&Memory::global_general_allocator);
+    nested_twice->push("KylE", true);
+    nested_twice->push("ANdY", 84);
+    nested_twice->push("Jovanni", 3.0141598);
+    nested_twice->push("Hykes", false);
+    nested_twice->push("Conrad", JSON::Null(&Memory::global_general_allocator));
+
+    nested->push("Names", nested_twice);
+    root->push("address", nested);
+
+    JSON* hobbies = JSON::Array(&Memory::global_general_allocator);
+    hobbies->array_push(nested_twice);
+    hobbies->array_push(true);
+    hobbies->array_push("Coding");
+
+    root->push("hobbies", hobbies);
 
     return 0;
 }

@@ -63,14 +63,12 @@ struct JSON {
             return JSON::Floating(this->allocator, value);
         } else if constexpr (std::is_same_v<T, bool>) {
             return JSON::Boolean(this->allocator, value);
-        } else if constexpr (std::is_same_v<T, char*>) {
-            return JSON::String(this->allocator, value);
-        } else if constexpr (std::is_same_v<T, const char*>) {
+        } else if constexpr (std::is_same_v<T, char*> || std::is_same_v<T, const char*>) {
             return JSON::String(this->allocator, value);
         } else if constexpr (std::is_same_v<T, DS::View<char>>) {
             return JSON::String(this->allocator, value);
         } else if constexpr (std::is_same_v<T, JSON*>) {
-            return JSON::Object(this->allocator, value);
+            return value;
         }
 
         RUNTIME_ASSERT(false);
@@ -97,6 +95,7 @@ private:
     static JSON* Floating(Memory::BaseAllocator* allocator, float value);
     static JSON* Boolean(Memory::BaseAllocator* allocator, bool value);
     static JSON* String(Memory::BaseAllocator* allocator, DS::View<char> value);
+    static JSON* String(Memory::BaseAllocator* allocator, DS::View<const char> value);
     static JSON* String(Memory::BaseAllocator* allocator, char* str);
     static JSON* String(Memory::BaseAllocator* allocator, const char* str);
 };
