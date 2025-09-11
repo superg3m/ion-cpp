@@ -269,7 +269,5 @@ int main() {
     root->push("Hello1", 2);
     root->push("Hello2", 2.0);
 
-    
-
     return 0;
 }
