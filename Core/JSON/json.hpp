@@ -22,7 +22,7 @@ struct KeyJsonPair {
 
 struct JsonValueObject {
     DS::Hashmap<const char*, bool> keys;
-    DS::Vector<KeyJsonPair> order;
+    DS::Vector<KeyJsonPair> pairs;
 };
 
 struct JsonValueArray {
@@ -87,7 +87,7 @@ struct JSON {
         RUNTIME_ASSERT_MSG(!this->object.keys.has(key), "Duplicate key: %s\n", key);
 
         this->object.keys.put(key, true);
-        this->object.order.push((KeyJsonPair){key , MAKE_JSON_VALUE(value)});
+        this->object.pairs.push((KeyJsonPair){key , MAKE_JSON_VALUE(value)});
     }
 
     template<SupportedType T>
@@ -97,9 +97,9 @@ struct JSON {
         this->array.elements.push(MAKE_JSON_VALUE(value));
     }
 
-    static char* to_string(JSON* root, const char* indent = "    ");
-    
-private:
+    static const char* to_string(JSON* root, const char* indent = "    ");
+    static JSON* parse(Memory::BaseAllocator* allocator, const char* json_string, u64 json_string_length);
+
     static JSON* Integer(Memory::BaseAllocator* allocator, int value);
     static JSON* Floating(Memory::BaseAllocator* allocator, float value);
     static JSON* Boolean(Memory::BaseAllocator* allocator, bool value);

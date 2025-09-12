@@ -9,6 +9,8 @@ enum TokenType {
     // Single Character Syntax
     TOKEN_SYNTAX_LEFT_PAREN, 
     TOKEN_SYNTAX_RIGHT_PAREN,
+    TOKEN_SYNTAX_LEFT_CURLY, 
+    TOKEN_SYNTAX_RIGHT_CURLY,
     TOKEN_SYNTAX_LEFT_BRACKET,
     TOKEN_SYNTAX_RIGHT_BRACKET,
     TOKEN_SYNTAX_COLON,
@@ -41,7 +43,7 @@ enum TokenType {
 };
 
 struct Token {
-    TokenType type = TOKEN_ILLEGAL_TOKEN;
+    TokenType type = TOKEN_EOF;
     u32 line = 1;
 
     DS::View<char> sv; // used for identifer names, string literals, the source_view

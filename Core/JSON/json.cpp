@@ -1,5 +1,9 @@
 #include "json.hpp"
 
+#include "../Lexer/lexer.hpp"
+#include "../Parser/parser.hpp"
+
+
 static const char* indent_from_depth(Memory::BaseAllocator* allocator, int depth, const char* indent) {
     if (depth == 0) {
         return "";
@@ -14,7 +18,7 @@ static const char* indent_from_depth(Memory::BaseAllocator* allocator, int depth
     return ret;
 }
 
-static char* to_string_helper(JSON* root, const char* indent, int depth) {
+static const char* to_string_helper(JSON* root, const char* indent, int depth) {
     switch (root->type) {
         case JSON_VALUE_BOOL: {
             return String::sprintf(root->allocator, nullptr, "%s", root->boolean ? "true" : "false");
@@ -33,7 +37,7 @@ static char* to_string_helper(JSON* root, const char* indent, int depth) {
         } break;
 
         case JSON_VALUE_NULL: {
-            return String::allocate(root->allocator, "null", sizeof("null") - 1);
+            return "null";
         } break;
 
         case JSON_VALUE_ARRAY: {
@@ -68,14 +72,14 @@ static char* to_string_helper(JSON* root, const char* indent, int depth) {
         } break;
 
         case JSON_VALUE_OBJECT: {
-            int object_member_count = root->object.order.count();
+            int object_member_count = root->object.pairs.count();
             DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>(object_member_count, root->allocator);
             const char** buffers = (const char**)root->allocator->malloc(sizeof(char*) * object_member_count);
 
             byte_t total_allocation_size = 1; // 1 for the null terminator
             const char* member_indent = indent_from_depth(root->allocator, depth + 1, indent);
             for (int i = 0; i < object_member_count; i++) {
-                KeyJsonPair pair = root->object.order[i];
+                KeyJsonPair pair = root->object.pairs[i];
                 byte_t temp_size = 0;
 
                 const char* value = to_string_helper(pair.value, indent, depth + 1);
@@ -103,8 +107,88 @@ static char* to_string_helper(JSON* root, const char* indent, int depth) {
     return nullptr;
 }
 
-char* JSON::to_string(JSON* root, const char* indent) {
+const char* JSON::to_string(JSON* root, const char* indent) {
+    if (root == nullptr) {
+        return "JSON* root = null";
+    }
+
     return to_string_helper(root, indent, 0);
+}
+
+
+static JSON* parse_helper(JSON* root, Parser* parser) {
+    Token token = parser->consume_next_token();
+    if (token.type == TOKEN_EOF) {
+
+    }
+
+    switch (token.type) {
+        case TOKEN_LITERAL_TRUE: {
+            return JSON::Boolean(root->allocator, token.b);
+        } break;
+
+        case TOKEN_LITERAL_INTEGER: {
+            return JSON::Integer(root->allocator, token.i);
+        } break;
+
+        case TOKEN_LITERAL_FLOAT: {
+            return JSON::Floating(root->allocator, token.f);
+        } break;
+
+        case TOKEN_LITERAL_STRING: {
+            return JSON::String(root->allocator, token.sv);
+        } break;
+
+        case TOKEN_KEYWORD_NULL: {
+            return JSON::Null(root->allocator);
+        } break;
+
+        case TOKEN_SYNTAX_LEFT_BRACKET: {
+            while (parser->peek_nth_token().type != TOKEN_SYNTAX_RIGHT_BRACKET) {
+                if (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN) {
+                    return nullptr;
+                }
+
+                root->array.elements.push(parse_helper(root, parser));
+                parser->consume_on_match(TOKEN_SYNTAX_COMMA);
+            }
+        } break;
+
+        case TOKEN_SYNTAX_LEFT_CURLY: {
+            while (parser->peek_nth_token().type != TOKEN_SYNTAX_RIGHT_CURLY) {
+                if (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN) {
+                    return nullptr;
+                }
+
+                Token key_token = parser->expect(TOKEN_LITERAL_STRING);
+                const char* key = String::allocate(root->allocator, key_token.sv.data, key_token.sv.length);
+                parser->expect(TOKEN_SYNTAX_COLON);
+                root->object.keys.put(key, true);
+                root->object.pairs.push((KeyJsonPair){key, parse_helper(root, parser)});
+                parser->consume_on_match(TOKEN_SYNTAX_COMMA);
+            }
+        } break;
+
+        default: {
+            RUNTIME_ASSERT(false);
+        } break;        
+    }
+
+    return nullptr;
+}
+
+JSON* JSON::parse(Memory::BaseAllocator* allocator, const char* json_string, u64 json_string_length) {
+    DS::Vector<Token> tokens = DS::Vector<Token>(40, allocator);
+    Lexer::generate_tokens((u8*)json_string, json_string_length, tokens);
+
+    if (tokens[0].type != TOKEN_SYNTAX_LEFT_CURLY) {
+        return nullptr;
+    }
+
+    Parser parser = Parser(allocator, tokens);
+
+    JSON* root = JSON::Object(allocator);
+    return parse_helper(root, &parser);
 }
 
 JSON* JSON::Object(Memory::BaseAllocator* allocator) {
@@ -112,7 +196,7 @@ JSON* JSON::Object(Memory::BaseAllocator* allocator) {
     ret->allocator = allocator;
     ret->type = JSON_VALUE_OBJECT;
     ret->object.keys = DS::Hashmap<const char*, bool>(1, allocator);
-    ret->object.order = DS::Vector<KeyJsonPair>(1, allocator);
+    ret->object.pairs = DS::Vector<KeyJsonPair>(1, allocator);
 
     return ret;
 }

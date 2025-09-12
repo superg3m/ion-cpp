@@ -266,7 +266,7 @@ int main() {
     LOG_INFO("All tests passed ✅\n");
     JSON* root = JSON::Object(&Memory::global_general_allocator);
     root->push("name", "Example");
-    root->push("age", 200.000);
+    root->push("age", 200.003f);
 
     JSON* nested = JSON::Object(&Memory::global_general_allocator);
     nested->push("address1", "San Francisco");

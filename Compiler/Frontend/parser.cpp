@@ -17,110 +17,60 @@
 //                                     └── Primary (identifiers, literals, calls, grouping)
 
 namespace Frontend {
-    Parser::Parser(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) : allocator(allocator), tokens(tokens) {}
+    Expression* parse_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        // return parse_additive_expression(parser);
+        return nullptr;
+    }
 
-    ASTNode* Parser::generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
+    ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
         Parser parser = Parser(allocator, tokens);
 
-        return ASTNode::Expression(allocator, parser.parse_expression());
-    }
-
-    Token Parser::peek_nth_token(int n) {
-        if (this->current + n >= this->tokens.count()) {
-            return Token(); // invalid
-        }
-
-        return this->tokens[this->current + n];
-    }
-
-    Token Parser::previous_token() {
-        return this->tokens[this->current - 1];
-    }
-
-    void Parser::report_error(const char* fmt, ...) {
-        Token token = this->peek_nth_token();
-
-        va_list args;
-        va_start(args, fmt);
-        LOG_ERROR("String: %s\n", token.type_to_string());
-        LOG_ERROR("Error Line: %d | %s", token.line, String::sprintf(this->allocator, nullptr, fmt, args));
-        va_end(args);
-
-        RUNTIME_ASSERT(false);
-    }
-
-    Token Parser::consume_next_token() {
-        return this->tokens[this->current++];
-    }
-
-    void Parser::expect(TokenType expected_type) {
-        Token expected_token = Token();
-        expected_token.type = expected_type;
-
-        if (expected_type && peek_nth_token().type != expected_type) {
-            this->report_error("Expected: %s | Got: %s\n", expected_token.type_to_string(), peek_nth_token().type_to_string());
-        }
-
-        this->consume_next_token();
-    }
-
-    bool Parser::consume_on_match(TokenType expected_type) {
-        if (this->peek_nth_token().type == expected_type) {
-            this->consume_next_token();
-            return true;
-        }
-
-        return false;
+        return ASTNode::Expression(allocator, parse_expression(&parser, allocator));
     }
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | PRIMITIVE_TYPE | IDENTIFIER | "(" <expression> ")"
-    Expression* Parser::parse_primary_expression() {
-        Token current_token = this->peek_nth_token();
+    Expression* parse_primary_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        Token current_token = parser->peek_nth_token();
 
-        if (this->consume_on_match(TOKEN_LITERAL_INTEGER)) {
-            return Expression::Integer(this->allocator, current_token.i, current_token.line);
-        } else if (this->consume_on_match(TOKEN_LITERAL_FLOAT)) {
-            return Expression::Float(this->allocator, current_token.f, current_token.line);
-        } else if (this->consume_on_match(TOKEN_SYNTAX_LEFT_PAREN)) {
-            Expression* expression = this->parse_expression();
-            expect(TOKEN_SYNTAX_RIGHT_PAREN);
+        if (parser->consume_on_match(TOKEN_LITERAL_INTEGER)) {
+            return Expression::Integer(allocator, current_token.i, current_token.line);
+        } else if (parser->consume_on_match(TOKEN_LITERAL_FLOAT)) {
+            return Expression::Float(allocator, current_token.f, current_token.line);
+        } else if (parser->consume_on_match(TOKEN_SYNTAX_LEFT_PAREN)) {
+            Expression* expression = parse_expression(parser, allocator);
+            parser->expect(TOKEN_SYNTAX_RIGHT_PAREN);
 
-            return Expression::Grouping(this->allocator, expression, previous_token().line);
+            return Expression::Grouping(allocator, expression, parser->previous_token().line);
         }
 
         return nullptr;
     }
 
     // <multiplicative> ::= <primary> (("*" | "/" | "%" | "<<" | ">>") <primary>)*
-    Expression* Parser::parse_multiplicative_expression() {
-        Expression* expression = this->parse_primary_expression();
+    Expression* parse_multiplicative_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        Expression* expression = parse_primary_expression(parser, allocator);
 
-        while (this->consume_on_match(TOKEN_SYNTAX_STAR) || this->consume_on_match(TOKEN_SYNTAX_DIVISION) || this->consume_on_match(TOKEN_SYNTAX_MODULUS)) {
-            Token op = this->previous_token();
-            Expression* right = this->parse_primary_expression();
+        while (parser->consume_on_match(TOKEN_SYNTAX_STAR) || parser->consume_on_match(TOKEN_SYNTAX_DIVISION) || parser->consume_on_match(TOKEN_SYNTAX_MODULUS)) {
+            Token op = parser->previous_token();
+            Expression* right = parse_primary_expression(parser, allocator);
 
-            expression = Expression::Binary(this->allocator, op, expression, right, op.line);
+            expression = Expression::Binary(allocator, op, expression, right, op.line);
         }
 
         return expression;
     }
 
     // <additive> ::= <multiplicative> (("+" | "-") <multiplicative>)*
-    Expression* Parser::parse_additive_expression() {
-        Expression* expression = this->parse_multiplicative_expression();
-        while (this->consume_on_match(TOKEN_SYNTAX_PLUS) || this->consume_on_match(TOKEN_SYNTAX_MINUS)) {
+    Expression* parse_additive_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        Expression* expression = parse_multiplicative_expression(parser, allocator);
+        while (parser->consume_on_match(TOKEN_SYNTAX_PLUS) || parser->consume_on_match(TOKEN_SYNTAX_MINUS)) {
 
-            Token op = this->previous_token();
-            Expression* right = this->parse_multiplicative_expression();
+            Token op = parser->previous_token();
+            Expression* right = parse_multiplicative_expression(parser, allocator);
 
-            expression = Expression::Binary(this->allocator, op, expression, right, op.line);
+            expression = Expression::Binary(allocator, op, expression, right, op.line);
         }
 
         return expression;
-    }
-
-    Expression* Parser::parse_expression() {
-        // return this->parse_additive_expression();
-        return nullptr;
     }
 }
