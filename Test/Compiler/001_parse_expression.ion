@@ -1,10 +1,17 @@
+(2 + 4 * 3)
+
 {
-    "test": 5.323,
-    "arr": [
-        3,
-        2, 
-        {
-            "test": "342"
+    "Grouping": {
+        "BinaryOp" {
+            "op": '+',
+            "left": 2,
+            "right": {
+                BinaryOp {
+                    "op": '*',
+                    "left": 4,
+                    "right": 3
+                }
+            },
         }
-    ]
+    }
 }

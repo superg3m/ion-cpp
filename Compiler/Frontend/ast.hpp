@@ -5,13 +5,14 @@
 
 namespace Frontend {
     enum NodeType {
+        AST_INVALID,
         AST_NODE_PROGRAM,
         AST_NODE_EXPRESSION,
         AST_NODE_STATEMENT,
     };
 
     struct ASTNode {
-        NodeType type;
+        NodeType type = AST_INVALID;
         union {
             Expression* expression;
         };

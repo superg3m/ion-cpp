@@ -31,9 +31,7 @@ int main(int argc, char** argv) {
     }
 
     Frontend::ASTNode* ast = Frontend::generate_ast(&allocator, tokens);
-    ast->pretty_print();
-
-    (void)ast;
+    ast->pretty_print(&Memory::global_general_allocator);
 
     return 0;
 }

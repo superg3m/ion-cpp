@@ -17,16 +17,10 @@
 //                                     └── Primary (identifiers, literals, calls, grouping)
 
 namespace Frontend {
-    Expression* parse_expression(Parser* parser, Memory::BaseAllocator* allocator) {
-        // return parse_additive_expression(parser);
-        return nullptr;
-    }
-
-    ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
-        Parser parser = Parser(allocator, tokens);
-
-        return ASTNode::Expression(allocator, parse_expression(&parser, allocator));
-    }
+    Expression* parse_primary_expression(Parser* parser, Memory::BaseAllocator* allocator);
+    Expression* parse_multiplicative_expression(Parser* parser, Memory::BaseAllocator* allocator);
+    Expression* parse_additive_expression(Parser* parser, Memory::BaseAllocator* allocator);
+    Expression* parse_expression(Parser* parser, Memory::BaseAllocator* allocator);
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | PRIMITIVE_TYPE | IDENTIFIER | "(" <expression> ")"
     Expression* parse_primary_expression(Parser* parser, Memory::BaseAllocator* allocator) {
@@ -72,5 +66,15 @@ namespace Frontend {
         }
 
         return expression;
+    }
+
+    Expression* parse_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        return parse_additive_expression(parser, allocator);
+    }
+
+    ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
+        Parser parser = Parser(allocator, tokens);
+
+        return ASTNode::Expression(allocator, parse_expression(&parser, allocator));
     }
 }
