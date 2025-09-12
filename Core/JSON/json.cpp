@@ -186,8 +186,7 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
                     return nullptr;
                 }
 
-                ret->object.keys.put(key, true);
-                ret->object.pairs.push((KeyJsonPair){key, value});
+                ret->object.push(key, value);
                 parser->consume_on_match(TOKEN_SYNTAX_COMMA);
             }
             

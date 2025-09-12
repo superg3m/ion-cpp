@@ -30,8 +30,9 @@ int main(int argc, char** argv) {
         LOG_DEBUG("%s(%.*s)\n", token_type_string, token.sv.length, token.sv.data);
     }
 
-    ASTNode* ast = Frontend::generate_ast(&allocator, tokens);
-    // Frontend::AST::pretty_print_ast(ast);
+    Frontend::ASTNode* ast = Frontend::generate_ast(&allocator, tokens);
+    ast->pretty_print();
+
     (void)ast;
 
     return 0;

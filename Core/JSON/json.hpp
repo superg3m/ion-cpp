@@ -21,6 +21,13 @@ struct KeyJsonPair {
 };
 
 struct JsonValueObject {
+    void push(const char* key, JSON* value) {
+        RUNTIME_ASSERT_MSG(!this->keys.has(key), "Duplicate key: %s\n", key);
+
+        this->keys.put(key, true);
+        this->pairs.push((KeyJsonPair){key , value});
+    }
+    
     DS::Hashmap<const char*, bool> keys;
     DS::Vector<KeyJsonPair> pairs;
 };
@@ -84,10 +91,8 @@ struct JSON {
     template<SupportedType T>
     void push(const char* key, T value) {
         RUNTIME_ASSERT(this->type == JSON_VALUE_OBJECT);
-        RUNTIME_ASSERT_MSG(!this->object.keys.has(key), "Duplicate key: %s\n", key);
 
-        this->object.keys.put(key, true);
-        this->object.pairs.push((KeyJsonPair){key , MAKE_JSON_VALUE(value)});
+        this->object.push(key, MAKE_JSON_VALUE(value));
     }
 
     template<SupportedType T>
