@@ -10,7 +10,7 @@ static const char* indent_from_depth(Memory::BaseAllocator* allocator, int depth
     }
 
     byte_t allocation_size = String::length(indent) * depth;
-    char* ret = (char*)allocator->malloc(allocation_size);
+    char* ret = (char*)allocator->malloc(allocation_size + 1);
     for (int i = 0; i < allocation_size; i++) {
         ret[i] = ' ';
     }
@@ -33,11 +33,7 @@ static const char* to_string_helper(JSON* root, const char* indent, int depth) {
         } break;
 
         case JSON_VALUE_STRING: {
-            if (root->string.data[0] == '\"') {
-                return String::sprintf(root->allocator, nullptr, "\"%.*s\"", root->string.length - 2, root->string.data + 1);
-            } else {
-                return String::sprintf(root->allocator, nullptr, "\"%.*s\"", root->string.length, root->string.data);
-            }
+            return String::sprintf(root->allocator, nullptr, "\"%.*s\"", root->string.length, root->string.data);
         } break;
 
         case JSON_VALUE_NULL: {
@@ -178,12 +174,7 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
                     return nullptr;
                 }
 
-                const char* key = "";
-                if (key_token.sv.data[0] == '\"') {
-                    key = String::allocate(ret->allocator, key_token.sv.data + 1, key_token.sv.length - 2);
-                } else {
-                    key = String::allocate(ret->allocator, key_token.sv.data, key_token.sv.length);
-                }
+                const char* key = String::allocate(ret->allocator, key_token.sv.data, key_token.sv.length);
                 
                 Token color_token = parser->consume_next_token();
                 if (color_token.type != TOKEN_SYNTAX_COLON) {

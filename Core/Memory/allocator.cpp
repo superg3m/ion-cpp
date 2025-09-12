@@ -13,7 +13,10 @@ namespace Memory {
     }
 
     void* GeneralAllocator::malloc(byte_t allocation_size) {
-        return std::malloc(allocation_size);
+        void* ret = std::malloc(allocation_size);
+        Memory::zero(ret, allocation_size);
+
+        return ret;
     }
 
     void GeneralAllocator::free(void* data) {

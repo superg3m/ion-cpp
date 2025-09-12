@@ -112,7 +112,14 @@ void Lexer::consume_string_literal() {
     this->consume_next_char();
 
     DS::View<char> sv = this->get_scratch_buffer();
-    Token token = Token::LiteralTokenFromSourceView(sv, this->line);
+    sv.data += 1;
+    sv.length -= 2;
+    
+    Token token = Token();
+    token.type = TOKEN_LITERAL_STRING;
+    token.line = this->line;
+    token.sv = sv;
+
     this->tokens.push(token);
 }
 
