@@ -4,7 +4,7 @@
 namespace String {
     char* allocate(Memory::BaseAllocator* allocator, const char* s1, u64 length) {
         char* ret = (char*)allocator->malloc(length + 1);
-        Memory::copy(ret, length + 1, s1, length + 1);
+        Memory::copy(ret, length, s1, length);
 
         return ret;
     }

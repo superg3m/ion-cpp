@@ -291,5 +291,13 @@ int main() {
         
     LOG_TRACE("%s\n", JSON::to_string(root));
 
+    const char* test_json = "{\"BinaryOp\": {\"op\": \"+\", \"\": {\"Grouping\": {\"BinaryOp\": {\"op\": \"*\", \"left\": [null, false, 7, 23.51, true, { \"test\": \"should_be\" }], \"right\": 123}}}, \"right\": {\"Grouping\": {\"BinaryOp\": {\"op\": \"/\", \"left\": 2, \"right\": {\"Grouping\": {\"BinaryOp\": {\"op\": \"+\", \"left\": 45.234001, \"right\": 5}}}}}}}}";
+    // const char* test_json = "{\"BinaryOp\": [23432.0324]}";
+    u64 length = String::length(test_json);
+    printf("------------ PARSING ------------\n");
+    JSON* json_test_parse = JSON::parse(&Memory::global_general_allocator, test_json, length);
+    const char* str2 = JSON::to_string(json_test_parse);
+    printf("%s\n", str2);
+
     return 0;
 }

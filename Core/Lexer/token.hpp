@@ -25,13 +25,13 @@ enum TokenType {
     TOKEN_LITERAL_FLOAT,    
     TOKEN_LITERAL_STRING,   
     TOKEN_LITERAL_CHARACTER,
-    TOKEN_LITERAL_TRUE,        
-    TOKEN_LITERAL_FALSE, 
 
     TOKEN_KEYWORD_IF,
     TOKEN_KEYWORD_ELSE, 
     TOKEN_KEYWORD_FOR,         
-    TOKEN_KEYWORD_WHILE,            
+    TOKEN_KEYWORD_WHILE, 
+    TOKEN_KEYWORD_TRUE,        
+    TOKEN_KEYWORD_FALSE,            
     TOKEN_KEYWORD_FUNC,
     TOKEN_KEYWORD_VAR,
     TOKEN_KEYWORD_NULL,      
@@ -43,7 +43,7 @@ enum TokenType {
 };
 
 struct Token {
-    TokenType type = TOKEN_EOF;
+    TokenType type = TOKEN_ILLEGAL_TOKEN;
     u32 line = 1;
 
     DS::View<char> sv; // used for identifer names, string literals, the source_view

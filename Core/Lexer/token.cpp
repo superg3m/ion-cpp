@@ -14,6 +14,8 @@ Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
         { DS::View<char>("else",   sizeof("else") - 1),   TOKEN_KEYWORD_ELSE   },
         { DS::View<char>("for",    sizeof("for") - 1),    TOKEN_KEYWORD_FOR    },
         { DS::View<char>("while",  sizeof("while") - 1),  TOKEN_KEYWORD_WHILE  },
+        { DS::View<char>("true",  sizeof("true") - 1),    TOKEN_KEYWORD_TRUE   },
+        { DS::View<char>("false",  sizeof("false") - 1),  TOKEN_KEYWORD_FALSE  },
         { DS::View<char>("func",   sizeof("func") - 1),   TOKEN_KEYWORD_FUNC   },
         { DS::View<char>("var",    sizeof("var") - 1),    TOKEN_KEYWORD_VAR    },
         { DS::View<char>("null",   sizeof("null") - 1),   TOKEN_KEYWORD_NULL   },
@@ -21,6 +23,7 @@ Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
     };
 
     Token ret = Token(); // Invalid
+    ret.sv = sv;
     if (syntax_map.has(sv)) {
         ret.type = syntax_map.get(sv);
         ret.line = line;
@@ -74,12 +77,12 @@ Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
     }
 
     if (String::equal(ret.sv.data, sv.length, "true", sizeof("true") - 1)) {
-        ret.type = TOKEN_LITERAL_TRUE;
+        ret.type = TOKEN_KEYWORD_TRUE;
         ret.b = true;
 
         return ret;
     } else if (String::equal(ret.sv.data, sv.length, "false", sizeof("false") - 1)) {
-        ret.type = TOKEN_LITERAL_FALSE;
+        ret.type = TOKEN_KEYWORD_FALSE;
         ret.b = false;
 
         return ret;
@@ -139,14 +142,14 @@ const char* Token::type_to_string() const {
         stringify(TOKEN_LITERAL_FLOAT),    
         stringify(TOKEN_LITERAL_STRING),   
         stringify(TOKEN_LITERAL_CHARACTER),
-        stringify(TOKEN_LITERAL_TRUE),        
-        stringify(TOKEN_LITERAL_FALSE), 
 
         stringify(TOKEN_KEYWORD_IF),
         stringify(TOKEN_KEYWORD_ELSE),
         stringify(TOKEN_KEYWORD_FOR),
         stringify(TOKEN_KEYWORD_WHILE),
         stringify(TOKEN_KEYWORD_FUNC),
+        stringify(TOKEN_KEYWORD_TRUE),        
+        stringify(TOKEN_KEYWORD_FALSE), 
         stringify(TOKEN_KEYWORD_VAR),
         stringify(TOKEN_KEYWORD_NULL),
         stringify(TOKEN_KEYWORD_RETURN),

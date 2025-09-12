@@ -256,7 +256,7 @@ void Lexer::consume_next_token() {
 
     if (this->consume_whitespace()) {}
     else if (this->consume_literal()) {}
-    //else if (consume_word()) {}
+    else if (this->consume_word()) {}
     else if (this->consume_syntax()) {}
     else {
         this->report_error("Illegal token found\n");
