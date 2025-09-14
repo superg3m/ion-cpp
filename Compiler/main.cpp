@@ -1,5 +1,6 @@
 #include <Core/core.hpp>
 #include "Frontend/parser.hpp"
+#include "Frontend/typechecker.hpp"
 
 #define PROGRAM_CAPACITY KB(10)
 
@@ -32,6 +33,8 @@ int main(int argc, char** argv) {
 
     Frontend::ASTNode* ast = Frontend::generate_ast(&allocator, tokens);
     ast->pretty_print(&Memory::global_general_allocator);
+
+    Frontend::type_check_ast(ast);
 
     return 0;
 }
