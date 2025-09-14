@@ -36,6 +36,17 @@ namespace Frontend {
                         return root;
                     } break;
 
+                    case EXPRESSION_TYPE_UNARY_OPERATION: {
+                        JSON* b = JSON::Object(root->allocator);
+                        JSON* operand = JSON::Object(root->allocator);
+                        b->object.push("op", JSON::String(b->allocator, e->unary->operation.sv));
+                        b->object.push("operand", ast_to_json(ASTNode::Expression(b->allocator, e->unary->operand), operand));
+
+                        root->push("Unary", b);
+                        
+                        return root;
+                    } break;
+
                     case EXPRESSION_TYPE_LOGICAL_OPERATION: {
                         JSON* b = JSON::Object(root->allocator);
                         JSON* left = JSON::Object(root->allocator);

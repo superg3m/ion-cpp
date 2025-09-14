@@ -18,8 +18,10 @@
 
 namespace Frontend {
     Expression* parse_primary_expression(Parser* parser, Memory::BaseAllocator* allocator);
+    Expression* parse_unary_expression(Parser* parser, Memory::BaseAllocator* allocator);
     Expression* parse_multiplicative_expression(Parser* parser, Memory::BaseAllocator* allocator);
     Expression* parse_additive_expression(Parser* parser, Memory::BaseAllocator* allocator);
+    Expression* parse_logical_expression(Parser* parser, Memory::BaseAllocator* allocator);
     Expression* parse_expression(Parser* parser, Memory::BaseAllocator* allocator);
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
@@ -42,15 +44,27 @@ namespace Frontend {
         }
 
         return nullptr;
+    
+}
+    // <unary> ::= (("-" | "+") <unary>) | <primary>
+    Expression* parse_unary_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        while (parser->consume_on_match(TS_PLUS) || parser->consume_on_match(TS_MINUS)) {
+            Token op = parser->previous_token();
+            Expression* operand = parse_unary_expression(parser, allocator);
+
+            return Expression::Unary(allocator, op, operand, op.line);
+        }
+
+        return parse_primary_expression(parser, allocator);
     }
 
-    // <multiplicative> ::= <primary> (("*" | "/" | "%" | "<<" | ">>") <primary>)*
+    // <multiplicative> ::= <unary> (("*" | "/" | "%" | "<<" | ">>") <unary>)*
     Expression* parse_multiplicative_expression(Parser* parser, Memory::BaseAllocator* allocator) {
-        Expression* expression = parse_primary_expression(parser, allocator);
+        Expression* expression = parse_unary_expression(parser, allocator);
 
         while (parser->consume_on_match(TS_STAR) || parser->consume_on_match(TS_DIVISION) || parser->consume_on_match(TS_MODULUS)) {
             Token op = parser->previous_token();
-            Expression* right = parse_primary_expression(parser, allocator);
+            Expression* right = parse_unary_expression(parser, allocator);
 
             expression = Expression::Binary(allocator, op, expression, right, op.line);
         }
@@ -61,6 +75,7 @@ namespace Frontend {
     // <additive> ::= <multiplicative> (("+" | "-") <multiplicative>)*
     Expression* parse_additive_expression(Parser* parser, Memory::BaseAllocator* allocator) {
         Expression* expression = parse_multiplicative_expression(parser, allocator);
+
         while (parser->consume_on_match(TS_PLUS) || parser->consume_on_match(TS_MINUS)) {
 
             Token op = parser->previous_token();
@@ -75,6 +90,7 @@ namespace Frontend {
     // <logcal> ::= <additive> (("||" | "&&") <additive>)*
     Expression* parse_logical_expression(Parser* parser, Memory::BaseAllocator* allocator) {
         Expression* expression = parse_additive_expression(parser, allocator);
+
         while (parser->consume_on_match(TSL_OR) || parser->consume_on_match(TSL_AND)) {
             Token op = parser->previous_token();
             Expression* right = parse_additive_expression(parser, allocator);
