@@ -48,7 +48,7 @@ namespace Frontend {
 }
     // <unary> ::= (("-" | "+") <unary>) | <primary>
     Expression* parse_unary_expression(Parser* parser, Memory::BaseAllocator* allocator) {
-        while (parser->consume_on_match(TS_PLUS) || parser->consume_on_match(TS_MINUS)) {
+        if (parser->consume_on_match(TS_PLUS) || parser->consume_on_match(TS_MINUS)) {
             Token op = parser->previous_token();
             Expression* operand = parse_unary_expression(parser, allocator);
 
