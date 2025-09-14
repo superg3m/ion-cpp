@@ -2,41 +2,58 @@
 
 #include "../DataStructure/ds.hpp"
 
+#define X_SYNTAX_TOKENS                \
+    X(TOKEN_SYNTAX_PLUS, "+")          \
+    X(TOKEN_SYNTAX_MINUS, "-")         \
+    X(TOKEN_SYNTAX_STAR, "*")          \
+    X(TOKEN_SYNTAX_DIVISION, "/")      \
+    X(TOKEN_SYNTAX_MODULUS, "%")       \
+    X(TOKEN_SYNTAX_LEFT_CURLY, "{")    \
+    X(TOKEN_SYNTAX_RIGHT_CURLY, "}")   \
+    X(TOKEN_SYNTAX_LEFT_PAREN, "(")    \
+    X(TOKEN_SYNTAX_RIGHT_PAREN, ")")   \
+    X(TOKEN_SYNTAX_LEFT_BRACKET, "[")  \
+    X(TOKEN_SYNTAX_RIGHT_BRACKET, "]") \
+    X(TOKEN_SYNTAX_COLON, ":")         \
+    X(TOKEN_SYNTAX_COMMA, ",")         \
+    X(TOKEN_SYNTAX_LOGICAL_OR, "||")   \
+    X(TOKEN_SYNTAX_LOGICAL_AND, "&&")  \
+
+#define X_LITERAL_TOKENS       \
+    X(TOKEN_LITERAL_INTEGER)   \
+    X(TOKEN_LITERAL_FLOAT)     \
+    X(TOKEN_LITERAL_STRING)    \
+    X(TOKEN_LITERAL_CHARACTER) \
+
+#define X_KEYWORD_TOKENS              \
+    X(TOKEN_KEYWORD_IF, "if")         \
+    X(TOKEN_KEYWORD_ELSE, "else")     \
+    X(TOKEN_KEYWORD_FOR, "for")       \
+    X(TOKEN_KEYWORD_WHILE, "while")   \
+    X(TOKEN_KEYWORD_TRUE, "true")     \
+    X(TOKEN_KEYWORD_FALSE, "false")   \
+    X(TOKEN_KEYWORD_FUNC, "func")     \
+    X(TOKEN_KEYWORD_VAR, "var")       \
+    X(TOKEN_KEYWORD_NULL, "null")     \
+    X(TOKEN_KEYWORD_RETURN, "return") \
+
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
     TOKEN_EOF,
     
     // Single Character Syntax
-    TOKEN_SYNTAX_LEFT_PAREN, 
-    TOKEN_SYNTAX_RIGHT_PAREN,
-    TOKEN_SYNTAX_LEFT_CURLY, 
-    TOKEN_SYNTAX_RIGHT_CURLY,
-    TOKEN_SYNTAX_LEFT_BRACKET,
-    TOKEN_SYNTAX_RIGHT_BRACKET,
-    TOKEN_SYNTAX_COLON,
-    TOKEN_SYNTAX_COMMA,
-    TOKEN_SYNTAX_STAR,       
-    TOKEN_SYNTAX_PLUS,       
-    TOKEN_SYNTAX_MINUS,      
-    TOKEN_SYNTAX_DIVISION,   
-    TOKEN_SYNTAX_MODULUS,    
+    #define X(name, str) name,
+        X_SYNTAX_TOKENS
+    #undef X
 
-    TOKEN_LITERAL_INTEGER,     
-    TOKEN_LITERAL_FLOAT,    
-    TOKEN_LITERAL_STRING,   
-    TOKEN_LITERAL_CHARACTER,
+    #define X(name) name,
+        X_LITERAL_TOKENS
+    #undef X
 
-    TOKEN_KEYWORD_IF,
-    TOKEN_KEYWORD_ELSE, 
-    TOKEN_KEYWORD_FOR,         
-    TOKEN_KEYWORD_WHILE, 
-    TOKEN_KEYWORD_TRUE,        
-    TOKEN_KEYWORD_FALSE,            
-    TOKEN_KEYWORD_FUNC,
-    TOKEN_KEYWORD_VAR,
-    TOKEN_KEYWORD_NULL,      
-    TOKEN_KEYWORD_RETURN, 
-    
+    #define X(name, str) name,
+        X_KEYWORD_TOKENS
+    #undef X
+
     TOKEN_IDENTIFIER,
 
     TOKEN_COUNT

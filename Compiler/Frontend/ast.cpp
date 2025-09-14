@@ -15,6 +15,14 @@ namespace Frontend {
                         return JSON::Integer(root->allocator, e->integer->value);
                     } break;
 
+                    case EXPRESSION_TYPE_FLOAT: {
+                        return JSON::Floating(root->allocator, e->floating->value);
+                    } break;
+
+                    case EXPRESSION_TYPE_STRING: {
+                        return JSON::String(root->allocator, e->str->name);
+                    } break;
+
                     case EXPRESSION_TYPE_BINARY_OPERATION: {
                         JSON* b = JSON::Object(root->allocator);
                         JSON* left = JSON::Object(root->allocator);

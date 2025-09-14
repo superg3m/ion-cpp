@@ -1,17 +1,1 @@
-(2 + 4 * 3)
-
-{
-    "Grouping": {
-        "BinaryOp" {
-            "op": '+',
-            "left": 2,
-            "right": {
-                BinaryOp {
-                    "op": '*',
-                    "left": 4,
-                    "right": 3
-                }
-            },
-        }
-    }
-}
+4 || 3

@@ -105,7 +105,7 @@ typedef struct Expression {
         
         return ret;
     }
-    static Expression* Bool(Memory::BaseAllocator* allocator, bool value, int line) {
+    static Expression* Boolean(Memory::BaseAllocator* allocator, bool value, int line) {
         Expression* ret = (Expression*)allocator->malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_BOOLEAN;
         ret->boolean = (BoolExpression*)allocator->malloc(sizeof(BoolExpression));

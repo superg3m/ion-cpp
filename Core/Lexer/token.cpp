@@ -10,16 +10,9 @@ Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
     Memory::GeneralAllocator general_allocator = Memory::GeneralAllocator();
 
     static DS::Hashmap<DS::View<char>, TokenType> syntax_map = {
-        { DS::View<char>("if",     sizeof("if") - 1),     TOKEN_KEYWORD_IF     },
-        { DS::View<char>("else",   sizeof("else") - 1),   TOKEN_KEYWORD_ELSE   },
-        { DS::View<char>("for",    sizeof("for") - 1),    TOKEN_KEYWORD_FOR    },
-        { DS::View<char>("while",  sizeof("while") - 1),  TOKEN_KEYWORD_WHILE  },
-        { DS::View<char>("true",  sizeof("true") - 1),    TOKEN_KEYWORD_TRUE   },
-        { DS::View<char>("false",  sizeof("false") - 1),  TOKEN_KEYWORD_FALSE  },
-        { DS::View<char>("func",   sizeof("func") - 1),   TOKEN_KEYWORD_FUNC   },
-        { DS::View<char>("var",    sizeof("var") - 1),    TOKEN_KEYWORD_VAR    },
-        { DS::View<char>("null",   sizeof("null") - 1),   TOKEN_KEYWORD_NULL   },
-        { DS::View<char>("return", sizeof("return") - 1), TOKEN_KEYWORD_RETURN },
+        #define X(name, str) { DS::View<char>(str, sizeof(str) - 1), name },
+            X_KEYWORD_TOKENS
+        #undef X
     };
 
     Token ret = Token(); // Invalid
@@ -35,19 +28,9 @@ Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
 
 Token Token::SyntaxTokenFromSourceView(DS::View<char> sv, int line) {
     static DS::Hashmap<DS::View<char>, TokenType> syntax_map = {
-        { DS::View<char>("+", sizeof("+") - 1), TOKEN_SYNTAX_PLUS },
-        { DS::View<char>("-", sizeof("-") - 1), TOKEN_SYNTAX_MINUS },
-        { DS::View<char>("*", sizeof("*") - 1), TOKEN_SYNTAX_STAR },
-        { DS::View<char>("/", sizeof("/") - 1), TOKEN_SYNTAX_DIVISION },
-        { DS::View<char>("%", sizeof("%") - 1), TOKEN_SYNTAX_MODULUS },
-        { DS::View<char>("{", sizeof("{") - 1), TOKEN_SYNTAX_LEFT_CURLY },
-        { DS::View<char>("}", sizeof("}") - 1), TOKEN_SYNTAX_RIGHT_CURLY },
-        { DS::View<char>("(", sizeof("(") - 1), TOKEN_SYNTAX_LEFT_PAREN },
-        { DS::View<char>(")", sizeof(")") - 1), TOKEN_SYNTAX_RIGHT_PAREN },
-        { DS::View<char>("[", sizeof("[") - 1), TOKEN_SYNTAX_LEFT_BRACKET },
-        { DS::View<char>("]", sizeof("]") - 1), TOKEN_SYNTAX_RIGHT_BRACKET },
-        { DS::View<char>(":", sizeof(":") - 1), TOKEN_SYNTAX_COLON },
-        { DS::View<char>(",", sizeof(",") - 1), TOKEN_SYNTAX_COMMA },
+        #define X(name, str) { DS::View<char>(str, sizeof(str) - 1), name },
+            X_SYNTAX_TOKENS
+        #undef X
     };
 
     Token ret = Token(); // Invalid
@@ -124,36 +107,18 @@ const char* Token::type_to_string() const {
         stringify(TOKEN_ILLEGAL_TOKEN),
         stringify(TOKEN_EOF),
         
-        stringify(TOKEN_SYNTAX_LEFT_PAREN), 
-        stringify(TOKEN_SYNTAX_RIGHT_PAREN),
-        stringify(TOKEN_SYNTAX_LEFT_CURLY),
-        stringify(TOKEN_SYNTAX_RIGHT_CURLY),
-        stringify(TOKEN_SYNTAX_LEFT_BRACKET),
-        stringify(TOKEN_SYNTAX_RIGHT_BRACKET),
-        stringify(TOKEN_SYNTAX_COLON),
-        stringify(TOKEN_SYNTAX_COMMA),
-        stringify(TOKEN_SYNTAX_STAR),       
-        stringify(TOKEN_SYNTAX_PLUS),       
-        stringify(TOKEN_SYNTAX_MINUS),      
-        stringify(TOKEN_SYNTAX_DIVISION),   
-        stringify(TOKEN_SYNTAX_MODULUS),    
+        #define X(name, str) stringify(name),
+            X_SYNTAX_TOKENS
+        #undef X   
 
-        stringify(TOKEN_LITERAL_INTEGER),     
-        stringify(TOKEN_LITERAL_FLOAT),    
-        stringify(TOKEN_LITERAL_STRING),   
-        stringify(TOKEN_LITERAL_CHARACTER),
+        #define X(name) stringify(name),
+            X_LITERAL_TOKENS
+        #undef X
 
-        stringify(TOKEN_KEYWORD_IF),
-        stringify(TOKEN_KEYWORD_ELSE),
-        stringify(TOKEN_KEYWORD_FOR),
-        stringify(TOKEN_KEYWORD_WHILE),
-        stringify(TOKEN_KEYWORD_FUNC),
-        stringify(TOKEN_KEYWORD_TRUE),        
-        stringify(TOKEN_KEYWORD_FALSE), 
-        stringify(TOKEN_KEYWORD_VAR),
-        stringify(TOKEN_KEYWORD_NULL),
-        stringify(TOKEN_KEYWORD_RETURN),
-        
+        #define X(name, str) stringify(name),
+            X_KEYWORD_TOKENS
+        #undef X
+            
         stringify(TOKEN_IDENTIFIER),
     };
 
