@@ -134,6 +134,6 @@ namespace Hashing {
         DS::View<char>* s1 = (DS::View<char>*)c1;
         DS::View<char>* s2 = (DS::View<char>*)c2;
 
-        return String::equal(s1->data, s1->length, s2->data, s2->length);
+        return String::equal(*s1, *s2);
     }
 }

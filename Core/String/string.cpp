@@ -61,6 +61,10 @@ namespace String {
         return Memory::equal(s1, s1_length, s2, s2_length);
     }
 
+    bool equal(DS::View<char> s1, DS::View<char> s2) {
+        return Memory::equal(s1.data, s1.length, s2.data, s2.length);
+    }
+
     s64 index_of(const char* str, u64 str_length, const char* substring, u64 substring_length) {
         RUNTIME_ASSERT(str);
         RUNTIME_ASSERT(substring);

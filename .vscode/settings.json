@@ -49,6 +49,7 @@
         "stdexcept": "cpp",
         "algorithm": "cpp",
         "utility": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "compare": "cpp"
     }
 }
