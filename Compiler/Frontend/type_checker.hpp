@@ -4,7 +4,7 @@ namespace Frontend {
     bool type_check_expression(Expression* e) {
         switch (e->type) {
             case EXPRESSION_TYPE_INTEGER: {
-                return "integer";
+                return "integer"; // (genuienly you could just use strings for the type checking)
             } break;
         }
 
