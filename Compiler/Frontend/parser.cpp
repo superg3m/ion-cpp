@@ -73,21 +73,20 @@ namespace Frontend {
     }
 
     // <logcal> ::= <additive> (("||" | "&&") <additive>)*
-    Expression* parse_lgocal_expression(Parser* parser, Memory::BaseAllocator* allocator) {
-        Expression* expression = parse_multiplicative_expression(parser, allocator);
+    Expression* parse_logical_expression(Parser* parser, Memory::BaseAllocator* allocator) {
+        Expression* expression = parse_additive_expression(parser, allocator);
         while (parser->consume_on_match(TSL_OR) || parser->consume_on_match(TSL_AND)) {
-
             Token op = parser->previous_token();
-            Expression* right = parse_multiplicative_expression(parser, allocator);
+            Expression* right = parse_additive_expression(parser, allocator);
 
-            expression = Expression::Binary(allocator, op, expression, right, op.line);
+            expression = Expression::Logical(allocator, op, expression, right, op.line);
         }
 
         return expression;
     }
 
     Expression* parse_expression(Parser* parser, Memory::BaseAllocator* allocator) {
-        return parse_additive_expression(parser, allocator);
+        return parse_logical_expression(parser, allocator);
     }
 
     ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {

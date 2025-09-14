@@ -36,6 +36,19 @@ namespace Frontend {
                         return root;
                     } break;
 
+                    case EXPRESSION_TYPE_LOGICAL_OPERATION: {
+                        JSON* b = JSON::Object(root->allocator);
+                        JSON* left = JSON::Object(root->allocator);
+                        JSON* right = JSON::Object(root->allocator);
+                        b->object.push("op", JSON::String(b->allocator, e->logical->operation.sv));
+                        b->object.push("left", ast_to_json(ASTNode::Expression(b->allocator, e->logical->left), left));
+                        b->object.push("right", ast_to_json(ASTNode::Expression(b->allocator, e->logical->right), right));
+
+                        root->push("Logical", b);
+                        
+                        return root;
+                    } break;
+
                     case EXPRESSION_TYPE_GROUPING: {
                         JSON* g = JSON::Object(root->allocator);
                         root->object.push("Grouping", ast_to_json(ASTNode::Expression(g->allocator, e->grouping->value), g));
