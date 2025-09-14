@@ -116,7 +116,7 @@ void Lexer::consume_string_literal() {
     sv.length -= 2;
     
     Token token = Token();
-    token.type = TOKEN_LITERAL_STRING;
+    token.type = TL_STRING;
     token.line = this->line;
     token.sv = sv;
 

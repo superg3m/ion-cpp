@@ -122,30 +122,30 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
     Token token = parser->consume_next_token();
 
     switch (token.type) {
-        case TOKEN_KEYWORD_FALSE:
-        case TOKEN_KEYWORD_TRUE: {
+        case TKW_FALSE:
+        case TKW_TRUE: {
             return JSON::Boolean(root->allocator, token.b);
         } break;
 
-        case TOKEN_LITERAL_INTEGER: {
+        case TL_INTEGER: {
             return JSON::Integer(root->allocator, token.i);
         } break;
 
-        case TOKEN_LITERAL_FLOAT: {
+        case TL_FLOAT: {
             return JSON::Floating(root->allocator, token.f);
         } break;
 
-        case TOKEN_LITERAL_STRING: {
+        case TL_STRING: {
             return JSON::String(root->allocator, token.sv);
         } break;
 
-        case TOKEN_KEYWORD_NULL: {
+        case TKW_NULL: {
             return JSON::Null(root->allocator);
         } break;
 
-        case TOKEN_SYNTAX_LEFT_BRACKET: {
+        case TS_LEFT_BRACKET: {
             JSON* ret = JSON::Array(root->allocator);
-            while (!parser->consume_on_match(TOKEN_SYNTAX_RIGHT_BRACKET)) {
+            while (!parser->consume_on_match(TS_RIGHT_BRACKET)) {
                 if (parser->peek_nth_token().type == TOKEN_ILLEGAL_TOKEN) {
                     return nullptr;
                 }
@@ -156,28 +156,28 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
                 }
 
                 ret->array.elements.push(value);
-                parser->consume_on_match(TOKEN_SYNTAX_COMMA);
+                parser->consume_on_match(TS_COMMA);
             }
 
             return ret;
         } break;
 
-        case TOKEN_SYNTAX_LEFT_CURLY: {
+        case TS_LEFT_CURLY: {
             JSON* ret = JSON::Object(root->allocator);
-            while (!parser->consume_on_match(TOKEN_SYNTAX_RIGHT_CURLY)) {
+            while (!parser->consume_on_match(TS_RIGHT_CURLY)) {
                 if (parser->peek_nth_token().type == TOKEN_ILLEGAL_TOKEN) {
                     return nullptr;
                 }
 
                 Token key_token = parser->consume_next_token();
-                if (key_token.type != TOKEN_LITERAL_STRING) {
+                if (key_token.type != TL_STRING) {
                     return nullptr;
                 }
 
                 const char* key = String::allocate(ret->allocator, key_token.sv.data, key_token.sv.length);
                 
                 Token color_token = parser->consume_next_token();
-                if (color_token.type != TOKEN_SYNTAX_COLON) {
+                if (color_token.type != TS_COLON) {
                     return nullptr;
                 }
 
@@ -187,7 +187,7 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
                 }
 
                 ret->object.push(key, value);
-                parser->consume_on_match(TOKEN_SYNTAX_COMMA);
+                parser->consume_on_match(TS_COMMA);
             }
             
             return ret;
@@ -209,7 +209,7 @@ JSON* JSON::parse(Memory::BaseAllocator* allocator, const char* json_string, u64
         LOG_DEBUG("%s(%.*s)\n", token_type_string, token.sv.length, token.sv.data);
     }
 
-    if (tokens[0].type != TOKEN_SYNTAX_LEFT_CURLY) {
+    if (tokens[0].type != TS_LEFT_CURLY) {
         return nullptr;
     }
 

@@ -26,17 +26,17 @@ namespace Frontend {
     Expression* parse_primary_expression(Parser* parser, Memory::BaseAllocator* allocator) {
         Token current_token = parser->peek_nth_token();
 
-        if (parser->consume_on_match(TOKEN_KEYWORD_TRUE) || parser->consume_on_match(TOKEN_KEYWORD_FALSE)) {
+        if (parser->consume_on_match(TKW_TRUE) || parser->consume_on_match(TKW_FALSE)) {
             return Expression::Boolean(allocator, current_token.b, current_token.line);
-        } else if (parser->consume_on_match(TOKEN_LITERAL_INTEGER)) {
+        } else if (parser->consume_on_match(TL_INTEGER)) {
             return Expression::Integer(allocator, current_token.i, current_token.line);
-        } else if (parser->consume_on_match(TOKEN_LITERAL_FLOAT)) {
+        } else if (parser->consume_on_match(TL_FLOAT)) {
             return Expression::Float(allocator, current_token.f, current_token.line);
-        } else if (parser->consume_on_match(TOKEN_LITERAL_STRING)) {
+        } else if (parser->consume_on_match(TL_STRING)) {
             return Expression::String(allocator, current_token.sv, current_token.line);
-        } else if (parser->consume_on_match(TOKEN_SYNTAX_LEFT_PAREN)) {
+        } else if (parser->consume_on_match(TS_LEFT_PAREN)) {
             Expression* expression = parse_expression(parser, allocator);
-            parser->expect(TOKEN_SYNTAX_RIGHT_PAREN);
+            parser->expect(TS_RIGHT_PAREN);
 
             return Expression::Grouping(allocator, expression, parser->previous_token().line);
         }
@@ -48,7 +48,7 @@ namespace Frontend {
     Expression* parse_multiplicative_expression(Parser* parser, Memory::BaseAllocator* allocator) {
         Expression* expression = parse_primary_expression(parser, allocator);
 
-        while (parser->consume_on_match(TOKEN_SYNTAX_STAR) || parser->consume_on_match(TOKEN_SYNTAX_DIVISION) || parser->consume_on_match(TOKEN_SYNTAX_MODULUS)) {
+        while (parser->consume_on_match(TS_STAR) || parser->consume_on_match(TS_DIVISION) || parser->consume_on_match(TS_MODULUS)) {
             Token op = parser->previous_token();
             Expression* right = parse_primary_expression(parser, allocator);
 
@@ -61,7 +61,7 @@ namespace Frontend {
     // <additive> ::= <multiplicative> (("+" | "-") <multiplicative>)*
     Expression* parse_additive_expression(Parser* parser, Memory::BaseAllocator* allocator) {
         Expression* expression = parse_multiplicative_expression(parser, allocator);
-        while (parser->consume_on_match(TOKEN_SYNTAX_PLUS) || parser->consume_on_match(TOKEN_SYNTAX_MINUS)) {
+        while (parser->consume_on_match(TS_PLUS) || parser->consume_on_match(TS_MINUS)) {
 
             Token op = parser->previous_token();
             Expression* right = parse_multiplicative_expression(parser, allocator);
@@ -75,7 +75,7 @@ namespace Frontend {
     // <logcal> ::= <additive> (("||" | "&&") <additive>)*
     Expression* parse_lgocal_expression(Parser* parser, Memory::BaseAllocator* allocator) {
         Expression* expression = parse_multiplicative_expression(parser, allocator);
-        while (parser->consume_on_match(TOKEN_SYNTAX_LOGICAL_OR) || parser->consume_on_match(TOKEN_SYNTAX_LOGICAL_AND)) {
+        while (parser->consume_on_match(TSL_OR) || parser->consume_on_match(TSL_AND)) {
 
             Token op = parser->previous_token();
             Expression* right = parse_multiplicative_expression(parser, allocator);

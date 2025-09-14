@@ -49,23 +49,23 @@ Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
     ret.line = line;
 
     if (ret.sv.data[0] == '"') {
-        ret.type = TOKEN_LITERAL_STRING;
+        ret.type = TL_STRING;
 
         return ret;;
     } else if (ret.sv.data[0] == '\'') {
-        ret.type = TOKEN_LITERAL_CHARACTER;
+        ret.type = TL_CHARACTER;
         ret.c = ret.sv.data[1];
 
         return ret;
     }
 
     if (String::equal(ret.sv.data, sv.length, "true", sizeof("true") - 1)) {
-        ret.type = TOKEN_KEYWORD_TRUE;
+        ret.type = TKW_TRUE;
         ret.b = true;
 
         return ret;
     } else if (String::equal(ret.sv.data, sv.length, "false", sizeof("false") - 1)) {
-        ret.type = TOKEN_KEYWORD_FALSE;
+        ret.type = TKW_FALSE;
         ret.b = false;
 
         return ret;
@@ -80,7 +80,7 @@ Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
     char* endptr_int = NULL;
     long i = strtol(buffer, &endptr_int, 10);
     if ((byte_t)(endptr_int - buffer) == sv.length) {
-        ret.type = TOKEN_LITERAL_INTEGER;
+        ret.type = TL_INTEGER;
         ret.i = (int)i;
 
         return ret;
@@ -89,7 +89,7 @@ Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
     char* endptr = NULL;
     float f = strtof(buffer, &endptr);
     if ((byte_t)(endptr - buffer) == sv.length) {
-        ret.type = TOKEN_LITERAL_FLOAT;
+        ret.type = TL_FLOAT;
         ret.f = f;
 
         return ret;

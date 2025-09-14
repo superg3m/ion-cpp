@@ -2,40 +2,54 @@
 
 #include "../DataStructure/ds.hpp"
 
-#define X_SYNTAX_TOKENS                \
-    X(TOKEN_SYNTAX_PLUS, "+")          \
-    X(TOKEN_SYNTAX_MINUS, "-")         \
-    X(TOKEN_SYNTAX_STAR, "*")          \
-    X(TOKEN_SYNTAX_DIVISION, "/")      \
-    X(TOKEN_SYNTAX_MODULUS, "%")       \
-    X(TOKEN_SYNTAX_LEFT_CURLY, "{")    \
-    X(TOKEN_SYNTAX_RIGHT_CURLY, "}")   \
-    X(TOKEN_SYNTAX_LEFT_PAREN, "(")    \
-    X(TOKEN_SYNTAX_RIGHT_PAREN, ")")   \
-    X(TOKEN_SYNTAX_LEFT_BRACKET, "[")  \
-    X(TOKEN_SYNTAX_RIGHT_BRACKET, "]") \
-    X(TOKEN_SYNTAX_COLON, ":")         \
-    X(TOKEN_SYNTAX_COMMA, ",")         \
-    X(TOKEN_SYNTAX_LOGICAL_OR, "||")   \
-    X(TOKEN_SYNTAX_LOGICAL_AND, "&&")  \
+#define X_SYNTAX_TOKENS          \
+    X(TS_PLUS, "+")              \
+    X(TS_MINUS, "-")             \
+    X(TS_STAR, "*")              \
+    X(TS_DIVISION, "/")          \
+    X(TS_MODULUS, "%")           \
+    X(TS_LEFT_CURLY, "{")        \
+    X(TS_RIGHT_CURLY, "}")       \
+    X(TS_LEFT_PAREN, "(")        \
+    X(TS_RIGHT_PAREN, ")")       \
+    X(TS_LEFT_BRACKET, "[")      \
+    X(TS_RIGHT_BRACKET, "]")     \
+    X(TS_COLON, ":")             \
+    X(TS_COMMA, ",")             \
+                                 \
+    X(TSA_EQUALS, "=")           \
+    X(TSA_PLUS_EQUALS, "+=")     \
+    X(TSA_MINUS_EQUALS, "-=")    \
+    X(TSA_STAR_EQUALS, "*=")     \
+    X(TSA_DIVISION_EQUALS, "/=") \
+                                 \
+    X(TSL_OR, "||")              \
+    X(TSL_AND, "&&")             \
+                                 \
+    X(TSC_EQUAL, "==")           \
+    X(TSC_NOT_EQUAL, "!=")       \
+    X(TSC_GT, ">")               \
+    X(TSC_GT_OR_EQUAL, ">=")     \
+    X(TSC_LT_OR_EQUAL, "<=")     \
+    X(TSC_EQUALS_EQUALS, "==")   \
 
-#define X_LITERAL_TOKENS       \
-    X(TOKEN_LITERAL_INTEGER)   \
-    X(TOKEN_LITERAL_FLOAT)     \
-    X(TOKEN_LITERAL_STRING)    \
-    X(TOKEN_LITERAL_CHARACTER) \
+#define X_LITERAL_TOKENS \
+    X(TL_INTEGER)        \
+    X(TL_FLOAT)          \
+    X(TL_STRING)         \
+    X(TL_CHARACTER)      \
 
-#define X_KEYWORD_TOKENS              \
-    X(TOKEN_KEYWORD_IF, "if")         \
-    X(TOKEN_KEYWORD_ELSE, "else")     \
-    X(TOKEN_KEYWORD_FOR, "for")       \
-    X(TOKEN_KEYWORD_WHILE, "while")   \
-    X(TOKEN_KEYWORD_TRUE, "true")     \
-    X(TOKEN_KEYWORD_FALSE, "false")   \
-    X(TOKEN_KEYWORD_FUNC, "func")     \
-    X(TOKEN_KEYWORD_VAR, "var")       \
-    X(TOKEN_KEYWORD_NULL, "null")     \
-    X(TOKEN_KEYWORD_RETURN, "return") \
+#define X_KEYWORD_TOKENS    \
+    X(TKW_IF, "if")         \
+    X(TKW_ELSE, "else")     \
+    X(TKW_FOR, "for")       \
+    X(TKW_WHILE, "while")   \
+    X(TKW_TRUE, "true")     \
+    X(TKW_FALSE, "false")   \
+    X(TKW_FUNC, "func")     \
+    X(TKW_VAR, "var")       \
+    X(TKW_NULL, "null")     \
+    X(TKW_RETURN, "return") \
 
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
