@@ -22,7 +22,7 @@ void Parser::report_error(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     LOG_ERROR("String: %s\n", token.type_to_string());
-    LOG_ERROR("Error Line: %d | %s", token.line, String::sprintf(this->allocator, nullptr, fmt, args));
+    LOG_ERROR("Error Line: %d | %s\n", token.line, String::sprintf(this->allocator, nullptr, fmt, args));
     va_end(args);
 
     RUNTIME_ASSERT(false);

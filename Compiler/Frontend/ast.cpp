@@ -73,6 +73,20 @@ namespace Frontend {
 
     JSON* ast_to_json(ASTNode* node, JSON* root) {
         switch (node->type) {
+            case AST_NODE_PROGRAM: {
+                // Program* p = node->program;
+                // JSON* declerations = JSON::Object(root->allocator);
+
+                // declerations->push("Declerations", )
+
+                // root.push("Program", declerations)
+
+                // for ()
+
+
+                // return (e, root);
+            } break;
+
             case AST_NODE_EXPRESSION: {
                 Expression* e = node->expression;
                 return expression_to_json(e, root);

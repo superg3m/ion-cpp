@@ -115,7 +115,7 @@ namespace Frontend {
 
         Expression* e = parse_expression(parser);
 
-        parser->expect(TS_COMMA);
+        parser->expect(TS_SEMI_COLON);
 
         return Decleration::Variable(parser->allocator, name.sv,type_name.sv, e, var.line);
     }

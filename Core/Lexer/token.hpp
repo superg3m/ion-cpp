@@ -16,6 +16,7 @@
     X(TS_RIGHT_BRACKET, "]")     \
     X(TS_COLON, ":")             \
     X(TS_COMMA, ",")             \
+    X(TS_SEMI_COLON, ";")        \
                                  \
     X(TSA_EQUALS, "=")           \
     X(TSA_PLUS_EQUALS, "+=")     \
