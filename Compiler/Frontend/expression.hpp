@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Core/core.hpp>
 
 typedef struct Expression Expression;

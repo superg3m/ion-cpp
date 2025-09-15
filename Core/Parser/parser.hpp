@@ -4,6 +4,8 @@
 #include "../Lexer/token.hpp"
 
 struct Parser {
+    Memory::BaseAllocator* allocator;
+    
     Parser(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) : allocator(allocator), tokens(tokens) {}
 
     Token peek_nth_token(int n = 0);
@@ -13,7 +15,6 @@ struct Parser {
     Token expect(TokenType expected_type);
     bool consume_on_match(TokenType expected_type);
 private:
-    Memory::BaseAllocator* allocator;
     const DS::Vector<Token>& tokens;
     int current = 0;
 };

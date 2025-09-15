@@ -36,8 +36,13 @@ Token Parser::expect(TokenType expected_type) {
     Token expected_token = Token();
     expected_token.type = expected_type;
 
-    if (expected_type && peek_nth_token().type != expected_type) {
-        this->report_error("Expected: %s | Got: %s\n", expected_token.type_to_string(), peek_nth_token().type_to_string());
+    Token got_token = peek_nth_token();
+
+    const char* expected_str = expected_token.type_to_string();
+    const char* got_str = got_token.type_to_string();
+
+    if (got_token.type != expected_token.type) {
+        this->report_error("Expected: %s | Got: %s\n", expected_str, got_str);
     }
 
     return this->consume_next_token();
