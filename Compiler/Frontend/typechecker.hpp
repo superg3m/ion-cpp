@@ -18,10 +18,15 @@ namespace Frontend {
             } break;
 
             case EXPRESSION_TYPE_BINARY_OPERATION: {
-                // DS::View<char> op = e->binary->operation.sv;
+                DS::View<char> op = e->binary->operation.sv;
                 DS::View<char> left_type = type_check_expression(e->binary->left);
                 DS::View<char> right_type = type_check_expression(e->binary->right);
-                RUNTIME_ASSERT_MSG(String::equal(left_type, right_type), "Left and Right are not the same type!\n");
+                if (!String::equal(left_type, right_type)) {
+                    const char* fmt = "[TypeChecker BinaryOp Error]: %.*s and %.*s are incompatible types for op: %.*s\n";
+                    LOG_ERROR(fmt, left_type.length, left_type.data, right_type.length, right_type.data, op.length, op.data);
+                    LOG_ERROR("[TypeChecker BinaryOp Error]: Line: %d\n", e->binary->line);
+                    // RUNTIME_ASSERT(false);
+                }
 
                 return left_type;
             } break;
@@ -40,9 +45,16 @@ namespace Frontend {
         switch (decl->type) {
             case DECLERATION_TYPE_VARIABLE: {
                 DS::View<char> expression_type_name = type_check_expression(decl->variable->right);
-                RUNTIME_ASSERT_MSG(String::equal(decl->variable->type_name, expression_type_name), "Decleration left and right are not the same!\n");
+
+                if (!String::equal(decl->variable->type_name, expression_type_name)) {
+                    LOG_ERROR("[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
+                }
 
                 return decl->variable->type_name;
+            } break;
+
+            case DECLERATION_TYPE_FUNCTION: {
+                return DS::View<char>("nothing", sizeof("nothing") - 1);
             } break;
 
             default: {

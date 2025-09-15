@@ -1,5 +1,5 @@
 var x: int = 4 + 3;
-var y: int = 12;
+var y: int = 12 + "yo";
 
 func main() -> int {
 

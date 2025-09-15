@@ -10,7 +10,7 @@ namespace Frontend {
         DS::View<char> variable_name;
         DS::View<char> type_name;
         Expression* right;
-        int line;
+        u32 line;
     };
 
     struct FunctionDecleration {
@@ -18,7 +18,7 @@ namespace Frontend {
         DS::View<char> return_type_name;
         DS::Vector<VariableDecleration*> params;
         DS::Vector<ASTNode*> body;
-        int line;
+        u32 line;
     };
 
     enum DeclerationType {
@@ -35,7 +35,7 @@ namespace Frontend {
 
         static Decleration* Variable(
             Memory::BaseAllocator* allocator, DS::View<char> name, 
-            DS::View<char> type_name, Expression* right, int line
+            DS::View<char> type_name, Expression* right, u32 line
         ) {
             Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
             ret->type = DECLERATION_TYPE_VARIABLE;
@@ -50,7 +50,7 @@ namespace Frontend {
 
         static Decleration* Function(
             Memory::BaseAllocator* allocator, DS::View<char> function_name, 
-            DS::View<char> return_type_name, int line
+            DS::View<char> return_type_name, u32 line
         ) {
             Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
             ret->type = DECLERATION_TYPE_FUNCTION;

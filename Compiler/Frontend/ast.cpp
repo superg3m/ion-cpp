@@ -79,7 +79,7 @@ namespace Frontend {
         switch (decl->type) {
             case DECLERATION_TYPE_VARIABLE: {
                 JSON* variable_root = JSON::Object(allocator);
-
+                
                 JSON* desc = JSON::Object(allocator);
                 desc->push("variable_name", decl->variable->variable_name);
                 desc->push("type_name", decl->variable->type_name);
@@ -102,7 +102,7 @@ namespace Frontend {
                     body_json->array_push(ast_to_json(node, allocator));
                 }
 
-                function_root->push("VariableDeceleration", desc);
+                function_root->push("FunctionDecleration", desc);
 
                 return function_root;
             } break;
@@ -132,6 +132,10 @@ namespace Frontend {
 
             case AST_NODE_EXPRESSION: {
                 return expression_to_json(node->expression, allocator);
+            } break;
+
+            case AST_NODE_DECLERATION: {
+                return decleration_to_json(node->decleration, allocator);
             } break;
 
             default: {
