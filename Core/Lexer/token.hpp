@@ -57,7 +57,6 @@ enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
     TOKEN_EOF,
     
-    // Single Character Syntax
     #define X(name, str) name,
         X_SYNTAX_TOKENS
     #undef X
