@@ -2,57 +2,57 @@
 
 typedef struct Expression Expression;
 
-typedef struct StringExpression {
+struct StringExpression {
     DS::View<char> name;
     int line;
-} StringExpression;
+};
 
-typedef struct IntegerExpression {
+struct IntegerExpression {
     int value;
     int line;
-} IntegerExpression;
+};
 
-typedef struct FloatExpression {
+struct FloatExpression {
     double value;
     int line;
-} FloatExpression;
+};
 
-typedef struct BoolExpression {
+struct BoolExpression {
     bool value;
     int line;
-} BoolExpression;
+};
 
-typedef struct IdentifierExpression {
+struct IdentifierExpression {
     DS::View<char> name;
     int line;
-} IdentifierExpression;
+};
 
-typedef struct UnaryOperationExpression {
+struct UnaryOperationExpression {
     Token operation;
     Expression* operand;
     int line;
-} UnaryOperationExpression;
+};
 
-typedef struct BinaryOperationExpression {
+struct BinaryOperationExpression {
     Token operation;
     Expression* left;
     Expression* right;
     int line;
-} BinaryOperationExpression;
+};
 
-typedef struct LogicalOperationExpression {
+struct LogicalOperationExpression {
     Token operation;
     Expression* left;
     Expression* right;
     int line;
-} LogicalOperationExpression;
+};
 
-typedef struct GroupingExpression {
+struct GroupingExpression {
     Expression* value;
     int line;
-} GroupingExpression;
+};
 
-typedef enum ExpressionType {
+enum ExpressionType {
     EXPRESSION_TYPE_STRING,
     EXPRESSION_TYPE_INTEGER,
     EXPRESSION_TYPE_FLOAT,
@@ -62,9 +62,9 @@ typedef enum ExpressionType {
     EXPRESSION_TYPE_BINARY_OPERATION,
     EXPRESSION_TYPE_LOGICAL_OPERATION,
     EXPRESSION_TYPE_GROUPING
-} ExpressionType;
+};
 
-typedef struct Expression {
+struct Expression {
     ExpressionType type;
     union {
         StringExpression* str;
@@ -168,4 +168,4 @@ typedef struct Expression {
 
 private: 
     Expression() = default;
-} Expression;
+};
