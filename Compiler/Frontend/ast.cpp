@@ -78,14 +78,47 @@ namespace Frontend {
             case DECLERATION_TYPE_VARIABLE: {
                 JSON* variable_root = JSON::Object(allocator);
 
-                JSON* meta_json = JSON::Object(allocator);
-                meta_json->push("variable_name", decl->variable->name);
-                meta_json->push("type_name", decl->variable->type_name);
-                meta_json->push("right", expression_to_json(decl->variable->right, allocator));
+                JSON* desc = JSON::Object(allocator);
+                desc->push("variable_name", decl->variable->variable_name);
+                desc->push("type_name", decl->variable->type_name);
+                desc->push("right", expression_to_json(decl->variable->right, allocator));
 
-                variable_root->push("VariableDeceleration", meta_json);
+                variable_root->push("VariableDeceleration", desc);
 
                 return variable_root;
+            } break;
+
+            case DECLERATION_TYPE_FUNCTION: {
+                JSON* function_root = JSON::Object(allocator);
+
+                JSON* desc = JSON::Object(allocator);
+                JSON* body_json = JSON::Array(allocator);
+                desc->push("function_name", decl->function->function_name);
+                desc->push("return_type", decl->function->return_type_name);
+
+                for (ASTNode* node : decl->function->body) {
+                    switch (node->type) {
+                        case AST_NODE_EXPRESSION: {
+                            /* code */
+                        } break;
+                        
+                        default: {
+                            RUNTIME_ASSERT(false);
+                        } break;
+                    }
+                }
+
+                // body_json->array_push();
+                /*
+
+                decl->array_push("body", body_json);
+
+                desc->push("right", expression_to_json(decl->variable->right, allocator));
+
+                variable_root->push("VariableDeceleration", desc);
+                */
+
+                return function_root;
             } break;
 
             default: {

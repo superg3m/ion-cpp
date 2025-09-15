@@ -1,4 +1,9 @@
-var x: int = 4 + 3; // "Should Fail Type Checking";
+var x: int = 4 + 3;
+var y: int = 12;
+
+int main() {
+
+}
 
 // make sure everything ends with ;
 
