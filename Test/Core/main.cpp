@@ -23,7 +23,7 @@ struct Point {
 
 // ---------- Tests ----------
 void test_basic_put_get() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(1, 10);
     map.put(2, 20);
     RUNTIME_ASSERT(map.has(1));
@@ -33,7 +33,7 @@ void test_basic_put_get() {
     LOG_INFO("test_basic_put_get passed\n");
 }
 void test_overwrite() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(1, 10);
     map.put(1, 99);
     RUNTIME_ASSERT(map.has(1));
@@ -41,7 +41,7 @@ void test_overwrite() {
     LOG_INFO("test_overwrite passed\n");
 }
 void test_remove() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(42, 100);
     RUNTIME_ASSERT(map.has(42));
     int val = map.remove(42);
@@ -58,7 +58,7 @@ bool bad_equal(const void* a, byte_t, const void* b, byte_t) {
     return *(const int*)a == *(const int*)b;
 }
 void test_collisions() {
-    DS::Hashmap<int, int> map((DS::HashFunction*)BadHash::hash, bad_equal, 4);
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator, (DS::HashFunction*)BadHash::hash, bad_equal, 4);
     map.put(1, 100);
     map.put(2, 200);
     map.put(3, 300);
@@ -68,7 +68,7 @@ void test_collisions() {
     LOG_INFO("test_collisions passed\n");
 }
 void test_rehashing() {
-    DS::Hashmap<int, int> map(2);
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator, 2);
     for (int i = 0; i < 4; i++) {
         map.put(i, i * 10);
     }
@@ -79,7 +79,7 @@ void test_rehashing() {
     LOG_INFO("test_rehashing passed\n");
 }
 void test_string_keys() {
-    DS::Hashmap<const char*, int> map;
+    DS::Hashmap<const char*, int> map = DS::Hashmap<const char*, int>(&Memory::global_general_allocator);
     map.put("apple+pen", 1);
     map.put("banana", 2);
     RUNTIME_ASSERT(map.has("apple+pen"));
@@ -89,7 +89,7 @@ void test_string_keys() {
     LOG_INFO("test_string_keys passed\n");
 }
 void test_dead_entries() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(1, 10);
     map.put(2, 20);
     map.remove(1);
@@ -101,7 +101,7 @@ void test_dead_entries() {
     LOG_INFO("test_dead_entries passed\n");
 }
 void test_stress() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     for (int i = 0; i < 1000; i++) {
         map.put(i, i);
     }
@@ -119,7 +119,7 @@ void test_stress() {
 }
 
 void test_put_get_large_values() {
-    DS::Hashmap<int, double> map;
+    DS::Hashmap<int, double> map = DS::Hashmap<int, double>(&Memory::global_general_allocator);
     for (int i = 0; i < 500; ++i) {
         map.put(i, static_cast<double>(i) * 3.14);
     }
@@ -133,7 +133,7 @@ void test_put_get_large_values() {
 }
 
 void test_remove_nonexistent() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(1, 10);
     // map.remove(2);
     // RUNTIME_ASSERT(!removed);
@@ -142,20 +142,17 @@ void test_remove_nonexistent() {
 }
 
 void test_has_nonexistent() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(1, 10);
     RUNTIME_ASSERT(!map.has(2));
     LOG_INFO("test_has_nonexistent passed\n");
 }
 
 void test_string_view_keys() {
-    DS::Hashmap<DS::View<char>, int> map;
-
-
+    DS::Hashmap<DS::View<char>, int> map = DS::Hashmap<DS::View<char>, int>(&Memory::global_general_allocator);
     DS::View<char> k1 = DS::View<char>("key1testings", sizeof("key1testings") - 1);
     DS::View<char> k2 = DS::View<char>("key2testingstestings", sizeof("key2testingstestings") - 1);
     DS::View<char> k3 = DS::View<char>("key3testings", sizeof("key3testings") - 1);
-
 
     map.put(k1, 100);
     map.put(k2, 200);
@@ -174,7 +171,7 @@ void test_string_view_keys() {
 }
 
 void test_cstring_keys() {
-    DS::Hashmap<const char*, int> map;
+    DS::Hashmap<const char*, int> map = DS::Hashmap<const char*, int>(&Memory::global_general_allocator);
 
     const char* key1 = "DFLKSJDFKDSKLFJDSKLJF";
     const char* key2 = "TSLKFJSFLKSJFLJDSLJFDLSF";
@@ -192,7 +189,7 @@ void test_cstring_keys() {
 }
 
 void test_custom_struct_keys() {
-    DS::Hashmap<Point, int> map = DS::Hashmap<Point, int>(Point::hash, Point::equal);
+    DS::Hashmap<Point, int> map = DS::Hashmap<Point, int>(&Memory::global_general_allocator, Point::hash, Point::equal);
     Point p1 = {1, 2};
     Point p2 = {3, 4};
     Point p3 = {1, 2}; // Same as p1
@@ -218,7 +215,7 @@ void test_custom_struct_keys() {
 }
 
 void test_edge_cases() {
-    DS::Hashmap<int, int> map(1); // Small initial size
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator, 1); // Small initial size
     map.put(1, 1);
     map.put(2, 2);
     map.put(3, 3);
@@ -235,7 +232,7 @@ void test_edge_cases() {
 }
 
 void test_clear() {
-    DS::Hashmap<int, int> map;
+    DS::Hashmap<int, int> map = DS::Hashmap<int, int>(&Memory::global_general_allocator);
     map.put(1, 10);
     map.put(2, 20);
     map.clear();

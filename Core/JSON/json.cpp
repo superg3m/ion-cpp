@@ -42,7 +42,7 @@ static const char* to_string_helper(JSON* root, const char* indent, int depth) {
 
         case JSON_VALUE_ARRAY: {
             int array_count = root->array.elements.count();
-            DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>(array_count, root->allocator);
+            DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>(root->allocator, array_count);
             const char** buffers = (const char**)root->allocator->malloc(sizeof(char*) * array_count);
 
             byte_t total_allocation_size = 1; // 1 for the null terminator
@@ -73,7 +73,7 @@ static const char* to_string_helper(JSON* root, const char* indent, int depth) {
 
         case JSON_VALUE_OBJECT: {
             int object_member_count = root->object.pairs.count();
-            DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>(object_member_count, root->allocator);
+            DS::Vector<byte_t> buffer_sizes = DS::Vector<byte_t>( root->allocator, object_member_count);
             const char** buffers = (const char**)root->allocator->malloc(sizeof(char*) * object_member_count);
 
             byte_t total_allocation_size = 1; // 1 for the null terminator
@@ -202,7 +202,7 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
 }
 
 JSON* JSON::parse(Memory::BaseAllocator* allocator, const char* json_string, u64 json_string_length) {
-    DS::Vector<Token> tokens = DS::Vector<Token>(40, allocator);
+    DS::Vector<Token> tokens = DS::Vector<Token>(allocator, 40);
     Lexer::generate_tokens((u8*)json_string, json_string_length, tokens);
     for (const Token& token : tokens) {
         const char* token_type_string = token.type_to_string();
@@ -223,8 +223,8 @@ JSON* JSON::Object(Memory::BaseAllocator* allocator) {
     JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
     ret->allocator = allocator;
     ret->type = JSON_VALUE_OBJECT;
-    ret->object.keys = DS::Hashmap<const char*, bool>(1, allocator);
-    ret->object.pairs = DS::Vector<KeyJsonPair>(1, allocator);
+    ret->object.keys = DS::Hashmap<const char*, bool>(allocator, 1);
+    ret->object.pairs = DS::Vector<KeyJsonPair>(allocator, 1);
 
     return ret;
 }
@@ -233,7 +233,7 @@ JSON* JSON::Array(Memory::BaseAllocator* allocator) {
     JSON* ret = (JSON*)allocator->malloc(sizeof(JSON));
     ret->allocator = allocator;
     ret->type = JSON_VALUE_ARRAY;
-    ret->array.elements = DS::Vector<JSON*>(1, allocator);
+    ret->array.elements = DS::Vector<JSON*>(allocator, 1);
 
     return ret;
 }

@@ -27,7 +27,7 @@ namespace DS {
             V value;
         };
 
-        Hashmap(u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
+        Hashmap(Memory::BaseAllocator* allocator, u64 capacity = 1) : m_allocator(allocator) {
             constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
             constexpr bool key_is_pointer = std::is_pointer_v<K>;
             constexpr bool key_is_cstring = std::is_same_v<K, char*> || std::is_same_v<K, const char*>;
@@ -79,7 +79,7 @@ namespace DS {
             }
         }
 
-        Hashmap(HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
+        Hashmap(Memory::BaseAllocator* allocator, HashFunction* hash_func, EqualFunction* equal_func, u64 capacity = 1) : m_allocator(allocator) {
             constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
             constexpr bool key_is_pointer = std::is_pointer_v<K>;
             STATIC_ASSERT(key_is_trivial && !key_is_pointer);

@@ -2,7 +2,7 @@ var x: int = 4 + 3;
 var y: int = 12 + "yo";
 
 func main() -> int {
-
+    var test: string = "wow";
 }
 
 // make sure everything ends with ;

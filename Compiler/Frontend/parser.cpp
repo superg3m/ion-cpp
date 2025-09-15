@@ -24,6 +24,8 @@ namespace Frontend {
     Expression* parse_logical_expression(Parser* parser);
     Expression* parse_expression(Parser* parser);
 
+    Decleration* parse_decleration(Parser* parser);
+
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
     Expression* parse_primary_expression(Parser* parser) {
         Token current_token = parser->peek_nth_token();
@@ -129,11 +131,14 @@ namespace Frontend {
         parser->expect(TS_RIGHT_ARROW);
         Token return_type_name = parser->expect(TOKEN_IDENTIFIER);
 
+        DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         // TODO(Jovanni): this should be parse_scope()
         parser->expect(TS_LEFT_CURLY);
-        parser->expect(TS_RIGHT_CURLY);
+        while(!parser->consume_on_match(TS_RIGHT_CURLY)) {
+            body.push(ASTNode::Decleration(parser->allocator, parse_decleration(parser)));
+        }
 
-        return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, func.line);
+        return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, body, func.line);
     }
 
     Decleration* parse_decleration(Parser* parser) {
@@ -151,7 +156,7 @@ namespace Frontend {
 
     Program* parse_program(Parser* parser) {
         Program* program = (Program*)parser->allocator->malloc(sizeof(Program));
-        program->declerations = DS::Vector<Decleration*>(1, parser->allocator);
+        program->declerations = DS::Vector<Decleration*>(parser->allocator, 1);
 
         while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN) {
             program->declerations.push(parse_decleration(parser));

@@ -18,7 +18,7 @@ namespace DS {
             Memory::copy(this->m_data, this->m_capacity * sizeof(T), list.begin(), list.size() * sizeof(T));
         }
 
-        Vector(u64 capacity = 1, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
+        Vector(Memory::BaseAllocator* allocator, u64 capacity = 1) : m_allocator(allocator) {
             this->m_count = 0;
             this->m_capacity = capacity;
             this->m_allocator = allocator;
@@ -27,8 +27,33 @@ namespace DS {
         }
 
         // Prevent copy
-        Vector(const Vector&) = delete;
-        Vector& operator=(const Vector&) = delete;
+        Vector(const Vector& other) {
+            LOG_WARN("PERFORMING A VECTOR COPY!\n");
+
+            RUNTIME_ASSERT(this->m_data == nullptr);
+            RUNTIME_ASSERT(this->m_allocator == nullptr);
+
+            this->m_count = other.m_count;
+            this->m_capacity = other.m_capacity;
+            this->m_allocator = other.m_allocator;
+            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
+            Memory::copy(this->m_data, this->m_capacity * sizeof(T), other.m_data,  this->m_capacity * sizeof(T));
+        }
+
+        Vector& operator=(const Vector& other) {
+            LOG_WARN("PERFORMING A VECTOR COPY!\n");
+
+            RUNTIME_ASSERT(this->m_data == nullptr);
+            RUNTIME_ASSERT(this->m_allocator == nullptr);
+
+            this->m_count = other.m_count;
+            this->m_capacity = other.m_capacity;
+            this->m_allocator = other.m_allocator;
+            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
+            Memory::copy(this->m_data, this->m_capacity * sizeof(T), other.m_data,  this->m_capacity * sizeof(T));
+
+            return *this;
+        }
 
         // Prevent move
         Vector(Vector&&) = delete;
@@ -123,7 +148,7 @@ namespace DS {
         T* m_data = nullptr;
         u64 m_count = 0;
         u64 m_capacity = 0;
-        Memory::BaseAllocator* m_allocator;
+        Memory::BaseAllocator* m_allocator = nullptr;
 
         void destory() {
             if (this->m_allocator && this->m_data) {

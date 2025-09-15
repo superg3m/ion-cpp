@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
         LOG_ERROR("Error failed to read file: %s\n", error_str(error));
     }
 
-    DS::Vector<Token> tokens = DS::Vector<Token>(50, &allocator);
+    DS::Vector<Token> tokens = DS::Vector<Token>(&allocator, 50);
     Lexer::generate_tokens(data, file_size, tokens);
 
     for (const Token& token : tokens) {
