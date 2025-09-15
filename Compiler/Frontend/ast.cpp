@@ -1,66 +1,68 @@
 #include "ast.hpp"
 
 namespace Frontend {
-    JSON* expression_to_json(Expression* e, JSON* root) {
+    JSON* expression_to_json(Expression* e, Memory::BaseAllocator* allocator) {
         switch (e->type) {
             case EXPRESSION_TYPE_BOOLEAN: {
-                return JSON::Boolean(root->allocator, e->boolean->value);
+                return JSON::Boolean(allocator, e->boolean->value);
             } break;
 
             case EXPRESSION_TYPE_INTEGER: {
-                return JSON::Integer(root->allocator, e->integer->value);
+                return JSON::Integer(allocator, e->integer->value);
             } break;
 
             case EXPRESSION_TYPE_FLOAT: {
-                return JSON::Floating(root->allocator, e->floating->value);
+                return JSON::Floating(allocator, e->floating->value);
             } break;
 
             case EXPRESSION_TYPE_STRING: {
-                return JSON::String(root->allocator, e->str->name);
+                return JSON::String(allocator, e->str->name);
             } break;
 
             case EXPRESSION_TYPE_BINARY_OPERATION: {
-                JSON* b = JSON::Object(root->allocator);
-                JSON* left = JSON::Object(root->allocator);
-                JSON* right = JSON::Object(root->allocator);
-                b->object.push("op", JSON::String(b->allocator, e->binary->operation.sv));
-                b->object.push("left", expression_to_json(e->binary->left, left));
-                b->object.push("right", expression_to_json(e->binary->right, right));
+                JSON* binary_root = JSON::Object(allocator);
 
-                root->push("BinaryOp", b);
+                JSON* desc = JSON::Object(allocator);
+
+                desc->object.push("op", JSON::String(allocator, e->binary->operation.sv));
+                desc->object.push("left", expression_to_json(e->binary->left, allocator));
+                desc->object.push("right", expression_to_json(e->binary->right, allocator));
+
+                binary_root->push("BinaryOp", desc);
                 
-                return root;
+                return binary_root;
             } break;
 
             case EXPRESSION_TYPE_UNARY_OPERATION: {
-                JSON* b = JSON::Object(root->allocator);
-                JSON* operand = JSON::Object(root->allocator);
-                b->object.push("op", JSON::String(b->allocator, e->unary->operation.sv));
-                b->object.push("operand", expression_to_json(e->unary->operand, operand));
-
-                root->push("Unary", b);
+                JSON* unary_root = JSON::Object(allocator);
                 
-                return root;
+                JSON* desc = JSON::Object(allocator);
+                desc->object.push("op", JSON::String(allocator, e->unary->operation.sv));
+                desc->object.push("operand", expression_to_json(e->unary->operand, allocator));
+
+                unary_root->push("Unary", desc);
+                
+                return unary_root;
             } break;
 
             case EXPRESSION_TYPE_LOGICAL_OPERATION: {
-                JSON* b = JSON::Object(root->allocator);
-                JSON* left = JSON::Object(root->allocator);
-                JSON* right = JSON::Object(root->allocator);
-                b->object.push("op", JSON::String(b->allocator, e->logical->operation.sv));
-                b->object.push("left", expression_to_json(e->logical->left, left));
-                b->object.push("right", expression_to_json(e->logical->right, right));
+                JSON* logical_root = JSON::Object(allocator);
 
-                root->push("Logical", b);
+                JSON* desc = JSON::Object(allocator);
+                desc->object.push("op", JSON::String(allocator, e->logical->operation.sv));
+                desc->object.push("left", expression_to_json(e->logical->left, allocator));
+                desc->object.push("right", expression_to_json(e->logical->right, allocator));
+
+                logical_root->push("Logical", desc);
                 
-                return root;
+                return logical_root;
             } break;
 
             case EXPRESSION_TYPE_GROUPING: {
-                JSON* g = JSON::Object(root->allocator);
-                root->object.push("Grouping", expression_to_json(e->grouping->value, g));
+                JSON* grouping_root = JSON::Object(allocator);
+                grouping_root->object.push("Grouping", expression_to_json(e->grouping->value, allocator));
 
-                return root;
+                return grouping_root;
             } break;
 
             default: {
@@ -68,40 +70,56 @@ namespace Frontend {
             } break;
         }
 
-        return root;
+        return nullptr;
     }
 
-    JSON* ast_to_json(ASTNode* node, JSON* root) {
-        switch (node->type) {
-            case AST_NODE_PROGRAM: {
-                // Program* p = node->program;
-                // JSON* declerations = JSON::Object(root->allocator);
+    JSON* decleration_to_json(Decleration* decl, Memory::BaseAllocator* allocator) {
+        switch (decl->type) {
+            case DECLERATION_TYPE_VARIABLE: {
+                JSON* variable_root = JSON::Object(allocator);
 
-                // declerations->push("Declerations", )
+                JSON* meta_json = JSON::Object(allocator);
+                meta_json->push("variable_name", decl->variable->name);
+                meta_json->push("type_name", decl->variable->type_name);
+                meta_json->push("right", expression_to_json(decl->variable->right, allocator));
 
-                // root.push("Program", declerations)
+                variable_root->push("VariableDeceleration", meta_json);
 
-                // for ()
-
-
-                // return (e, root);
+                return variable_root;
             } break;
 
-            case AST_NODE_EXPRESSION: {
-                Expression* e = node->expression;
-                return expression_to_json(e, root);
-            } break;
-                
             default: {
                 RUNTIME_ASSERT(false);
             } break;
         }
 
-        return root;
+        return nullptr;
+    }
+
+    JSON* ast_to_json(ASTNode* node, Memory::BaseAllocator* allocator) {
+        switch (node->type) {
+            case AST_NODE_PROGRAM: {
+                Program* p = node->program;
+                JSON* json_root = JSON::Object(allocator);
+                JSON* json_declerations = JSON::Array(allocator);
+
+                json_root->push("Declerations", json_declerations);
+                for (Decleration* decl : p->declerations) {
+                    json_declerations->array_push(decleration_to_json(decl, allocator));
+                }
+
+                return json_root;
+            } break;
+
+            default: {
+                RUNTIME_ASSERT(false);
+            } break;
+        }
+
+        return nullptr;
     }
 
     void ASTNode::pretty_print(Memory::BaseAllocator* allocator) {
-        JSON* root = JSON::Object(allocator);
-        LOG_INFO("%s\n", JSON::to_string(ast_to_json(this, root)));
+        LOG_INFO("%s\n", JSON::to_string(ast_to_json(this, allocator)));
     }
 }
