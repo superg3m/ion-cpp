@@ -1,4 +1,4 @@
-var x: int = 4; // "Should Fail Type Checking";
+var x: int = 4 + 3; // "Should Fail Type Checking";
 
 // make sure everything ends with ;
 
