@@ -1,6 +1,8 @@
 #include "ast.hpp"
 
 namespace Frontend {
+    JSON* ast_to_json(ASTNode* node, Memory::BaseAllocator* allocator);
+
     JSON* expression_to_json(Expression* e, Memory::BaseAllocator* allocator) {
         switch (e->type) {
             case EXPRESSION_TYPE_BOOLEAN: {
@@ -95,28 +97,12 @@ namespace Frontend {
                 JSON* body_json = JSON::Array(allocator);
                 desc->push("function_name", decl->function->function_name);
                 desc->push("return_type", decl->function->return_type_name);
-
+                desc->push("body", body_json);
                 for (ASTNode* node : decl->function->body) {
-                    switch (node->type) {
-                        case AST_NODE_EXPRESSION: {
-                            /* code */
-                        } break;
-                        
-                        default: {
-                            RUNTIME_ASSERT(false);
-                        } break;
-                    }
+                    body_json->array_push(ast_to_json(node, allocator));
                 }
 
-                // body_json->array_push();
-                /*
-
-                decl->array_push("body", body_json);
-
-                desc->push("right", expression_to_json(decl->variable->right, allocator));
-
-                variable_root->push("VariableDeceleration", desc);
-                */
+                function_root->push("VariableDeceleration", desc);
 
                 return function_root;
             } break;
@@ -142,6 +128,10 @@ namespace Frontend {
                 }
 
                 return json_root;
+            } break;
+
+            case AST_NODE_EXPRESSION: {
+                return expression_to_json(node->expression, allocator);
             } break;
 
             default: {

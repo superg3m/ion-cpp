@@ -43,6 +43,21 @@ namespace Frontend {
             ret->variable->variable_name = name;
             ret->variable->type_name = type_name;
             ret->variable->right = right;
+            ret->variable->line = line;
+            
+            return ret;
+        }
+
+        static Decleration* Function(
+            Memory::BaseAllocator* allocator, DS::View<char> function_name, 
+            DS::View<char> return_type_name, int line
+        ) {
+            Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
+            ret->type = DECLERATION_TYPE_FUNCTION;
+            ret->function = (FunctionDecleration*)allocator->malloc(sizeof(FunctionDecleration));
+            ret->function->function_name = function_name;
+            ret->function->return_type_name = return_type_name;
+            ret->function->line = line;
             
             return ret;
         }

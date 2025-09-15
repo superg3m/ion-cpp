@@ -228,9 +228,9 @@ bool Lexer::consume_syntax() {
         this->consume_on_match('>');
         this->consume_on_match('=');
     } else if (this->c == '-') {
-        if (!this->consume_on_match('-')) {
-            this->consume_on_match('=');
-        }
+        if (this->consume_on_match('-')) {} 
+        else if(this->consume_on_match('=')) {}
+        else if(this->consume_on_match('>')) {}
     } else if (this->c == '+') {
         if (!this->consume_on_match('+')) {
             this->consume_on_match('=');

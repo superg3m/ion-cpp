@@ -120,13 +120,29 @@ namespace Frontend {
         return Decleration::Variable(parser->allocator, name.sv,type_name.sv, e, var.line);
     }
 
+    // <function_decleration> ::= "func" <identifier> "(" ")" "->" <identifer>
+    Decleration* parse_function_decleration(Parser* parser) {
+        Token func = parser->expect(TKW_FUNC);
+        Token function_name = parser->expect(TOKEN_IDENTIFIER);
+        parser->expect(TS_LEFT_PAREN);
+        parser->expect(TS_RIGHT_PAREN);
+        parser->expect(TS_RIGHT_ARROW);
+        Token return_type_name = parser->expect(TOKEN_IDENTIFIER);
+
+        // TODO(Jovanni): this should be parse_scope()
+        parser->expect(TS_LEFT_CURLY);
+        parser->expect(TS_RIGHT_CURLY);
+
+        return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, func.line);
+    }
+
     Decleration* parse_decleration(Parser* parser) {
         Token current_token = parser->peek_nth_token();
 
         if (current_token.type == TKW_VAR) {
             return parse_variable_decleration(parser);
         } else if (current_token.type == TKW_FUNC) {
-
+            return parse_function_decleration(parser);
         }
 
         RUNTIME_ASSERT(false);
