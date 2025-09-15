@@ -9,6 +9,7 @@ namespace Frontend {
         AST_NODE_PROGRAM,
         AST_NODE_EXPRESSION,
         AST_NODE_STATEMENT,
+        AST_NODE_DECLERATION,
     };
 
     struct ASTNode {
