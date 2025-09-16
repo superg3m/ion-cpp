@@ -32,7 +32,7 @@ internal byte_t va_sprint(char* buffer, byte_t buffer_size, const char* fmt, va_
 }
 
 void log_output(LogLevel log_level, const char* message, ...) {
-    #define OUT_MESSAGE_BUFFER_LENGTH 2048
+    #define OUT_MESSAGE_BUFFER_LENGTH KB(4)
     char out_message[OUT_MESSAGE_BUFFER_LENGTH] = {0};
 
     va_list args_list;

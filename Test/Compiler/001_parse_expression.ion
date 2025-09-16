@@ -12,5 +12,6 @@ func main() -> void {
 
 
 func main() -> int {
-    o = 4.3;
+    var o := "testing";
+    o = "other test";
 }
