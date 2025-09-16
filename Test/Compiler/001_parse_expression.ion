@@ -2,13 +2,7 @@ var x: int;
 var y: int = 4 + 3;
 var z := "12" + "yo";
 
-func do_something() -> void {
-
-}
-
-func main() -> int {
-    var test: string = "wow";
-}
+x = 4;
 
 // make sure everything ends with ;
 /*

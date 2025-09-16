@@ -18,6 +18,18 @@
 //                                     └── Primary (identifiers, literals, calls, grouping)
 
 namespace Frontend {
+    struct VariableSymbol {
+        // std::string name;
+        // std::string type;  // could be more complex, e.g. a Type* node
+        // scope information, storage class, etc.
+    };
+
+    struct FunctionSymbol {
+        // std::string name;
+        // std::string type;  // could be more complex, e.g. a Type* node
+        // scope information, storage class, etc.
+    };
+    
     Expression* parse_primary_expression(Parser* parser);
     Expression* parse_unary_expression(Parser* parser);
     Expression* parse_multiplicative_expression(Parser* parser);
@@ -164,6 +176,9 @@ namespace Frontend {
         // TODO(Jovanni): this should be parse_scope()
         parser->expect(TS_LEFT_CURLY);
         while(parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_CURLY)) {
+            /*
+                This need to peek the next token to see if its a decleration or statement
+            */
             body.push(ASTNode::Decleration(parser->allocator, parse_decleration(parser)));
         }
 
