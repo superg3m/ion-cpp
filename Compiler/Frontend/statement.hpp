@@ -46,9 +46,15 @@ namespace Frontend {
         u32 line;
     };
 
+    struct ReturnStatment {
+        Expression* expression;
+        u32 line;
+    };
+
     enum StatementType {
         STATEMENT_TYPE_ASSIGNMENT,
         STATEMENT_TYPE_FUNCTION_CALL,
+        STATEMENT_TYPE_RETURN,
     };
 
     struct Statement {
@@ -56,10 +62,12 @@ namespace Frontend {
         union {
             AssignmentStatement* assignment;
             FunctionCallStatment* function_call;
+            ReturnStatment* ret;
         };
 
         static Statement* Assignment(Memory::BaseAllocator* allocator, DS::View<char> name, Expression* rhs, u32 line);
         static Statement* FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, u32 line);
+        static Statement* Return(Memory::BaseAllocator* allocator, Expression* expression, u32 line);
     private:
         Statement() = default;
     };

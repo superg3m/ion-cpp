@@ -187,7 +187,7 @@ namespace Frontend {
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
 
-        return Decleration::Function(parser->allocator, function_name.sv, return_type, body, func.line);
+        return Decleration::Function(parser->allocator, function_name.sv, return_type, body, nullptr, func.line);
     }
 
     /*

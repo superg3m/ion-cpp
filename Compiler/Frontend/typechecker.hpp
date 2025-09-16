@@ -120,7 +120,7 @@ namespace Frontend {
                     LOG_ERROR("Duplicate function decleration: %.*s\n", decl->function->function_name.length, decl->function->function_name.data);
                 }
 
-                env->put(decl->function->function_name, decl->function->return_type_name);
+                env->put(decl->function->function_name, decl->function->return_type);
 
                 TypeEnvironment function_env = TypeEnvironment(env);
                 for (ASTNode* node : decl->function->body) {

@@ -11,4 +11,14 @@ namespace Frontend {
         
         return ret;
     }
+
+    Statement* Statement::Return(Memory::BaseAllocator* allocator, Expression* expression, u32 line) {
+        Statement* ret = (Statement*)allocator->malloc(sizeof(Statement));
+        ret->type = STATEMENT_TYPE_RETURN;
+        ret->ret = (ReturnStatment*)allocator->malloc(sizeof(ReturnStatment));
+        ret->ret->expression = expression;
+        ret->ret->line = line;
+        
+        return ret;
+    }
 }
