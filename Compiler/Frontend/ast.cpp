@@ -4,6 +4,10 @@ namespace Frontend {
     JSON* ast_to_json(ASTNode* node, Memory::BaseAllocator* allocator);
 
     JSON* expression_to_json(Expression* e, Memory::BaseAllocator* allocator) {
+        if (e == nullptr) {
+            return JSON::Null(allocator);
+        }
+
         switch (e->type) {
             case EXPRESSION_TYPE_BOOLEAN: {
                 return JSON::Boolean(allocator, e->boolean->value);
@@ -82,8 +86,10 @@ namespace Frontend {
                 
                 JSON* desc = JSON::Object(allocator);
                 desc->push("variable_name", decl->variable->variable_name);
-                desc->push("type_name", decl->variable->type_name);
-                desc->push("right", expression_to_json(decl->variable->right, allocator));
+
+                // TODO(Jovanni): Make type have a to_string() that can return the modifiers "[]*int"
+                desc->push("type_name", decl->variable->type.name); 
+                desc->push("right", expression_to_json(decl->variable->rhs, allocator));
 
                 variable_root->push("VariableDeceleration", desc);
 

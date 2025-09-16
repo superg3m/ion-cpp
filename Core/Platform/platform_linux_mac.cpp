@@ -82,7 +82,7 @@
                 LOG_ERROR("fseek failed: read_entire_file(%s)\n", file_name);
                 error = ERROR_RESOURCE_NOT_FOUND;
                 fclose(file_handle);
-                return NULL;
+                return nullptr;
             }
 
             out_file_size = ftell(file_handle);
@@ -90,7 +90,7 @@
                 LOG_ERROR("ftell failed: read_entire_file(%s)\n", file_name);
                 error = ERROR_RESOURCE_NOT_FOUND;
                 fclose(file_handle);
-                return NULL;
+                return nullptr;
             }
 
             rewind(file_handle);
@@ -98,7 +98,8 @@
                 LOG_ERROR("rewind() failed: read_entire_file(%s)\n", file_name);
                 error = ERROR_RESOURCE_NOT_FOUND;
                 fclose(file_handle);
-                return NULL;
+                
+                return nullptr;
             }
 
             u8* file_data = (u8*)allocator->malloc((byte_t)out_file_size + 1); // +1 for null terminator

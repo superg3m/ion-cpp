@@ -1,6 +1,7 @@
 
 
 #include "parser.hpp"
+#include "types.hpp"
 #include <cstdarg>
 #include <cstdio>
 
@@ -107,19 +108,47 @@ namespace Frontend {
         return parse_logical_expression(parser);
     }
 
+    Type parse_type(Parser* parser) {
+        DS::Vector<TypeModifier> modifiers = DS::Vector<TypeModifier>(parser->allocator, 1);
+        while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TOKEN_IDENTIFIER)) {
+            Token t = parser->consume_next_token();
+            if (t.type == TS_LEFT_BRACKET) {
+                if (parser->consume_on_match(TOKEN_IDENTIFIER)) {}
+                else if (parser->consume_on_match(TL_INTEGER)) {}
+                
+                parser->expect(TS_RIGHT_BRACKET);
+                modifiers.push(TYPE_MODIFER_ARRAY);
+            } else if (t.type == TS_STAR) {
+                modifiers.push(TYPE_MODIFER_POINTER);
+            }
+        }
+
+        Token type_name = parser->previous_token();
+        return Type(modifiers, type_name.sv);
+    }
+
     // <variable_decleration> ::= "var" <identifier> ":" <identifer> "=" <expression> ";"
     Decleration* parse_variable_decleration(Parser* parser) {
         Token var = parser->expect(TKW_VAR);
-        Token name = parser->expect(TOKEN_IDENTIFIER);
-        parser->expect(TS_COLON);
-        Token type_name = parser->expect(TOKEN_IDENTIFIER);
-        parser->expect(TSA_EQUALS);
+        Token variable_name = parser->expect(TOKEN_IDENTIFIER);
+        
+        Type type = Type();
+        Expression* rhs = nullptr;
+        
+        if (parser->consume_on_match(TSA_INFER_EQUALS)) {
+            rhs = parse_expression(parser);
+        } else {
+            parser->expect(TS_COLON);
+            type = parse_type(parser);
 
-        Expression* e = parse_expression(parser);
+            if (parser->consume_on_match(TSA_EQUALS)) {
+                rhs = parse_expression(parser);
+            }
+        }
 
         parser->expect(TS_SEMI_COLON);
 
-        return Decleration::Variable(parser->allocator, name.sv,type_name.sv, e, var.line);
+        return Decleration::Variable(parser->allocator, variable_name.sv, type, rhs, var.line);
     }
 
     // <function_decleration> ::= "func" <identifier> "(" ")" "->" <identifer>
@@ -134,7 +163,7 @@ namespace Frontend {
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         // TODO(Jovanni): this should be parse_scope()
         parser->expect(TS_LEFT_CURLY);
-        while(!parser->consume_on_match(TS_RIGHT_CURLY)) {
+        while(parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_CURLY)) {
             body.push(ASTNode::Decleration(parser->allocator, parse_decleration(parser)));
         }
 

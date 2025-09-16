@@ -245,8 +245,8 @@ bool Lexer::consume_syntax() {
         }
     } else if (this->c == '!' || this->c == '^' || this->c == '*' || this->c == '=') {
         this->consume_on_match('=');
-    } else if (this->c == ';') {
-        this->consume_on_match(';');
+    } else if (this->c == ':') {
+        this->consume_on_match('=');
     }
 
     DS::View<char> sv = this->get_scratch_buffer();

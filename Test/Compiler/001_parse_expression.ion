@@ -1,12 +1,16 @@
-var x: int = 4 + 3;
-var y: int = 12 + "yo";
+var x: int;
+var y: int = 4 + 3;
+var z := "12" + "yo";
+
+func do_something() -> void {
+
+}
 
 func main() -> int {
     var test: string = "wow";
 }
 
 // make sure everything ends with ;
-
 /*
 {
     "Program": {

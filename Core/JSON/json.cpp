@@ -145,7 +145,7 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
 
         case TS_LEFT_BRACKET: {
             JSON* ret = JSON::Array(root->allocator);
-            while (!parser->consume_on_match(TS_RIGHT_BRACKET)) {
+            while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_BRACKET)) {
                 if (parser->peek_nth_token().type == TOKEN_ILLEGAL_TOKEN) {
                     return nullptr;
                 }
@@ -164,7 +164,7 @@ static JSON* parse_helper(JSON* root, Parser* parser) {
 
         case TS_LEFT_CURLY: {
             JSON* ret = JSON::Object(root->allocator);
-            while (!parser->consume_on_match(TS_RIGHT_CURLY)) {
+            while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_CURLY)) {
                 if (parser->peek_nth_token().type == TOKEN_ILLEGAL_TOKEN) {
                     return nullptr;
                 }

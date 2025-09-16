@@ -70,7 +70,7 @@
 
         internal void* win32_malloc(const Memory::BaseAllocator** allocator, byte_t allocation_size) {
             (void)allocator;
-            return VirtualAlloc(NULL, allocation_size, MEM_COMMIT, PAGE_READWRITE);
+            return VirtualAlloc(nullptr, allocation_size, MEM_COMMIT, PAGE_READWRITE);
         }
 
         internal void win32_free(const Memory::BaseAllocator** allocator, void* data) {

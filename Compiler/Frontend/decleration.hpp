@@ -2,14 +2,15 @@
 
 #include <Core/core.hpp>
 #include "expression.hpp"
+#include "types.hpp"
 
 namespace Frontend {
     typedef struct ASTNode ASTNode;
 
     struct VariableDecleration {
         DS::View<char> variable_name;
-        DS::View<char> type_name;
-        Expression* right;
+        Type type;
+        Expression* rhs;
         u32 line;
     };
 
@@ -35,14 +36,14 @@ namespace Frontend {
 
         static Decleration* Variable(
             Memory::BaseAllocator* allocator, DS::View<char> name, 
-            DS::View<char> type_name, Expression* right, u32 line
+            Type type, Expression* rhs, u32 line
         ) {
             Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
             ret->type = DECLERATION_TYPE_VARIABLE;
             ret->variable = (VariableDecleration*)allocator->malloc(sizeof(VariableDecleration));
             ret->variable->variable_name = name;
-            ret->variable->type_name = type_name;
-            ret->variable->right = right;
+            ret->variable->type = type;
+            ret->variable->rhs = rhs;
             ret->variable->line = line;
             
             return ret;

@@ -20,6 +20,7 @@
     X(TS_RIGHT_ARROW, "->")      \
                                  \
     X(TSA_EQUALS, "=")           \
+    X(TSA_INFER_EQUALS, ":=")    \
     X(TSA_PLUS_EQUALS, "+=")     \
     X(TSA_MINUS_EQUALS, "-=")    \
     X(TSA_STAR_EQUALS, "*=")     \
@@ -76,7 +77,7 @@ enum TokenType {
 
 struct Token {
     TokenType type = TOKEN_ILLEGAL_TOKEN;
-    u32 line = 1;
+    u32 line = 404;
 
     DS::View<char> sv; // used for identifer names, string literals, the source_view
 

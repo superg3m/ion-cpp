@@ -17,10 +17,10 @@ Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
 
     Token ret = Token(); // Invalid
     ret.sv = sv;
+    ret.line = line;
+
     if (syntax_map.has(sv)) {
         ret.type = syntax_map.get(sv);
-        ret.line = line;
-        ret.sv = sv;
     }
 
     return ret;
@@ -77,7 +77,7 @@ Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
     Memory::copy(buffer, ret.sv.length, ret.sv.data, ret.sv.length);
     buffer[ret.sv.length] = '\0';
     
-    char* endptr_int = NULL;
+    char* endptr_int = nullptr;
     long i = strtol(buffer, &endptr_int, 10);
     if ((byte_t)(endptr_int - buffer) == sv.length) {
         ret.type = TL_INTEGER;
@@ -86,7 +86,7 @@ Token Token::LiteralTokenFromSourceView(DS::View<char> sv, int line) {
         return ret;
     }
     
-    char* endptr = NULL;
+    char* endptr = nullptr;
     float f = strtof(buffer, &endptr);
     if ((byte_t)(endptr - buffer) == sv.length) {
         ret.type = TL_FLOAT;

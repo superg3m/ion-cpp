@@ -9,6 +9,8 @@
 namespace DS {
     template <typename T>
     struct Vector {
+        Vector() = default;
+
         Vector(std::initializer_list<T> list, Memory::BaseAllocator* allocator = &Memory::global_general_allocator) : m_allocator(allocator) {
             this->m_count = list.size();
             this->m_capacity = this->m_count * 2;
@@ -28,29 +30,37 @@ namespace DS {
 
         // Prevent copy
         Vector(const Vector& other) {
-            LOG_WARN("PERFORMING A VECTOR COPY!\n");
+            // LOG_WARN("PERFORMING A VECTOR COPY!\n");
 
             RUNTIME_ASSERT(this->m_data == nullptr);
             RUNTIME_ASSERT(this->m_allocator == nullptr);
 
-            this->m_count = other.m_count;
-            this->m_capacity = other.m_capacity;
-            this->m_allocator = other.m_allocator;
-            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
-            Memory::copy(this->m_data, this->m_capacity * sizeof(T), other.m_data,  this->m_capacity * sizeof(T));
+            if (other.m_allocator) {
+                this->m_count = other.m_count;
+                this->m_capacity = other.m_capacity;
+                this->m_allocator = other.m_allocator;
+                this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
+                Memory::copy(this->m_data, this->m_capacity * sizeof(T), other.m_data,  this->m_capacity * sizeof(T));
+            } else {
+                // LOG_WARN("CHOSE NOT TO VECTOR COPY!\n");
+            }
         }
 
         Vector& operator=(const Vector& other) {
-            LOG_WARN("PERFORMING A VECTOR COPY!\n");
+            // LOG_WARN("PERFORMING A VECTOR COPY!\n");
 
             RUNTIME_ASSERT(this->m_data == nullptr);
             RUNTIME_ASSERT(this->m_allocator == nullptr);
 
-            this->m_count = other.m_count;
-            this->m_capacity = other.m_capacity;
-            this->m_allocator = other.m_allocator;
-            this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
-            Memory::copy(this->m_data, this->m_capacity * sizeof(T), other.m_data,  this->m_capacity * sizeof(T));
+            if (other.m_allocator) {
+                this->m_count = other.m_count;
+                this->m_capacity = other.m_capacity;
+                this->m_allocator = other.m_allocator;
+                this->m_data = (T*)this->m_allocator->malloc(this->m_capacity * sizeof(T));
+                Memory::copy(this->m_data, this->m_capacity * sizeof(T), other.m_data,  this->m_capacity * sizeof(T));
+            } else {
+                // LOG_WARN("CHOSE NOT TO VECTOR COPY!\n");
+            }
 
             return *this;
         }

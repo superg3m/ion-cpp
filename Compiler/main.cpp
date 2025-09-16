@@ -28,13 +28,13 @@ int main(int argc, char** argv) {
 
     for (const Token& token : tokens) {
         const char* token_type_string = token.type_to_string();
-        LOG_DEBUG("%s(%.*s)\n", token_type_string, token.sv.length, token.sv.data);
+        LOG_DEBUG("%s(%.*s) | Line: %d\n", token_type_string, token.sv.length, token.sv.data, token.line);
     }
 
     Frontend::ASTNode* ast = Frontend::generate_ast(&allocator, tokens);
-    ast->pretty_print(&Memory::global_general_allocator);
-
     Frontend::type_check_ast(ast);
+    
+    ast->pretty_print(&Memory::global_general_allocator);
 
     return 0;
 }
