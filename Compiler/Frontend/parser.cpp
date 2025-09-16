@@ -171,16 +171,15 @@ namespace Frontend {
     }
 
     void parse_code_block(Parser* parser, DS::Vector<ASTNode*>& out_code_block) {
-         
-
         parser->expect(TS_LEFT_CURLY);
         while(parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_CURLY)) {
-            //Token t = parser->peek_nth_token();
+            Decleration* decleration = parse_decleration(parser);
+            if (decleration) {
+                out_code_block.push(ASTNode::Decleration(parser->allocator, decleration));
+                continue;
+            }
 
-            /*
-                This need to peek the next token to see if its a decleration or statement
-            */
-            out_code_block.push(ASTNode::Decleration(parser->allocator, parse_decleration(parser)));
+            //Statement* statement = parse_decleration(parser);
         }
     }
 
@@ -193,12 +192,31 @@ namespace Frontend {
         parser->expect(TS_RIGHT_ARROW);
         Token return_type_name = parser->expect(TOKEN_IDENTIFIER);
 
-        
-        // TODO(Jovanni): this should be parse_scope()
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
 
         return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, body, func.line);
+    }
+
+    Statement* parse_statement(Parser* parser) {
+        Token current_token = parser->peek_nth_token();
+
+
+        if (current_token.type == TOKEN_IDENTIFIER) {
+            Token next_token = parser->peek_nth_token(1);
+            if (next_token.type == TS_LEFT_BRACKET) {
+                return parse_function_call_statement(parser);
+            } else if (next_token.type == TSA_EQUALS) {
+                return parse_assignment_statement(parser);
+            } else {
+                RUNTIME_ASSERT(false);
+            }
+            
+        } else if (current_token.type == TKW_FUNC) {
+            return parse_function_decleration(parser);
+        }
+
+        return nullptr;
     }
 
     Decleration* parse_decleration(Parser* parser) {
@@ -210,7 +228,6 @@ namespace Frontend {
             return parse_function_decleration(parser);
         }
 
-        RUNTIME_ASSERT(false);
         return nullptr;
     }
 
@@ -229,6 +246,5 @@ namespace Frontend {
         Parser parser = Parser(allocator, tokens);
 
         return ASTNode::Program(allocator, parse_program(&parser));
-        // return ASTNode::Expression(parser.allocator, parse_expression(&parser));
     }
 }

@@ -3,6 +3,7 @@
 #include <Core/core.hpp>
 #include "expression.hpp"
 #include "decleration.hpp"
+#include "statement.hpp"
 
 namespace Frontend {
     enum NodeType {
@@ -23,6 +24,7 @@ namespace Frontend {
             Program* program;
             Expression* expression;
             Decleration* decleration;
+            Statement* statement;
         };
 
         static ASTNode* Program(Memory::BaseAllocator* allocator, Program* program) {
@@ -45,6 +47,14 @@ namespace Frontend {
             ASTNode* ret = (ASTNode*)allocator->malloc(sizeof(ASTNode));
             ret->type = AST_NODE_DECLERATION;
             ret->decleration = decleration;
+
+            return ret;
+        }
+
+        static ASTNode* Statement(Memory::BaseAllocator* allocator, Statement* statement) {
+            ASTNode* ret = (ASTNode*)allocator->malloc(sizeof(ASTNode));
+            ret->type = AST_NODE_STATEMENT;
+            ret->statement = statement;
 
             return ret;
         }
