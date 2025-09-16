@@ -155,6 +155,11 @@ namespace Frontend {
                 type_check_statement(s);
             } break;
 
+            case AST_NODE_DECLERATION: {
+                Decleration* decl = node->decleration;
+                type_check_decleration(decl);
+            } break;
+
             default: {
                 RUNTIME_ASSERT(false);
             } break;

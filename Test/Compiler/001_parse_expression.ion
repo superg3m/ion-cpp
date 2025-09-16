@@ -3,6 +3,12 @@ var y: int = 4 + 3;
 var z := "12" + "yo";
 
 func main() -> void {
-    x = "hello there";
+    var o := 5.32;
+
+    func main() -> int {
+
+    }
+
+    // x = "hello there";
 }
 
