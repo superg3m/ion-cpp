@@ -6,6 +6,26 @@ Token::Token(TokenType token_type, DS::View<char> sv, int line) : sv(sv) {
     this->line = line;
 }
 
+Token Token::PrimiveTypeTokenFromSourceView(DS::View<char> sv, int line) {
+    Memory::GeneralAllocator general_allocator = Memory::GeneralAllocator();
+
+    static DS::Hashmap<DS::View<char>, TokenType> primitive_type_map = {
+        #define X(name, str) { DS::View<char>(str, sizeof(str) - 1), name },
+            X_PRIMITIVE_TYPES_TOKENS
+        #undef X
+    };
+
+    Token ret = Token(); // Invalid
+    ret.sv = sv;
+    ret.line = line;
+
+    if (primitive_type_map.has(sv)) {
+        ret.type = primitive_type_map.get(sv);
+    }
+
+    return ret;
+}
+
 Token Token::KeywordTokenFromSourceView(DS::View<char> sv, int line) {
     Memory::GeneralAllocator general_allocator = Memory::GeneralAllocator();
 
@@ -118,7 +138,8 @@ const char* Token::type_to_string() const {
         #define X(name, str) stringify(name),
             X_KEYWORD_TOKENS
         #undef X
-            
+
+        stringify(TOKEN_PRIMITIVE_TYPE),
         stringify(TOKEN_IDENTIFIER),
     };
 

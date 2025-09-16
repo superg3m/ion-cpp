@@ -182,7 +182,14 @@ bool Lexer::consume_word() {
 
     DS::View<char> sv = this->get_scratch_buffer();
 
-    Token token = Token::KeywordTokenFromSourceView(sv, this->line);
+    Token token = Token::PrimiveTypeTokenFromSourceView(sv, this->line);
+    if (token.type != TOKEN_ILLEGAL_TOKEN) {
+        this->tokens.push(token);
+        
+        return true;
+    }
+
+    token = Token::KeywordTokenFromSourceView(sv, this->line);
     if (token.type != TOKEN_ILLEGAL_TOKEN) {
         this->tokens.push(token);
         

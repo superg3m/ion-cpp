@@ -54,6 +54,12 @@
     X(TKW_NULL, "null")     \
     X(TKW_RETURN, "return") \
 
+#define X_PRIMITIVE_TYPES_TOKENS      \
+    X(TOKEN_PRIMITIVE_TYPE, "void")   \
+    X(TOKEN_PRIMITIVE_TYPE, "int")    \
+    X(TOKEN_PRIMITIVE_TYPE, "float")  \
+    X(TOKEN_PRIMITIVE_TYPE, "string") \
+
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
     TOKEN_EOF,
@@ -70,6 +76,7 @@ enum TokenType {
         X_KEYWORD_TOKENS
     #undef X
 
+    TOKEN_PRIMITIVE_TYPE,
     TOKEN_IDENTIFIER,
 
     TOKEN_COUNT
@@ -94,6 +101,7 @@ struct Token {
     static Token KeywordTokenFromSourceView(DS::View<char> sv, int line);
     static Token SyntaxTokenFromSourceView(DS::View<char> sv, int line);
     static Token LiteralTokenFromSourceView(DS::View<char> sv, int line);
+    static Token PrimiveTypeTokenFromSourceView(DS::View<char> sv, int line);
 
     void print();
     const char* type_to_string() const;

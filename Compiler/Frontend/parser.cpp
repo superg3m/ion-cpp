@@ -115,7 +115,7 @@ namespace Frontend {
 
     Type parse_type(Parser* parser) {
         DS::Vector<TypeModifier> modifiers = DS::Vector<TypeModifier>(parser->allocator, 1);
-        while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TOKEN_IDENTIFIER)) {
+        while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TOKEN_PRIMITIVE_TYPE)) {
             Token t = parser->consume_next_token();
             if (t.type == TS_LEFT_BRACKET) {
                 if (parser->consume_on_match(TOKEN_IDENTIFIER)) {}
