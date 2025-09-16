@@ -3,7 +3,51 @@
 #include "ast.hpp"
 
 namespace Frontend {
-    void type_check_ast(ASTNode* node);
+    struct TypeEnvironment {
+        TypeEnvironment(TypeEnvironment* parent) {
+            this->parent = parent;
+        }
+
+        bool has(DS::View<char> key) {
+            TypeEnvironment* current = this;
+            while (current != nullptr) {
+                if (current->symbols.has(key)) {
+                    return true;
+                }
+
+                current = current->parent;
+            }
+
+            return false;
+        }
+
+        void put(DS::View<char> key, Type value) {
+            RUNTIME_ASSERT(!this->has(key));
+            
+            this->symbols.put(key, value);
+        }
+
+        Type get(DS::View<char> key) {
+            RUNTIME_ASSERT(this->has(key));
+            
+            TypeEnvironment* current = this;
+            while (current != nullptr) {
+                if (current->symbols.has(key)) {
+                    return current->symbols.get(key);
+                }
+
+                current = current->parent;
+            }
+
+            return Type();
+        }
+
+    private:
+        DS::Hashmap<DS::View<char>, Type> symbols = DS::Hashmap<DS::View<char>, Type>(&Memory::global_general_allocator);
+        TypeEnvironment* parent = nullptr;
+    };
+
+    void type_check_ast_helper(ASTNode* node, TypeEnvironment* env);
 
     struct VariableSymbol {
         DS::View<char> name;
@@ -19,8 +63,6 @@ namespace Frontend {
         // DS::View<char> name;
         // Type return_type;
     };
-
-    DS::Hashmap<DS::View<char>, Type> variable_symbol_table;
 
     Type type_check_expression(Expression* e) {
         switch (e->type) {
@@ -61,7 +103,7 @@ namespace Frontend {
         return Type();
     }
 
-    Type type_check_decleration(Decleration* decl) {
+    Type type_check_decleration(Decleration* decl, TypeEnvironment* env) {
         switch (decl->type) {
             case DECLERATION_TYPE_VARIABLE: {
                 if (decl->variable->rhs) {
@@ -69,7 +111,7 @@ namespace Frontend {
 
                     if (decl->variable->type.name.data == nullptr) {
                         decl->variable->type = expression_type;
-                        variable_symbol_table.put(decl->variable->variable_name, decl->variable->type);
+                        env->put(decl->variable->variable_name, decl->variable->type);
                         return expression_type;
                     }
 
@@ -79,14 +121,15 @@ namespace Frontend {
                     }
                 }
 
-                variable_symbol_table.put(decl->variable->variable_name, decl->variable->type);
+                env->put(decl->variable->variable_name, decl->variable->type);
 
                 return decl->variable->type;
             } break;
 
             case DECLERATION_TYPE_FUNCTION: {
+                TypeEnvironment function_env = TypeEnvironment(env);
                 for (ASTNode* node : decl->function->body) {
-                    type_check_ast(node);
+                    type_check_ast_helper(node, &function_env);
                 }
 
                 return Type({}, DS::View<char>("nothing", sizeof("nothing") - 1));
@@ -102,17 +145,17 @@ namespace Frontend {
         return Type();
     }
 
-    Type type_check_statement(Statement* s) {
+    Type type_check_statement(Statement* s, TypeEnvironment* env) {
         switch (s->type) {
             case STATEMENT_TYPE_ASSIGNMENT: {
-                if (!variable_symbol_table.has(s->assignment->variable_name)) {
+                if (!env->has(s->assignment->variable_name)) {
                     RUNTIME_ASSERT_MSG(
                         false, "Error Line: %d | Undeclared identifier '%.*s'\n", 
                         s->assignment->line, s->assignment->variable_name.length, s->assignment->variable_name.data
                     );
                 }
 
-                Type variable_type = variable_symbol_table.get(s->assignment->variable_name);
+                Type variable_type = env->get(s->assignment->variable_name);
                 Type expression_type = type_check_expression(s->assignment->rhs);
                 if (variable_type != expression_type) {
                     RUNTIME_ASSERT_MSG(
@@ -135,13 +178,12 @@ namespace Frontend {
         return Type();
     }
 
-    void type_check_ast(ASTNode* node) {
+    void type_check_ast_helper(ASTNode* node, TypeEnvironment* env) {
         switch (node->type) {
             case AST_NODE_PROGRAM: {
                 Program* p = node->program;
-                variable_symbol_table = DS::Hashmap<DS::View<char>, Type>(&Memory::global_general_allocator);
                 for (Decleration* decl : p->declerations) {
-                    type_check_decleration(decl);
+                    type_check_decleration(decl, env);
                 }
             } break;
 
@@ -152,12 +194,12 @@ namespace Frontend {
 
             case AST_NODE_STATEMENT: {
                 Statement* s = node->statement;
-                type_check_statement(s);
+                type_check_statement(s, env);
             } break;
 
             case AST_NODE_DECLERATION: {
                 Decleration* decl = node->decleration;
-                type_check_decleration(decl);
+                type_check_decleration(decl, env);
             } break;
 
             default: {
@@ -165,4 +207,11 @@ namespace Frontend {
             } break;
         }
     }
+
+    void type_check_ast(ASTNode* node) {
+        TypeEnvironment global_environment(nullptr);
+
+        type_check_ast_helper(node, &global_environment);
+    }
+        
 }

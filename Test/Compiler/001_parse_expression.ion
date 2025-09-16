@@ -5,10 +5,12 @@ var z := "12" + "yo";
 func main() -> void {
     var o := 5.32;
 
-    func main() -> int {
 
-    }
 
     // x = "hello there";
 }
 
+
+func main() -> int {
+    o = 4.3;
+}
