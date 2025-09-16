@@ -26,7 +26,7 @@ namespace Frontend {
                     const char* fmt = "[TypeChecker BinaryOp Error]: %.*s and %.*s are incompatible types for op: %.*s\n";
                     LOG_ERROR(fmt, left_type.name.length, left_type.name.data, right_type.name.length, right_type.name.data, op.length, op.data);
                     LOG_ERROR("[TypeChecker BinaryOp Error]: Line: %d\n", e->binary->line);
-                    // RUNTIME_ASSERT(false);
+                    RUNTIME_ASSERT(false);
                 }
 
                 return left_type;
@@ -55,6 +55,7 @@ namespace Frontend {
 
                     if (decl->variable->type != expression_type) {
                         LOG_ERROR("[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
+                        RUNTIME_ASSERT(false);
                     }
                 }
 

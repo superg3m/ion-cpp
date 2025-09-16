@@ -1,43 +1,5 @@
 var x: int;
-var y: int = 4 + 3;
+var y: string = 4 + 3;
 var z := "12" + "yo";
 
 // x = 4;
-
-/*
-{
-    "Program": {
-        "Declerations": [
-            {
-                "VaraibleDeceleration": {
-                    "varaible_name": "foo_test",
-                    "type_name": "int",
-                    "right": 4
-                }
-            },
-
-            {
-                "VaraibleDeceleration": {
-                    "varaible_name": "aspect_ratio",
-                    "type_name": "float",
-                    "right": 4.0324
-                }
-            },
-
-            {
-                "FunctionDeceleration": {
-                    "function_name": "set_aspect_ratio",
-                    "return_type_name": "int",
-                    "parameters": [
-                        "aspect_ratio": {
-                            "type_name": "float"
-                        }
-                    ]
-                    "type_name": "int",
-                    "right": 4
-                }
-            },
-        ]
-    }
-}
-*/
