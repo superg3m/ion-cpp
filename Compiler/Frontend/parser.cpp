@@ -19,17 +19,24 @@
 
 namespace Frontend {
     struct VariableSymbol {
-        // std::string name;
-        // std::string type;  // could be more complex, e.g. a Type* node
-        // scope information, storage class, etc.
+        // DS::View<char> variable_name;
+        // Type type;
+        // Score scope;
     };
 
+    /*
+        Only allowed to have Function decls in
+        global scope
+    */
     struct FunctionSymbol {
-        // std::string name;
-        // std::string type;  // could be more complex, e.g. a Type* node
-        // scope information, storage class, etc.
+        // DS::View<char> function_name;
+        // Type return_type;
     };
-    
+
+    /*
+        I need to do scopes on all these things
+    */
+
     Expression* parse_primary_expression(Parser* parser);
     Expression* parse_unary_expression(Parser* parser);
     Expression* parse_multiplicative_expression(Parser* parser);
@@ -163,6 +170,20 @@ namespace Frontend {
         return Decleration::Variable(parser->allocator, variable_name.sv, type, rhs, var.line);
     }
 
+    void parse_code_block(Parser* parser, DS::Vector<ASTNode*>& out_code_block) {
+         
+
+        parser->expect(TS_LEFT_CURLY);
+        while(parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_CURLY)) {
+            //Token t = parser->peek_nth_token();
+
+            /*
+                This need to peek the next token to see if its a decleration or statement
+            */
+            out_code_block.push(ASTNode::Decleration(parser->allocator, parse_decleration(parser)));
+        }
+    }
+
     // <function_decleration> ::= "func" <identifier> "(" ")" "->" <identifer>
     Decleration* parse_function_decleration(Parser* parser) {
         Token func = parser->expect(TKW_FUNC);
@@ -172,15 +193,10 @@ namespace Frontend {
         parser->expect(TS_RIGHT_ARROW);
         Token return_type_name = parser->expect(TOKEN_IDENTIFIER);
 
-        DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
+        
         // TODO(Jovanni): this should be parse_scope()
-        parser->expect(TS_LEFT_CURLY);
-        while(parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TS_RIGHT_CURLY)) {
-            /*
-                This need to peek the next token to see if its a decleration or statement
-            */
-            body.push(ASTNode::Decleration(parser->allocator, parse_decleration(parser)));
-        }
+        DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
+        parse_code_block(parser, body);
 
         return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, body, func.line);
     }

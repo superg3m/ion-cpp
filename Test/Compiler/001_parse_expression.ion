@@ -2,9 +2,8 @@ var x: int;
 var y: int = 4 + 3;
 var z := "12" + "yo";
 
-x = 4;
+// x = 4;
 
-// make sure everything ends with ;
 /*
 {
     "Program": {
