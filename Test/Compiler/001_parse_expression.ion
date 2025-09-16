@@ -2,15 +2,11 @@ var x: int = 6;
 var y: int = 4 + 3;
 var z := "12" + "yo";
 
-func main() -> void {
-    var o := 5.32;
-
-
-
-    // x = "hello there";
-}
-
 func do_something() -> int {
-    var o := "testing";
-    o = "other test";
+
 }
+
+func main() -> void {
+    var o: int;
+}
+

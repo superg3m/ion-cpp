@@ -31,28 +31,35 @@ namespace Frontend {
     struct WhileStatement {
         Expression** conditional;
         DS::Vector<ASTNode*> code_block;
+        u32 line;
     };
 
     struct ForStatement {
         Decleration* initalization;
         Expression* conditional;
         DS::Vector<ASTNode*> code_block;
+        u32 line;
     };
 
     struct FunctionCallStatment {
+        DS::View<char> function_name;
+        u32 line;
     };
 
     enum StatementType {
         STATEMENT_TYPE_ASSIGNMENT,
+        STATEMENT_TYPE_FUNCTION_CALL,
     };
 
     struct Statement {
         StatementType type;
         union {
             AssignmentStatement* assignment;
+            FunctionCallStatment* function_call;
         };
 
         static Statement* Assignment(Memory::BaseAllocator* allocator, DS::View<char> name, Expression* rhs, u32 line);
+        static Statement* FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, u32 line);
     private:
         Statement() = default;
     };
