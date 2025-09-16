@@ -10,8 +10,7 @@ func main() -> void {
     // x = "hello there";
 }
 
-
-func main() -> int {
+func do_something() -> int {
     var o := "testing";
     o = "other test";
 }

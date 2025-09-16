@@ -91,6 +91,10 @@ namespace Frontend {
     Type type_check_decleration(Decleration* decl, TypeEnvironment* env) {
         switch (decl->type) {
             case DECLERATION_TYPE_VARIABLE: {
+                if (env->has(decl->variable->variable_name)) {
+                    LOG_ERROR("Duplicate variable decleration: %.*s\n", decl->variable->variable_name.length, decl->variable->variable_name.data);
+                }
+
                 if (decl->variable->rhs) {
                     Type expression_type = type_check_expression(decl->variable->rhs);
 
@@ -112,6 +116,12 @@ namespace Frontend {
             } break;
 
             case DECLERATION_TYPE_FUNCTION: {
+                if (env->has(decl->function->function_name)) {
+                    LOG_ERROR("Duplicate function decleration: %.*s\n", decl->function->function_name.length, decl->function->function_name.data);
+                }
+
+                env->put(decl->function->function_name, decl->function->return_type_name);
+
                 TypeEnvironment function_env = TypeEnvironment(env);
                 for (ASTNode* node : decl->function->body) {
                     type_check_ast_helper(node, &function_env);

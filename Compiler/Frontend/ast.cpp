@@ -102,7 +102,7 @@ namespace Frontend {
                 JSON* desc = JSON::Object(allocator);
                 JSON* body_json = JSON::Array(allocator);
                 desc->push("function_name", decl->function->function_name);
-                desc->push("return_type", decl->function->return_type_name);
+                desc->push("return_type", decl->function->return_type_name.name);
                 desc->push("body", body_json);
                 for (ASTNode* node : decl->function->body) {
                     body_json->array_push(ast_to_json(node, allocator));

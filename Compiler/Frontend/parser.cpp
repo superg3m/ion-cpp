@@ -182,12 +182,12 @@ namespace Frontend {
         parser->expect(TS_LEFT_PAREN);
         parser->expect(TS_RIGHT_PAREN);
         parser->expect(TS_RIGHT_ARROW);
-        Token return_type_name = parser->expect(TOKEN_IDENTIFIER);
+        Type return_type = parse_type(parser);
 
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
 
-        return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, body, func.line);
+        return Decleration::Function(parser->allocator, function_name.sv, return_type, body, func.line);
     }
 
     /*
