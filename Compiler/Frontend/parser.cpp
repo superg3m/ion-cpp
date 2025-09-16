@@ -18,21 +18,6 @@
 //                                     └── Primary (identifiers, literals, calls, grouping)
 
 namespace Frontend {
-    struct VariableSymbol {
-        // DS::View<char> variable_name;
-        // Type type;
-        // Score scope;
-    };
-
-    /*
-        Only allowed to have Function decls in
-        global scope
-    */
-    struct FunctionSymbol {
-        // DS::View<char> function_name;
-        // Type return_type;
-    };
-
     /*
         I need to do scopes on all these things
     */
@@ -198,22 +183,36 @@ namespace Frontend {
         return Decleration::Function(parser->allocator, function_name.sv, return_type_name.sv, body, func.line);
     }
 
+    /*
+    Statement* parse_function_call_statement(Parser* parser) {
+        Token identifer = parser->consume_next_token();
+        parser->expect(TS_LEFT_PAREN);
+        parser->expect(TS_RIGHT_PAREN);
+
+        return nullptr;
+    }
+    */
+
+    Statement* parse_assignment_statement(Parser* parser) {
+        Token identifer = parser->consume_next_token();
+        // Type idenfier_type = variable_symbol_table.get(identifer.sv).type;
+        Expression* rhs = parse_expression(parser);
+
+        return Statement::Assignment(parser->allocator, identifer.sv, rhs, identifer.line);
+    }
+
     Statement* parse_statement(Parser* parser) {
         Token current_token = parser->peek_nth_token();
-
 
         if (current_token.type == TOKEN_IDENTIFIER) {
             Token next_token = parser->peek_nth_token(1);
             if (next_token.type == TS_LEFT_BRACKET) {
-                return parse_function_call_statement(parser);
+                // return parse_function_call_statement(parser);
             } else if (next_token.type == TSA_EQUALS) {
                 return parse_assignment_statement(parser);
             } else {
                 RUNTIME_ASSERT(false);
-            }
-            
-        } else if (current_token.type == TKW_FUNC) {
-            return parse_function_decleration(parser);
+            } 
         }
 
         return nullptr;
@@ -244,6 +243,7 @@ namespace Frontend {
 
     ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
         Parser parser = Parser(allocator, tokens);
+        variable_symbol_table = DS::Hashmap<DS::View<char>, VariableSymbol>(parser.allocator);
 
         return ASTNode::Program(allocator, parse_program(&parser));
     }

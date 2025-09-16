@@ -52,7 +52,7 @@ namespace Frontend {
             AssignmentStatement* assignment;
         };
 
-        static Statement* Assignment(Memory::BaseAllocator* allocator, DS::View<char> name, Type type, Expression* rhs, u32 line);
+        static Statement* Assignment(Memory::BaseAllocator* allocator, DS::View<char> name, Expression* rhs, u32 line);
     private:
         Statement() = default;
     };

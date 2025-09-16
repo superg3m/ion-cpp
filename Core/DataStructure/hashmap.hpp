@@ -27,6 +27,8 @@ namespace DS {
             V value;
         };
 
+        Hashmap() = default;
+
         Hashmap(Memory::BaseAllocator* allocator, u64 capacity = 1) : m_allocator(allocator) {
             constexpr bool key_is_trivial = std::is_trivially_copyable_v<K>;
             constexpr bool key_is_pointer = std::is_pointer_v<K>;

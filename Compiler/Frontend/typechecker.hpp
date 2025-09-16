@@ -3,6 +3,23 @@
 #include "ast.hpp"
 
 namespace Frontend {
+    struct VariableSymbol {
+        DS::View<char> name;
+        Type type;
+        // Score scope; // This is actually perfect because you can just scope chain to the global scope to find it!
+    };
+
+    /*
+        Only allowed to have Function decls in
+        global scope
+    */
+    struct FunctionSymbol {
+        // DS::View<char> name;
+        // Type return_type;
+    };
+
+    DS::Hashmap<DS::View<char>, Type> variable_symbol_table;
+
     Type type_check_expression(Expression* e) {
         switch (e->type) {
             case EXPRESSION_TYPE_INTEGER: {
@@ -50,6 +67,7 @@ namespace Frontend {
 
                     if (decl->variable->type.name.data == nullptr) {
                         decl->variable->type = expression_type;
+                        variable_symbol_table.put(decl->variable->variable_name, decl->variable->type);
                         return expression_type;
                     }
 
@@ -59,11 +77,46 @@ namespace Frontend {
                     }
                 }
 
+                variable_symbol_table.put(decl->variable->variable_name, decl->variable->type);
+
                 return decl->variable->type;
             } break;
 
             case DECLERATION_TYPE_FUNCTION: {
                 return Type({}, DS::View<char>("nothing", sizeof("nothing") - 1));
+            } break;
+
+            default: {
+                RUNTIME_ASSERT(false);
+            } break;
+        }
+
+        RUNTIME_ASSERT(false);
+        
+        return Type();
+    }
+
+    Type type_check_statement(Statement* s) {
+        switch (s->type) {
+            case STATEMENT_TYPE_ASSIGNMENT: {
+                if (!variable_symbol_table.has(s->assignment->variable_name)) {
+                    
+                }
+
+                Type expression_type = type_check_expression(s->assignment->rhs);
+
+
+                if (decl->variable->type.name.data == nullptr) {
+                    decl->variable->type = expression_type;
+                    return expression_type;
+                }
+
+                if (decl->variable->type != expression_type) {
+                    LOG_ERROR("[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
+                    RUNTIME_ASSERT(false);
+                }
+
+                return decl->variable->type;
             } break;
 
             default: {
