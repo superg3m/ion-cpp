@@ -1,5 +1,8 @@
-var x: int;
-var y: string = 4 + 3;
+var x: int = 6;
+var y: int = 4 + 3;
 var z := "12" + "yo";
 
-// x = 4;
+func main() -> void {
+    x = "hello there";
+}
+

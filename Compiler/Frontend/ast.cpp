@@ -121,6 +121,28 @@ namespace Frontend {
         return nullptr;
     }
 
+    JSON* statement_to_json(Statement* s, Memory::BaseAllocator* allocator) {
+        switch (s->type) {
+            case STATEMENT_TYPE_ASSIGNMENT: {
+                JSON* assignment_root = JSON::Object(allocator);
+                
+                JSON* desc = JSON::Object(allocator);
+                desc->push("variable_name", s->assignment->variable_name);
+                desc->push("right", expression_to_json(s->assignment->rhs, allocator));
+
+                assignment_root->push("AssignmentStatement", desc);
+
+                return assignment_root;
+            } break;
+
+            default: {
+                RUNTIME_ASSERT(false);
+            } break;
+        }
+
+        return nullptr;
+    }
+
     JSON* ast_to_json(ASTNode* node, Memory::BaseAllocator* allocator) {
         switch (node->type) {
             case AST_NODE_PROGRAM: {
@@ -142,6 +164,10 @@ namespace Frontend {
 
             case AST_NODE_DECLERATION: {
                 return decleration_to_json(node->decleration, allocator);
+            } break;
+
+            case AST_NODE_STATEMENT: {
+                return statement_to_json(node->statement, allocator);
             } break;
 
             default: {

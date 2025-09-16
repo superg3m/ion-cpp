@@ -2,7 +2,7 @@
 #include "Frontend/parser.hpp"
 #include "Frontend/typechecker.hpp"
 
-#define PROGRAM_CAPACITY KB(10)
+#define PROGRAM_CAPACITY KB(20)
 
 int main(int argc, char** argv) {
     char* executable_name = argv[0];

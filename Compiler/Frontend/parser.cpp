@@ -30,6 +30,7 @@ namespace Frontend {
     Expression* parse_expression(Parser* parser);
 
     Decleration* parse_decleration(Parser* parser);
+    Statement* parse_statement(Parser* parser);
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
     Expression* parse_primary_expression(Parser* parser) {
@@ -164,7 +165,13 @@ namespace Frontend {
                 continue;
             }
 
-            //Statement* statement = parse_decleration(parser);
+            Statement* statement = parse_statement(parser);
+            if (statement) {
+                out_code_block.push(ASTNode::Statement(parser->allocator, statement));
+                continue;
+            }
+        
+            RUNTIME_ASSERT(false);
         }
     }
 
@@ -196,7 +203,9 @@ namespace Frontend {
     Statement* parse_assignment_statement(Parser* parser) {
         Token identifer = parser->consume_next_token();
         // Type idenfier_type = variable_symbol_table.get(identifer.sv).type;
+        parser->expect(TSA_EQUALS);
         Expression* rhs = parse_expression(parser);
+        parser->expect(TS_SEMI_COLON);
 
         return Statement::Assignment(parser->allocator, identifer.sv, rhs, identifer.line);
     }
@@ -243,7 +252,6 @@ namespace Frontend {
 
     ASTNode* generate_ast(Memory::BaseAllocator* allocator, const DS::Vector<Token>& tokens) {
         Parser parser = Parser(allocator, tokens);
-        variable_symbol_table = DS::Hashmap<DS::View<char>, VariableSymbol>(parser.allocator);
 
         return ASTNode::Program(allocator, parse_program(&parser));
     }

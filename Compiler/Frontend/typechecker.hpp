@@ -3,6 +3,8 @@
 #include "ast.hpp"
 
 namespace Frontend {
+    void type_check_ast(ASTNode* node);
+
     struct VariableSymbol {
         DS::View<char> name;
         Type type;
@@ -83,6 +85,10 @@ namespace Frontend {
             } break;
 
             case DECLERATION_TYPE_FUNCTION: {
+                for (ASTNode* node : decl->function->body) {
+                    type_check_ast(node);
+                }
+
                 return Type({}, DS::View<char>("nothing", sizeof("nothing") - 1));
             } break;
 
@@ -100,23 +106,23 @@ namespace Frontend {
         switch (s->type) {
             case STATEMENT_TYPE_ASSIGNMENT: {
                 if (!variable_symbol_table.has(s->assignment->variable_name)) {
-                    
+                    RUNTIME_ASSERT_MSG(
+                        false, "Error Line: %d | Undeclared identifier '%.*s'\n", 
+                        s->assignment->line, s->assignment->variable_name.length, s->assignment->variable_name.data
+                    );
                 }
 
+                Type variable_type = variable_symbol_table.get(s->assignment->variable_name);
                 Type expression_type = type_check_expression(s->assignment->rhs);
-
-
-                if (decl->variable->type.name.data == nullptr) {
-                    decl->variable->type = expression_type;
-                    return expression_type;
+                if (variable_type != expression_type) {
+                    RUNTIME_ASSERT_MSG(
+                        false, "Error Line: %d | Assignment of %.*s to %.*s is not allowed!\n",
+                        s->assignment->line, variable_type.name.length, variable_type.name.data, 
+                        expression_type.name.length, expression_type.name.data
+                    );
                 }
 
-                if (decl->variable->type != expression_type) {
-                    LOG_ERROR("[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
-                    RUNTIME_ASSERT(false);
-                }
-
-                return decl->variable->type;
+                return variable_type;
             } break;
 
             default: {
@@ -133,6 +139,7 @@ namespace Frontend {
         switch (node->type) {
             case AST_NODE_PROGRAM: {
                 Program* p = node->program;
+                variable_symbol_table = DS::Hashmap<DS::View<char>, Type>(&Memory::global_general_allocator);
                 for (Decleration* decl : p->declerations) {
                     type_check_decleration(decl);
                 }
@@ -141,6 +148,11 @@ namespace Frontend {
             case AST_NODE_EXPRESSION: {
                 Expression* e = node->expression;
                 type_check_expression(e);
+            } break;
+
+            case AST_NODE_STATEMENT: {
+                Statement* s = node->statement;
+                type_check_statement(s);
             } break;
 
             default: {
