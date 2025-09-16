@@ -49,21 +49,6 @@ namespace Frontend {
 
     void type_check_ast_helper(ASTNode* node, TypeEnvironment* env);
 
-    struct VariableSymbol {
-        DS::View<char> name;
-        Type type;
-        // Score scope; // This is actually perfect because you can just scope chain to the global scope to find it!
-    };
-
-    /*
-        Only allowed to have Function decls in
-        global scope
-    */
-    struct FunctionSymbol {
-        // DS::View<char> name;
-        // Type return_type;
-    };
-
     Type type_check_expression(Expression* e) {
         switch (e->type) {
             case EXPRESSION_TYPE_INTEGER: {
