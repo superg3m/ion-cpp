@@ -187,7 +187,7 @@ namespace Frontend {
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
 
-        return Decleration::Function(parser->allocator, function_name.sv, return_type, body, nullptr, func.line);
+        return Decleration::Function(parser->allocator, function_name.sv, return_type, body, func.line);
     }
 
     /*
@@ -210,6 +210,14 @@ namespace Frontend {
         return Statement::Assignment(parser->allocator, identifer.sv, rhs, identifer.line);
     }
 
+    Statement* parse_return_statement(Parser* parser) {
+        Token return_token = parser->expect(TKW_RETURN);
+        Expression* expression = parse_expression(parser);
+        parser->expect(TS_SEMI_COLON);
+
+        return Statement::Return(parser->allocator, expression, return_token.line);
+    }
+
     Statement* parse_statement(Parser* parser) {
         Token current_token = parser->peek_nth_token();
 
@@ -222,6 +230,8 @@ namespace Frontend {
             } else {
                 RUNTIME_ASSERT(false);
             } 
+        } else if (current_token.type == TKW_RETURN) {
+            return parse_return_statement(parser);
         }
 
         return nullptr;

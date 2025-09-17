@@ -21,22 +21,6 @@ namespace Frontend {
         DS::Vector<ASTNode*> body;
         ReturnStatment* return_stmt;
         u32 line;
-
-        static FunctionDecleration* New(
-            Memory::BaseAllocator* allocator,
-            DS::View<char> func_name,
-            Type t, DS::Vector<ASTNode*> body, 
-            ReturnStatment* return_stmt, u32 line
-        ) {
-            FunctionDecleration* ret = (FunctionDecleration*)allocator->malloc(sizeof(FunctionDecleration));
-            ret->function_name = func_name;
-            ret->return_type = t;
-            ret->body = body;
-            ret->return_stmt = return_stmt;
-            ret->line = line;
-
-            return ret;
-        }
     };
 
     enum DeclerationType {
@@ -68,11 +52,15 @@ namespace Frontend {
 
         static Decleration* Function(
             Memory::BaseAllocator* allocator, DS::View<char> func_name, 
-            Type return_type, DS::Vector<ASTNode*> body, ReturnStatment* return_stmt, u32 line
+            Type return_type, DS::Vector<ASTNode*> body, u32 line
         ) {
             Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
             ret->type = DECLERATION_TYPE_FUNCTION;
-            ret->function = FunctionDecleration::New(allocator, func_name, return_type, body, return_stmt, line);
+            ret->function = (FunctionDecleration*)allocator->malloc(sizeof(FunctionDecleration));
+            ret->function->function_name = func_name;
+            ret->function->return_type = return_type;
+            ret->function->body = body;
+            ret->function->line = line;
              
             return ret;
         }

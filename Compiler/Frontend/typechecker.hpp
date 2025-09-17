@@ -162,6 +162,11 @@ namespace Frontend {
 
                 return variable_type;
             } break;
+            
+            case STATEMENT_TYPE_RETURN: {
+                Type expression_type = type_check_expression(s->ret->expression);
+                return expression_type;
+            } break;
 
             default: {
                 RUNTIME_ASSERT(false);

@@ -3,7 +3,7 @@ var y: int = 4 + 3;
 var z := "12" + "yo";
 
 func do_something() -> int {
-
+    return 4;
 }
 
 func main() -> void {

@@ -135,6 +135,13 @@ namespace Frontend {
                 return assignment_root;
             } break;
 
+            case STATEMENT_TYPE_RETURN: {
+                JSON* return_root = JSON::Object(allocator);
+                return_root->push("ReturnStatement", expression_to_json(s->ret->expression, allocator));
+
+                return return_root;
+            } break;
+
             default: {
                 RUNTIME_ASSERT(false);
             } break;
