@@ -138,9 +138,10 @@ namespace Frontend {
                     if (node->type == AST_NODE_STATEMENT) {
                         Statement* s = node->statement;
                         if (s->type == STATEMENT_TYPE_RETURN) {
-                            if (decl->function->return_type != type_check_expression(s->ret->expression, env)) {
+                            Type actual_return_type = type_check_expression(s->ret->expression, env);
+                            if (decl->function->return_type != actual_return_type) {
                                 RUNTIME_ASSERT_MSG(false, "returning invalid type: %.*s from function: %.*s\n", 
-                                    decl->function->return_type.name.length, decl->function->return_type.name.data,
+                                    actual_return_type.name.length, actual_return_type.name.data,
                                     decl->function->function_name.length, decl->function->function_name.data
                                 );
                             }
