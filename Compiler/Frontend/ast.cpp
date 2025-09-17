@@ -71,6 +71,13 @@ namespace Frontend {
                 return grouping_root;
             } break;
 
+            case EXPRESSION_TYPE_FUNCTION_CALL: {
+                JSON* function_call_root = JSON::Object(allocator);
+                function_call_root->object.push("FunctionCall", JSON::String(allocator, e->function_call->return_type.name));
+
+                return function_call_root;
+            } break;
+
             default: {
                 RUNTIME_ASSERT(false);
             } break;

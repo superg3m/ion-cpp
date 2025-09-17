@@ -37,7 +37,7 @@ namespace Frontend {
         parser->expect(TS_LEFT_PAREN);
         parser->expect(TS_RIGHT_PAREN);
 
-        return Expression::FunctionCall(parser->allocator, identifer.sv, identifer.line);
+        return Expression::FunctionCall(parser->allocator, identifer.sv, Type(), identifer.line);
     }
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
@@ -52,7 +52,7 @@ namespace Frontend {
             return Expression::Float(parser->allocator, current_token.f, current_token.line);
         } else if (parser->consume_on_match(TL_STRING)) {
             return Expression::String(parser->allocator, current_token.sv, current_token.line);
-        } else if (parser->consume_on_match(TOKEN_IDENTIFIER)) {
+        } else if (current_token.type == TOKEN_IDENTIFIER) {
             Token next_token = parser->peek_nth_token(1);
             if (next_token.type == TS_LEFT_PAREN) {
                 return parse_function_call_expression(parser);

@@ -59,7 +59,7 @@
     X(TPT_INT, "int")            \
     X(TPT_FLOAT, "float")        \
     X(TPT_STRING, "string")      \
-    X(TPT_STRUCT, "string")      \
+    X(TPT_STRUCT, "struct")      \
 
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,

@@ -2,12 +2,13 @@
 // var y: int = 4 + 3;
 // var z := "12" + "testing"; // type inference to string during typechecking I actually patch the ast
 
-func do_something() -> int {
-    return 4;
+func do_something() -> string {
+    return "wow";
 }
 
 func main() -> void {
-    var o: int = do_something();
+    var o := do_something();
+    o = "testing";
 
     // var o: int; // Also typechecker error... [Line: 11 | Duplicate variable decleration: o]
     // t = 3; // [Error Line: 13 | Undeclared identifier 't']

@@ -22,7 +22,7 @@ struct Type {
 
     bool operator==(const Type& rhs) const {
         if (this->type == rhs.type) {
-            if (this->type == TPT_STRING) {
+            if (this->type == TPT_STRUCT) {
                 return String::equal(this->name, rhs.name);
             } else {
                 return true;

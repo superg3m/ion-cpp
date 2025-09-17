@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/core.hpp>
+#include "types.hpp"
 
 typedef struct Expression Expression;
 
@@ -56,6 +57,7 @@ struct GroupingExpression {
 
 struct FunctionCallExpression {
     DS::View<char> function_name;
+    Type return_type;
     u32 line;
 };
 
@@ -98,7 +100,7 @@ struct Expression {
     static Expression* Logical(Memory::BaseAllocator* allocator, Token operation, Expression* left, Expression* right, int line);
     static Expression* Grouping(Memory::BaseAllocator* allocator, Expression* value, int line);
 
-    static Expression* FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, u32 line);
+    static Expression* FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, Type return_type, u32 line);
 private: 
     Expression() = default;
 };

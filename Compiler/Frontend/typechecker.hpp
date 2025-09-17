@@ -4,6 +4,8 @@
 
 namespace Frontend {
     struct TypeEnvironment {
+        TypeEnvironment* parent = nullptr;
+
         TypeEnvironment(TypeEnvironment* parent) {
             this->parent = parent;
         }
@@ -44,12 +46,11 @@ namespace Frontend {
 
     private:
         DS::Hashmap<DS::View<char>, Type> symbols = DS::Hashmap<DS::View<char>, Type>(&Memory::global_general_allocator);
-        TypeEnvironment* parent = nullptr;
     };
 
     void type_check_ast_helper(ASTNode* node, TypeEnvironment* env);
 
-    Type type_check_expression(Expression* e) {
+    Type type_check_expression(Expression* e, TypeEnvironment* env) {
         switch (e->type) {
             case EXPRESSION_TYPE_INTEGER: {
                 return Type(DS::View<char>("int", sizeof("int") - 1), TPT_INT);
@@ -65,8 +66,8 @@ namespace Frontend {
 
             case EXPRESSION_TYPE_BINARY_OPERATION: {
                 DS::View<char> op = e->binary->operation.sv;
-                Type left_type = type_check_expression(e->binary->left);
-                Type right_type = type_check_expression(e->binary->right);
+                Type left_type = type_check_expression(e->binary->left, env);
+                Type right_type = type_check_expression(e->binary->right, env);
 
                 if (left_type != right_type) {
                     const char* fmt = "[TypeChecker BinaryOp Error]: %.*s and %.*s are incompatible types for op: %.*s\n";
@@ -76,6 +77,11 @@ namespace Frontend {
                 }
 
                 return left_type;
+            } break;
+
+            case EXPRESSION_TYPE_FUNCTION_CALL: {
+                e->function_call->return_type = env->get(e->function_call->function_name);
+                return e->function_call->return_type;
             } break;
 
             default: {
@@ -96,7 +102,7 @@ namespace Frontend {
                 }
 
                 if (decl->variable->rhs) {
-                    Type expression_type = type_check_expression(decl->variable->rhs);
+                    Type expression_type = type_check_expression(decl->variable->rhs, env);
 
                     if (decl->variable->type.name.data == nullptr) {
                         decl->variable->type = expression_type;
@@ -117,16 +123,35 @@ namespace Frontend {
             } break;
 
             case DECLERATION_TYPE_FUNCTION: {
+                if (env->parent != nullptr) {
+                    RUNTIME_ASSERT_MSG(false, "Not allowed to declare function: %.*s outside of global scope\n", decl->function->function_name.length, decl->function->function_name.data);
+                }
+
                 if (env->has(decl->function->function_name)) {
-                    LOG_ERROR("Duplicate function decleration: %.*s\n", decl->function->function_name.length, decl->function->function_name.data);
+                    RUNTIME_ASSERT_MSG(false, "Duplicate function decleration: %.*s\n", decl->function->function_name.length, decl->function->function_name.data);
                 }
 
                 env->put(decl->function->function_name, decl->function->return_type);
 
                 TypeEnvironment function_env = TypeEnvironment(env);
                 for (ASTNode* node : decl->function->body) {
+                    if (node->type == AST_NODE_STATEMENT) {
+                        Statement* s = node->statement;
+                        if (s->type == STATEMENT_TYPE_RETURN) {
+                            if (decl->function->return_type != type_check_expression(s->ret->expression, env)) {
+                                RUNTIME_ASSERT_MSG(false, "returning invalid type: %.*s from function: %.*s\n", 
+                                    decl->function->return_type.name.length, decl->function->return_type.name.data,
+                                    decl->function->function_name.length, decl->function->function_name.data
+                                );
+                            }
+                        }
+
+                    }
+
                     type_check_ast_helper(node, &function_env);
                 }
+
+
 
                 return decl->function->return_type;
             } break;
@@ -152,7 +177,7 @@ namespace Frontend {
                 }
 
                 Type variable_type = env->get(s->assignment->variable_name);
-                Type expression_type = type_check_expression(s->assignment->rhs);
+                Type expression_type = type_check_expression(s->assignment->rhs, env);
                 if (variable_type != expression_type) {
                     RUNTIME_ASSERT_MSG(
                         false, "Error Line: %d | Assignment of %.*s to %.*s is not allowed!\n",
@@ -165,7 +190,7 @@ namespace Frontend {
             } break;
             
             case STATEMENT_TYPE_RETURN: {
-                Type expression_type = type_check_expression(s->ret->expression);
+                Type expression_type = type_check_expression(s->ret->expression, env);
                 return expression_type;
             } break;
 
@@ -190,7 +215,7 @@ namespace Frontend {
 
             case AST_NODE_EXPRESSION: {
                 Expression* e = node->expression;
-                type_check_expression(e);
+                type_check_expression(e, env);
             } break;
 
             case AST_NODE_STATEMENT: {
