@@ -54,6 +54,11 @@ struct GroupingExpression {
     int line;
 };
 
+struct FunctionCallExpression {
+    DS::View<char> function_name;
+    u32 line;
+};
+
 enum ExpressionType {
     EXPRESSION_TYPE_STRING,
     EXPRESSION_TYPE_INTEGER,
@@ -63,7 +68,8 @@ enum ExpressionType {
     EXPRESSION_TYPE_UNARY_OPERATION,
     EXPRESSION_TYPE_BINARY_OPERATION,
     EXPRESSION_TYPE_LOGICAL_OPERATION,
-    EXPRESSION_TYPE_GROUPING
+    EXPRESSION_TYPE_GROUPING,
+    EXPRESSION_TYPE_FUNCTION_CALL
 };
 
 struct Expression {
@@ -78,6 +84,7 @@ struct Expression {
         BinaryOperationExpression* binary;
         LogicalOperationExpression* logical;
         GroupingExpression* grouping;
+        FunctionCallExpression* function_call;
     };
 
     static Expression* String(Memory::BaseAllocator* allocator, DS::View<char> name, int line);
@@ -90,6 +97,8 @@ struct Expression {
     static Expression* Binary(Memory::BaseAllocator* allocator, Token operation, Expression* left, Expression* right, int line);
     static Expression* Logical(Memory::BaseAllocator* allocator, Token operation, Expression* left, Expression* right, int line);
     static Expression* Grouping(Memory::BaseAllocator* allocator, Expression* value, int line);
+
+    static Expression* FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, u32 line);
 private: 
     Expression() = default;
 };

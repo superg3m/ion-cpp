@@ -32,6 +32,14 @@ namespace Frontend {
     Decleration* parse_decleration(Parser* parser);
     Statement* parse_statement(Parser* parser);
 
+    Expression* parse_function_call_expression(Parser* parser) {
+        Token identifer = parser->expect(TOKEN_IDENTIFIER);
+        parser->expect(TS_LEFT_PAREN);
+        parser->expect(TS_RIGHT_PAREN);
+
+        return Expression::FunctionCall(parser->allocator, identifer.sv, identifer.line);
+    }
+
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
     Expression* parse_primary_expression(Parser* parser) {
         Token current_token = parser->peek_nth_token();
@@ -44,12 +52,21 @@ namespace Frontend {
             return Expression::Float(parser->allocator, current_token.f, current_token.line);
         } else if (parser->consume_on_match(TL_STRING)) {
             return Expression::String(parser->allocator, current_token.sv, current_token.line);
+        } else if (parser->consume_on_match(TOKEN_IDENTIFIER)) {
+            Token next_token = parser->peek_nth_token(1);
+            if (next_token.type == TS_LEFT_PAREN) {
+                return parse_function_call_expression(parser);
+            }
+           
+            RUNTIME_ASSERT(false); 
         } else if (parser->consume_on_match(TS_LEFT_PAREN)) {
             Expression* expression = parse_expression(parser);
             parser->expect(TS_RIGHT_PAREN);
 
             return Expression::Grouping(parser->allocator, expression, parser->previous_token().line);
         }
+
+
 
         return nullptr;
     
@@ -114,25 +131,25 @@ namespace Frontend {
     }
 
     Type parse_type(Parser* parser) {
-        DS::Vector<TypeModifier> modifiers = DS::Vector<TypeModifier>(parser->allocator, 1);
-        while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN && !parser->consume_on_match(TOKEN_PRIMITIVE_TYPE)) {
+        DS::Hashmap<TokenType, bool> primitive_type_map = {
+            #define X(name, str) {name, true},
+                X_PRIMITIVE_TYPES_TOKENS
+            #undef X
+        };
+
+        while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN) {
             Token t = parser->consume_next_token();
-            if (t.type == TS_LEFT_BRACKET) {
-                if (parser->consume_on_match(TOKEN_IDENTIFIER)) {}
-                else if (parser->consume_on_match(TL_INTEGER)) {}
-                
-                parser->expect(TS_RIGHT_BRACKET);
-                modifiers.push(TYPE_MODIFER_ARRAY);
-            } else if (t.type == TS_STAR) {
-                modifiers.push(TYPE_MODIFER_POINTER);
+
+            if (primitive_type_map.has(t.type)) {
+                break;
             }
         }
 
-        Token type_name = parser->previous_token();
-        return Type(modifiers, type_name.sv);
+        Token type_token = parser->previous_token();
+        return Type(type_token.sv, type_token.type);
     }
 
-    // <variable_decleration> ::= "var" <identifier> ":" <identifer> "=" <expression> ";"
+    // <variable_decleration> ::= "var" <identifier> ":" <type> "=" <expression> ";"
     Decleration* parse_variable_decleration(Parser* parser) {
         Token var = parser->expect(TKW_VAR);
         Token variable_name = parser->expect(TOKEN_IDENTIFIER);
@@ -175,7 +192,7 @@ namespace Frontend {
         }
     }
 
-    // <function_decleration> ::= "func" <identifier> "(" ")" "->" <identifer>
+    // <function_decleration> ::= "func" <identifier> "(" ")" "->" <type> "{" <code_block> "}"
     Decleration* parse_function_decleration(Parser* parser) {
         Token func = parser->expect(TKW_FUNC);
         Token function_name = parser->expect(TOKEN_IDENTIFIER);
@@ -189,16 +206,6 @@ namespace Frontend {
 
         return Decleration::Function(parser->allocator, function_name.sv, return_type, body, func.line);
     }
-
-    /*
-    Statement* parse_function_call_statement(Parser* parser) {
-        Token identifer = parser->consume_next_token();
-        parser->expect(TS_LEFT_PAREN);
-        parser->expect(TS_RIGHT_PAREN);
-
-        return nullptr;
-    }
-    */
 
     Statement* parse_assignment_statement(Parser* parser) {
         Token identifer = parser->consume_next_token();

@@ -139,7 +139,10 @@ const char* Token::type_to_string() const {
             X_KEYWORD_TOKENS
         #undef X
 
-        stringify(TOKEN_PRIMITIVE_TYPE),
+        #define X(name, str) stringify(name),
+            X_PRIMITIVE_TYPES_TOKENS
+        #undef X
+
         stringify(TOKEN_IDENTIFIER),
     };
 

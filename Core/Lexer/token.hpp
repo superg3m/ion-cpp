@@ -54,11 +54,12 @@
     X(TKW_NULL, "null")     \
     X(TKW_RETURN, "return") \
 
-#define X_PRIMITIVE_TYPES_TOKENS      \
-    X(TOKEN_PRIMITIVE_TYPE, "void")   \
-    X(TOKEN_PRIMITIVE_TYPE, "int")    \
-    X(TOKEN_PRIMITIVE_TYPE, "float")  \
-    X(TOKEN_PRIMITIVE_TYPE, "string") \
+#define X_PRIMITIVE_TYPES_TOKENS \
+    X(TPT_VOID, "void")          \
+    X(TPT_INT, "int")            \
+    X(TPT_FLOAT, "float")        \
+    X(TPT_STRING, "string")      \
+    X(TPT_STRUCT, "string")      \
 
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
@@ -76,7 +77,10 @@ enum TokenType {
         X_KEYWORD_TOKENS
     #undef X
 
-    TOKEN_PRIMITIVE_TYPE,
+    #define X(name, str) name,
+        X_PRIMITIVE_TYPES_TOKENS
+    #undef X
+
     TOKEN_IDENTIFIER,
 
     TOKEN_COUNT

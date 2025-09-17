@@ -52,15 +52,15 @@ namespace Frontend {
     Type type_check_expression(Expression* e) {
         switch (e->type) {
             case EXPRESSION_TYPE_INTEGER: {
-                return Type({}, DS::View<char>("int", sizeof("int") - 1));
+                return Type(DS::View<char>("int", sizeof("int") - 1), TPT_INT);
             } break;
 
             case EXPRESSION_TYPE_FLOAT: {
-                return Type({}, DS::View<char>("float", sizeof("float") - 1));
+                return Type(DS::View<char>("float", sizeof("float") - 1), TPT_FLOAT);
             } break;
             
             case EXPRESSION_TYPE_STRING: {
-                return Type({}, DS::View<char>("string", sizeof("string") - 1));
+                return Type(DS::View<char>("string", sizeof("string") - 1), TPT_STRING);
             } break;
 
             case EXPRESSION_TYPE_BINARY_OPERATION: {
@@ -101,6 +101,7 @@ namespace Frontend {
                     if (decl->variable->type.name.data == nullptr) {
                         decl->variable->type = expression_type;
                         env->put(decl->variable->variable_name, decl->variable->type);
+                        
                         return expression_type;
                     }
 
@@ -127,7 +128,7 @@ namespace Frontend {
                     type_check_ast_helper(node, &function_env);
                 }
 
-                return Type({}, DS::View<char>("nothing", sizeof("nothing") - 1));
+                return decl->function->return_type;
             } break;
 
             default: {

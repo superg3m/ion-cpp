@@ -1,12 +1,16 @@
-var x: int = 6;
-var y: int = 4 + 3;
-var z := "12" + "yo";
+// var x: int = 6;
+// var y: int = 4 + 3;
+// var z := "12" + "testing"; // type inference to string during typechecking I actually patch the ast
 
 func do_something() -> int {
     return 4;
 }
 
 func main() -> void {
-    var o: int;
+    var o: int = do_something();
+
+    // var o: int; // Also typechecker error... [Line: 11 | Duplicate variable decleration: o]
+    // t = 3; // [Error Line: 13 | Undeclared identifier 't']
+    //o = "hello world"; // [Error Line: 15 | Assignment of int to string is not allowed!]
 }
 

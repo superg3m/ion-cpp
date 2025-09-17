@@ -2,36 +2,34 @@
 
 #include <Core/core.hpp>
 
+/*
 enum TypeModifier {
     TYPE_MODIFER_ARRAY,
     TYPE_MODIFER_POINTER,
 };
+*/
 
 struct Type {
-    DS::Vector<TypeModifier> modifiers;
     DS::View<char> name;
+    TokenType type; // TPT_*
 
     Type() = default;
 
-    Type(DS::Vector<TypeModifier> modifiers, DS::View<char> name) : modifiers(modifiers) {
+    Type(DS::View<char> name, TokenType type) {
         this->name = name;
+        this->type = type;
     }
 
     bool operator==(const Type& rhs) const {
-        if (this->modifiers.count() != rhs.modifiers.count()) {
-            return false;
-        }
-
-        for (int i = 0; i < this->modifiers.count(); i++) {
-            TypeModifier m1 = rhs.modifiers[i];
-            TypeModifier m2 = rhs.modifiers[i];
-
-            if (m1 != m2) {
-                return false;
+        if (this->type == rhs.type) {
+            if (this->type == TPT_STRING) {
+                return String::equal(this->name, rhs.name);
+            } else {
+                return true;
             }
-        }
-
-        return String::equal(this->name, rhs.name);
+        }   
+        
+        return false;
     }
 
     bool operator!=(const Type& rhs) const {

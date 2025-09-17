@@ -94,3 +94,13 @@ Expression* Expression::Grouping(Memory::BaseAllocator* allocator, Expression* v
     
     return ret;
 }
+
+Expression* Expression::FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, u32 line) {
+    Expression* ret = (Expression*)allocator->malloc(sizeof(Expression));
+    ret->type = EXPRESSION_TYPE_FUNCTION_CALL;
+    ret->function_call = (FunctionCallExpression*)allocator->malloc(sizeof(FunctionCallExpression));
+    ret->function_call->function_name = name;
+    ret->function_call->line = line;
+    
+    return ret;
+}
