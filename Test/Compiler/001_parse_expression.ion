@@ -2,8 +2,12 @@ var x: int = 6;
 var y: int = 4 + 3;
 var z: string = "12" + "testing"; // type inference to string during typechecking I actually patch the ast
 
-func do_something() -> string {
-    return "35";
+struct UserDefined {
+
+};
+
+func do_something() -> int {
+    return 43;
 }
 
 func main() -> void {

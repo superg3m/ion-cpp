@@ -33,11 +33,11 @@ namespace Frontend {
     Statement* parse_statement(Parser* parser);
 
     Expression* parse_function_call_expression(Parser* parser) {
-        Token identifer = parser->expect(TOKEN_IDENTIFIER);
+        Token identifier = parser->expect(TOKEN_IDENTIFIER);
         parser->expect(TS_LEFT_PAREN);
         parser->expect(TS_RIGHT_PAREN);
 
-        return Expression::FunctionCall(parser->allocator, identifer.sv, Type(), identifer.line);
+        return Expression::FunctionCall(parser->allocator, identifier.sv, Type(), identifier.line);
     }
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
@@ -130,6 +130,7 @@ namespace Frontend {
         return parse_logical_expression(parser);
     }
 
+    // <type> ::= <primitive> | <identifier>
     Type parse_type(Parser* parser) {
         DS::Hashmap<TokenType, bool> primitive_type_map = {
             #define X(name, str) {name, true},
@@ -140,7 +141,7 @@ namespace Frontend {
         while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN) {
             Token t = parser->consume_next_token();
 
-            if (primitive_type_map.has(t.type)) {
+            if (primitive_type_map.has(t.type) || t.type == TOKEN_IDENTIFIER) {
                 break;
             }
         }
@@ -190,6 +191,18 @@ namespace Frontend {
         
             RUNTIME_ASSERT(false);
         }
+    }
+
+    // <struct_decleration> ::= "struct" <identifier> "{"  "}" ";""
+    Decleration* parse_struct_decleration(Parser* parser) {
+        Token struct_token = parser->expect(TPT_STRUCT);
+        Type type = Type(struct_token.sv, struct_token.type);
+
+        DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
+        parse_code_block(parser, body);
+        parser->expect(TS_SEMI_COLON);
+
+        return Decleration::Struct(parser->allocator, type, struct_token.line);
     }
 
     // <function_decleration> ::= "func" <identifier> "(" ")" "->" <type> "{" <code_block> "}"
@@ -249,6 +262,8 @@ namespace Frontend {
 
         if (current_token.type == TKW_VAR) {
             return parse_variable_decleration(parser);
+        } if (current_token.type == TPT_STRUCT) {
+            return parse_struct_decleration(parser);
         } else if (current_token.type == TKW_FUNC) {
             return parse_function_decleration(parser);
         }

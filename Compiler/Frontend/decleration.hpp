@@ -19,12 +19,17 @@ namespace Frontend {
         DS::View<char> function_name;
         Type return_type;
         DS::Vector<ASTNode*> body;
-        ReturnStatment* return_stmt;
+        u32 line;
+    };
+
+    struct StructDecleration {
+        Type type;
         u32 line;
     };
 
     enum DeclerationType {
         DECLERATION_TYPE_VARIABLE,
+        DECLERATION_TYPE_STRUCT,
         DECLERATION_TYPE_FUNCTION,
     };
 
@@ -33,6 +38,7 @@ namespace Frontend {
         union {
             VariableDecleration* variable;
             FunctionDecleration* function;
+            StructDecleration* struct_decl;
         };
 
         static Decleration* Variable(
@@ -61,6 +67,19 @@ namespace Frontend {
             ret->function->return_type = return_type;
             ret->function->body = body;
             ret->function->line = line;
+             
+            return ret;
+        }
+
+        static Decleration* Struct(
+            Memory::BaseAllocator* allocator,
+            Type type, u32 line
+        ) {
+            Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
+            ret->type = DECLERATION_TYPE_STRUCT;
+            ret->struct_decl = (StructDecleration*)allocator->malloc(sizeof(StructDecleration));
+            ret->struct_decl->type = type;
+            ret->struct_decl->line = line;
              
             return ret;
         }

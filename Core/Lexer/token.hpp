@@ -61,6 +61,7 @@
     X(TPT_STRING, "string")      \
     X(TPT_STRUCT, "struct")      \
 
+
 enum TokenType {
     TOKEN_ILLEGAL_TOKEN,
     TOKEN_EOF,

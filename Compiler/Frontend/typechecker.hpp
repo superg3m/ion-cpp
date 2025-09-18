@@ -98,11 +98,15 @@ namespace Frontend {
         switch (decl->type) {
             case DECLERATION_TYPE_VARIABLE: {
                 if (env->has(decl->variable->variable_name)) {
-                    LOG_ERROR("Duplicate variable decleration: %.*s\n", decl->variable->variable_name.length, decl->variable->variable_name.data);
+                    RUNTIME_ASSERT_MSG(false, "Duplicate variable decleration: %.*s\n", decl->variable->variable_name.length, decl->variable->variable_name.data);
                 }
 
                 if (decl->variable->rhs) {
                     Type expression_type = type_check_expression(decl->variable->rhs, env);
+
+                    if (expression_type.type == TPT_VOID) {
+                        RUNTIME_ASSERT_MSG(false, "Attempting to assign void to varible: %.*s\n", decl->variable->variable_name.length, decl->variable->variable_name.data);
+                    }
 
                     if (decl->variable->type.name.data == nullptr) {
                         decl->variable->type = expression_type;
@@ -112,8 +116,7 @@ namespace Frontend {
                     }
 
                     if (decl->variable->type != expression_type) {
-                        LOG_ERROR("[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
-                        RUNTIME_ASSERT(false);
+                        RUNTIME_ASSERT_MSG(false, "[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
                     }
                 }
 
@@ -134,10 +137,21 @@ namespace Frontend {
                 env->put(decl->function->function_name, decl->function->return_type);
 
                 TypeEnvironment function_env = TypeEnvironment(env);
+                
+                if (decl->function->body.count() > 0 && decl->function->return_type.type != TPT_VOID &&
+                    decl->function->body[decl->function->body.count() - 1]->statement &&
+                    decl->function->body[decl->function->body.count() - 1]->statement->type != STATEMENT_TYPE_RETURN) {
+                    RUNTIME_ASSERT_MSG(false, "return statement required if not returning void on function decleration\n");
+                } 
+
                 for (ASTNode* node : decl->function->body) {
                     if (node->type == AST_NODE_STATEMENT) {
                         Statement* s = node->statement;
                         if (s->type == STATEMENT_TYPE_RETURN) {
+                            if (decl->function->return_type.type == TPT_VOID) {
+                                RUNTIME_ASSERT_MSG(false, "return statement is not allowed in a function that returns void\n");
+                            } 
+
                             Type actual_return_type = type_check_expression(s->ret->expression, env);
                             if (decl->function->return_type != actual_return_type) {
                                 RUNTIME_ASSERT_MSG(false, "returning invalid type: %.*s from function: %.*s\n", 
@@ -152,9 +166,11 @@ namespace Frontend {
                     type_check_ast_helper(node, &function_env);
                 }
 
-
-
                 return decl->function->return_type;
+            } break;
+
+            case DECLERATION_TYPE_STRUCT: {
+                return decl->struct_decl->type;
             } break;
 
             default: {
