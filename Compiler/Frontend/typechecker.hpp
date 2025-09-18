@@ -53,15 +53,15 @@ namespace Frontend {
     Type type_check_expression(Expression* e, TypeEnvironment* env) {
         switch (e->type) {
             case EXPRESSION_TYPE_INTEGER: {
-                return Type(DS::View<char>("int", sizeof("int") - 1), TPT_INT);
+                return Type(DS::View<char>("int", sizeof("int") - 1), TPT_INT, {});
             } break;
 
             case EXPRESSION_TYPE_FLOAT: {
-                return Type(DS::View<char>("float", sizeof("float") - 1), TPT_FLOAT);
+                return Type(DS::View<char>("float", sizeof("float") - 1), TPT_FLOAT, {});
             } break;
             
             case EXPRESSION_TYPE_STRING: {
-                return Type(DS::View<char>("string", sizeof("string") - 1), TPT_STRING);
+                return Type(DS::View<char>("string", sizeof("string") - 1), TPT_STRING, {});
             } break;
 
             case EXPRESSION_TYPE_BINARY_OPERATION: {

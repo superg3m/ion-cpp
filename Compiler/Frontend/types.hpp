@@ -9,30 +9,38 @@ enum TypeModifier {
 };
 */
 
-struct Type {
-    DS::View<char> name;
-    TokenType type; // TPT_*
+namespace Frontend {
+    typedef struct ASTNode ASTNode;
 
-    Type() = default;
+    struct Type {
+        DS::View<char> name;
+        TokenType type; // TPT_* | TOKEN_IDENTIFIER
 
-    Type(DS::View<char> name, TokenType type) {
-        this->name = name;
-        this->type = type;
-    }
+        // TODO(Jovanni): THIS IS SO BAD
+        DS::Vector<ASTNode*> members;
 
-    bool operator==(const Type& rhs) const {
-        if (this->type == rhs.type) {
-            if (this->type == TOKEN_IDENTIFIER) {
-                return String::equal(this->name, rhs.name);
-            } else {
-                return true;
-            }
-        }   
-        
-        return false;
-    }
+        Type() = default;
 
-    bool operator!=(const Type& rhs) const {
-        return (*this == rhs) == false;
-    }
-};
+        Type(DS::View<char> name, TokenType type, DS::Vector<ASTNode*> members) {
+            this->name = name;
+            this->type = type;
+            this->members = members;
+        }
+
+        bool operator==(const Type& rhs) const {
+            if (this->type == rhs.type) {
+                if (this->type == TOKEN_IDENTIFIER) {
+                    return String::equal(this->name, rhs.name);
+                } else {
+                    return true;
+                }
+            }   
+            
+            return false;
+        }
+
+        bool operator!=(const Type& rhs) const {
+            return (*this == rhs) == false;
+        }
+    };
+}

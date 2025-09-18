@@ -147,7 +147,7 @@ namespace Frontend {
         }
 
         Token type_token = parser->previous_token();
-        return Type(type_token.sv, type_token.type);
+        return Type(type_token.sv, type_token.type, {});
     }
 
     // <variable_decleration> ::= "var" <identifier> ":" <type> "=" <expression> ";"
@@ -197,10 +197,12 @@ namespace Frontend {
     Decleration* parse_struct_decleration(Parser* parser) {
         Token struct_token = parser->expect(TKW_STRUCT);
         Token type_token = parser->expect(TOKEN_IDENTIFIER);
-        Type type = Type(type_token.sv, type_token.type);
+        Type type = Type(type_token.sv, type_token.type, {});
 
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
+        type.members = body;
+
         parser->expect(TS_SEMI_COLON);
 
         return Decleration::Struct(parser->allocator, type, struct_token.line);
