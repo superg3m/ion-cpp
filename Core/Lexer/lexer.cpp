@@ -184,20 +184,6 @@ bool Lexer::consume_word() {
 
     Token token = Token::PrimiveTypeTokenFromSourceView(sv, this->line);
     if (token.type != TOKEN_ILLEGAL_TOKEN) {
-        if (token.type == TPT_STRUCT) {
-            this->consume_next_char();
-
-            while (this->consume_whitespace()) {
-                this->consume_next_char();
-            }
-    
-            RUNTIME_ASSERT(this->try_consume_word());
-            sv = this->get_scratch_buffer();
-            LOG_ERROR("%.*s\n", sv.length, sv.data);
-
-            token.sv = sv;
-        }
-
         this->tokens.push(token);
         
         return true;

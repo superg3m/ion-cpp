@@ -195,8 +195,9 @@ namespace Frontend {
 
     // <struct_decleration> ::= "struct" <identifier> "{"  "}" ";""
     Decleration* parse_struct_decleration(Parser* parser) {
-        Token struct_token = parser->expect(TPT_STRUCT);
-        Type type = Type(struct_token.sv, struct_token.type);
+        Token struct_token = parser->expect(TKW_STRUCT);
+        Token type_token = parser->expect(TOKEN_IDENTIFIER);
+        Type type = Type(type_token.sv, type_token.type);
 
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
@@ -262,7 +263,7 @@ namespace Frontend {
 
         if (current_token.type == TKW_VAR) {
             return parse_variable_decleration(parser);
-        } if (current_token.type == TPT_STRUCT) {
+        } if (current_token.type == TKW_STRUCT) {
             return parse_struct_decleration(parser);
         } else if (current_token.type == TKW_FUNC) {
             return parse_function_decleration(parser);
