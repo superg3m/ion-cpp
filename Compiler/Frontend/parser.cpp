@@ -130,7 +130,7 @@ namespace Frontend {
         return parse_logical_expression(parser);
     }
 
-    // <type> ::= <primitive> | <identifier>
+    // <type> ::= "int" | "float" | "string"
     Type parse_type(Parser* parser) {
         DS::Hashmap<TokenType, bool> primitive_type_map = {
             #define X(name, str) {name, true},
@@ -141,7 +141,7 @@ namespace Frontend {
         while (parser->peek_nth_token().type != TOKEN_ILLEGAL_TOKEN) {
             Token t = parser->consume_next_token();
 
-            if (primitive_type_map.has(t.type) || t.type == TOKEN_IDENTIFIER) {
+            if (primitive_type_map.has(t.type)) {
                 break;
             }
         }

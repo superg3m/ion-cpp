@@ -50,6 +50,7 @@
         "algorithm": "cpp",
         "utility": "cpp",
         "memory": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "atomic": "cpp"
     }
 }

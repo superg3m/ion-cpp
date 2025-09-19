@@ -14,7 +14,7 @@ namespace Frontend {
 
     struct Type {
         DS::View<char> name;
-        TokenType type; // TPT_* | TOKEN_IDENTIFIER
+        TokenType type; // TPT_*
 
         // TODO(Jovanni): THIS IS SO BAD
         DS::Vector<ASTNode*> members;
