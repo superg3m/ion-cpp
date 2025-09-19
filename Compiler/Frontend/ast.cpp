@@ -120,18 +120,6 @@ namespace Frontend {
                 return function_root;
             } break;
 
-
-            case DECLERATION_TYPE_STRUCT: {
-                JSON* struct_root = JSON::Object(allocator);
-
-                JSON* desc = JSON::Object(allocator);
-                desc->push("type", decl->struct_decl->type.name);
-
-                struct_root->push("StructDecleration", desc);
-
-                return struct_root;
-            } break;
-
             default: {
                 RUNTIME_ASSERT(false);
             } break;

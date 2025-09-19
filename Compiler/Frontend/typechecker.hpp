@@ -169,10 +169,6 @@ namespace Frontend {
                 return decl->function->return_type;
             } break;
 
-            case DECLERATION_TYPE_STRUCT: {
-                return decl->struct_decl->type;
-            } break;
-
             default: {
                 RUNTIME_ASSERT(false);
             } break;
