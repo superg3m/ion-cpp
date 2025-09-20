@@ -28,6 +28,7 @@ namespace Frontend {
 
     struct IdentifierExpression {
         DS::View<char> name;
+        Type type;
         int line;
     };
 
@@ -58,6 +59,7 @@ namespace Frontend {
 
     struct FunctionCallExpression {
         DS::View<char> function_name;
+        DS::Vector<Expression*> arguments;
         Type return_type;
         u32 line;
     };
@@ -67,7 +69,7 @@ namespace Frontend {
         EXPRESSION_TYPE_INTEGER,
         EXPRESSION_TYPE_FLOAT,
         EXPRESSION_TYPE_BOOLEAN,
-        EXPRESSION_TYPE_IDENTIFER,
+        EXPRESSION_TYPE_IDENTIFIER,
         EXPRESSION_TYPE_UNARY_OPERATION,
         EXPRESSION_TYPE_BINARY_OPERATION,
         EXPRESSION_TYPE_LOGICAL_OPERATION,
@@ -85,7 +87,6 @@ namespace Frontend {
             IdentifierExpression* identifier;
             UnaryOperationExpression* unary;
             BinaryOperationExpression* binary;
-            LogicalOperationExpression* logical;
             GroupingExpression* grouping;
             FunctionCallExpression* function_call;
         };
@@ -95,13 +96,17 @@ namespace Frontend {
         static Expression* Float(Memory::BaseAllocator* allocator, float value, int line);
         static Expression* Boolean(Memory::BaseAllocator* allocator, bool value, int line);
 
-        static Expression* Identifier(Memory::BaseAllocator* allocator, DS::View<char> name, int line);
+        static Expression* Identifier(Memory::BaseAllocator* allocator, DS::View<char> name, Type type, int line);
         static Expression* Unary(Memory::BaseAllocator* allocator, Token operation, Expression* operand, int line);
         static Expression* Binary(Memory::BaseAllocator* allocator, Token operation, Expression* left, Expression* right, int line);
-        static Expression* Logical(Memory::BaseAllocator* allocator, Token operation, Expression* left, Expression* right, int line);
         static Expression* Grouping(Memory::BaseAllocator* allocator, Expression* value, int line);
 
-        static Expression* FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, Type return_type, u32 line);
+        static Expression* FunctionCall(
+            Memory::BaseAllocator* allocator, 
+            DS::View<char> name, Type return_type, 
+            DS::Vector<Expression*> arguments,
+            u32 line
+        );
     private: 
         Expression() = default;
     };

@@ -51,6 +51,9 @@
         "utility": "cpp",
         "memory": "cpp",
         "compare": "cpp",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "__availability": "cpp",
+        "concepts": "cpp",
+        "system_error": "cpp"
     }
 }

@@ -32,12 +32,24 @@ namespace Frontend {
     Decleration* parse_decleration(Parser* parser);
     Statement* parse_statement(Parser* parser);
 
+    void parse_arguments(Parser* parser, DS::Vector<Expression*>& arguments) {
+        parser->expect(TS_LEFT_PAREN);
+        while (!parser->consume_on_match(TS_RIGHT_PAREN)) {
+            arguments.push(parse_expression(parser));
+
+            if (parser->peek_nth_token(0).type != TS_RIGHT_PAREN) {
+                parser->expect(TS_COMMA);
+            }
+        }
+    }
+
     Expression* parse_function_call_expression(Parser* parser) {
         Token identifier = parser->expect(TOKEN_IDENTIFIER);
-        parser->expect(TS_LEFT_PAREN);
-        parser->expect(TS_RIGHT_PAREN);
 
-        return Expression::FunctionCall(parser->allocator, identifier.sv, Type(), identifier.line);
+        DS::Vector<Expression*> arguments = DS::Vector<Expression*>(parser->allocator, 1);
+        parse_arguments(parser, arguments);
+
+        return Expression::FunctionCall(parser->allocator, identifier.sv, Type(), arguments, identifier.line);
     }
 
     // <primary> ::= INTEGER | FLOAT | TRUE | FALSE | STRING | IDENTIFIER | "(" <expression> ")"
@@ -57,8 +69,9 @@ namespace Frontend {
             if (next_token.type == TS_LEFT_PAREN) {
                 return parse_function_call_expression(parser);
             }
-           
-            RUNTIME_ASSERT(false); 
+
+            parser->expect(TOKEN_IDENTIFIER);
+            return Expression::Identifier(parser->allocator, current_token.sv, Type(), current_token.line);
         } else if (parser->consume_on_match(TS_LEFT_PAREN)) {
             Expression* expression = parse_expression(parser);
             parser->expect(TS_RIGHT_PAREN);
@@ -66,11 +79,9 @@ namespace Frontend {
             return Expression::Grouping(parser->allocator, expression, parser->previous_token().line);
         }
 
-
-
         return nullptr;
+    }
     
-}
     // <unary> ::= (("-" | "+") <unary>) | <primary>
     Expression* parse_unary_expression(Parser* parser) {
         if (parser->consume_on_match(TS_PLUS) || parser->consume_on_match(TS_MINUS)) {
@@ -120,7 +131,7 @@ namespace Frontend {
             Token op = parser->previous_token();
             Expression* right = parse_additive_expression(parser);
 
-            expression = Expression::Logical(parser->allocator, op, expression, right, op.line);
+            expression = Expression::Binary(parser->allocator, op, expression, right, op.line);
         }
 
         return expression;
@@ -193,19 +204,36 @@ namespace Frontend {
         }
     }
 
+    void parse_parameters(Parser* parser, DS::Vector<Parameter>& parameters) {
+        parser->expect(TS_LEFT_PAREN);
+        while (!parser->consume_on_match(TS_RIGHT_PAREN)) {
+            Parameter param = {};
+            param.variable_name = parser->expect(TOKEN_IDENTIFIER).sv;
+            param.type = parse_type(parser);
+
+            parameters.push(param);
+
+            if (parser->peek_nth_token(0).type != TS_RIGHT_PAREN) {
+                parser->expect(TS_COMMA);
+            }
+        }
+    }
+
     // <function_decleration> ::= "func" <identifier> "(" ")" "->" <type> "{" <code_block> "}"
     Decleration* parse_function_decleration(Parser* parser) {
         Token func = parser->expect(TKW_FUNC);
         Token function_name = parser->expect(TOKEN_IDENTIFIER);
-        parser->expect(TS_LEFT_PAREN);
-        parser->expect(TS_RIGHT_PAREN);
+
+        DS::Vector<Parameter> parameters = DS::Vector<Parameter>(parser->allocator, 1);
+        parse_parameters(parser, parameters);
+
         parser->expect(TS_RIGHT_ARROW);
         Type return_type = parse_type(parser);
 
         DS::Vector<ASTNode*> body = DS::Vector<ASTNode*>(parser->allocator, 1);
         parse_code_block(parser, body);
 
-        return Decleration::Function(parser->allocator, function_name.sv, return_type, body, func.line);
+        return Decleration::Function(parser->allocator, function_name.sv, parameters, return_type, body, func.line);
     }
 
     Statement* parse_assignment_statement(Parser* parser) {
@@ -231,9 +259,7 @@ namespace Frontend {
 
         if (current_token.type == TOKEN_IDENTIFIER) {
             Token next_token = parser->peek_nth_token(1);
-            if (next_token.type == TS_LEFT_BRACKET) {
-                // return parse_function_call_statement(parser);
-            } else if (next_token.type == TSA_EQUALS) {
+            if (next_token.type == TSA_EQUALS) {
                 return parse_assignment_statement(parser);
             } else {
                 RUNTIME_ASSERT(false);

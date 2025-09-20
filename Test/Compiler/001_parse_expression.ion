@@ -1,13 +1,12 @@
 var x: int = 6;
 var y: int = 4 + 3;
-var z: string = "12" + "testing"; // type inference to string during typechecking I actually patch the ast
 
-func do_something() -> int {
-    return 54;
+func do_something(a: int) -> int {
+    return a;
 }
 
 func main() -> void {
-    var t := do_something();
+    var t := do_something(6);
     // o = "testing";
 
     // var o: int; // Also typechecker error... [Line: 11 | Duplicate variable decleration: o]

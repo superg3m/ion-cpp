@@ -37,7 +37,7 @@ namespace Frontend {
     struct ForStatement {
         Decleration* initalization;
         Expression* conditional;
-        DS::Vector<ASTNode*> code_block;
+        DS::Vector<ASTNode*> body;
         u32 line;
     };
 
@@ -46,9 +46,15 @@ namespace Frontend {
         u32 line;
     };
 
+    struct ScopeStatement {
+        DS::Vector<ASTNode*> body;
+        u32 line;
+    };
+
     enum StatementType {
         STATEMENT_TYPE_ASSIGNMENT,
         STATEMENT_TYPE_RETURN,
+        STATEMENT_TYPE_SCOPE,
     };
 
     struct Statement {
@@ -56,10 +62,12 @@ namespace Frontend {
         union {
             AssignmentStatement* assignment;
             ReturnStatment* ret;
+            ScopeStatement* scope;
         };
 
         static Statement* Assignment(Memory::BaseAllocator* allocator, DS::View<char> name, Expression* rhs, u32 line);
         static Statement* Return(Memory::BaseAllocator* allocator, Expression* expression, u32 line);
+        static Statement* Scope(Memory::BaseAllocator* allocator, DS::Vector<ASTNode*> body, u32 line);
     private:
         Statement() = default;
     };

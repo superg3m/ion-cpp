@@ -10,10 +10,10 @@ namespace Frontend {
             this->parent = parent;
         }
 
-        bool has(DS::View<char> key) {
+        bool has_var(DS::View<char> key) {
             TypeEnvironment* current = this;
             while (current != nullptr) {
-                if (current->symbols.has(key)) {
+                if (current->variables.has(key)) {
                     return true;
                 }
 
@@ -23,29 +23,66 @@ namespace Frontend {
             return false;
         }
 
-        void put(DS::View<char> key, Type value) {
-            RUNTIME_ASSERT(!this->has(key));
+        void put_var(DS::View<char> key, VariableDecleration* value) {
+            RUNTIME_ASSERT(!this->has_var(key));
             
-            this->symbols.put(key, value);
+            this->variables.put(key, value);
         }
 
-        Type get(DS::View<char> key) {
-            RUNTIME_ASSERT(this->has(key));
+        VariableDecleration* get_var(DS::View<char> key) {
+            RUNTIME_ASSERT(this->has_var(key));
             
             TypeEnvironment* current = this;
             while (current != nullptr) {
-                if (current->symbols.has(key)) {
-                    return current->symbols.get(key);
+                if (current->variables.has(key)) {
+                    return current->variables.get(key);
                 }
 
                 current = current->parent;
             }
 
-            return Type();
+            return nullptr;
+        }
+
+        // ----------------------------------------
+
+        bool has_func(DS::View<char> key) {
+            TypeEnvironment* current = this;
+            while (current != nullptr) {
+                if (current->functions.has(key)) {
+                    return true;
+                }
+
+                current = current->parent;
+            }
+
+            return false;
+        }
+
+        void put_func(DS::View<char> key, FunctionDecleration* value) {
+            RUNTIME_ASSERT(!this->has_var(key));
+            
+            this->functions.put(key, value);
+        }
+
+        FunctionDecleration* get_func(DS::View<char> key) {
+            RUNTIME_ASSERT(this->has_func(key));
+            
+            TypeEnvironment* current = this;
+            while (current != nullptr) {
+                if (current->functions.has(key)) {
+                    return current->functions.get(key);
+                }
+
+                current = current->parent;
+            }
+
+            return nullptr;
         }
 
     private:
-        DS::Hashmap<DS::View<char>, Type> symbols = DS::Hashmap<DS::View<char>, Type>(&Memory::global_general_allocator);
+        DS::Hashmap<DS::View<char>, VariableDecleration*> variables = DS::Hashmap<DS::View<char>, VariableDecleration*>(&Memory::global_general_allocator);
+        DS::Hashmap<DS::View<char>, FunctionDecleration*> functions = DS::Hashmap<DS::View<char>, FunctionDecleration*>(&Memory::global_general_allocator);
     };
 
     void type_check_ast_helper(ASTNode* node, TypeEnvironment* env);
@@ -80,8 +117,32 @@ namespace Frontend {
             } break;
 
             case EXPRESSION_TYPE_FUNCTION_CALL: {
-                e->function_call->return_type = env->get(e->function_call->function_name);
+                FunctionDecleration* func_decl = env->get_func(e->function_call->function_name);
+
+                int param_count = func_decl->parameters.count();
+                int arg_count = e->function_call->arguments.count();
+
+                RUNTIME_ASSERT_MSG(param_count == arg_count, "Expected: %d argument(s), got: %d\n", param_count, arg_count);
+
+                for (int i = 0; i < arg_count; i++) {
+                    Expression* argument = e->function_call->arguments[i];
+                    Parameter param = func_decl->parameters[i];
+
+                    if (type_check_expression(argument, env) != param.type) {
+                        RUNTIME_ASSERT_MSG(false, "Argument types don't match function decleration parameter types\n");
+                    }
+                }
+
+                e->function_call->return_type = func_decl->return_type;
                 return e->function_call->return_type;
+            } break;
+
+            case EXPRESSION_TYPE_IDENTIFIER: {
+                RUNTIME_ASSERT_MSG(env->has_var(e->identifier->name), "Undeclared identifier: %.*s\n", e->identifier->name.length, e->identifier->name.data);
+                VariableDecleration* var_decl = env->get_var(e->identifier->name);
+                e->identifier->type = var_decl->type;
+
+                return e->identifier->type;
             } break;
 
             default: {
@@ -97,9 +158,11 @@ namespace Frontend {
     Type type_check_decleration(Decleration* decl, TypeEnvironment* env) {
         switch (decl->type) {
             case DECLERATION_TYPE_VARIABLE: {
-                if (env->has(decl->variable->variable_name)) {
+                if (env->has_var(decl->variable->variable_name)) {
                     RUNTIME_ASSERT_MSG(false, "Duplicate variable decleration: %.*s\n", decl->variable->variable_name.length, decl->variable->variable_name.data);
                 }
+
+                env->put_var(decl->variable->variable_name, decl->variable);
 
                 if (decl->variable->rhs) {
                     Type expression_type = type_check_expression(decl->variable->rhs, env);
@@ -110,8 +173,6 @@ namespace Frontend {
 
                     if (decl->variable->type.name.data == nullptr) {
                         decl->variable->type = expression_type;
-                        env->put(decl->variable->variable_name, decl->variable->type);
-                        
                         return expression_type;
                     }
 
@@ -119,8 +180,6 @@ namespace Frontend {
                         RUNTIME_ASSERT_MSG(false, "[TypeChecker VarDecl Error]: Line: %d\n", decl->variable->line);
                     }
                 }
-
-                env->put(decl->variable->variable_name, decl->variable->type);
 
                 return decl->variable->type;
             } break;
@@ -130,13 +189,22 @@ namespace Frontend {
                     RUNTIME_ASSERT_MSG(false, "Not allowed to declare function: %.*s outside of global scope\n", decl->function->function_name.length, decl->function->function_name.data);
                 }
 
-                if (env->has(decl->function->function_name)) {
+                if (env->has_func(decl->function->function_name)) {
                     RUNTIME_ASSERT_MSG(false, "Duplicate function decleration: %.*s\n", decl->function->function_name.length, decl->function->function_name.data);
                 }
 
-                env->put(decl->function->function_name, decl->function->return_type);
+                env->put_func(decl->function->function_name, decl->function);
 
                 TypeEnvironment function_env = TypeEnvironment(env);
+                for (Parameter p : decl->function->parameters) {
+                    VariableDecleration* var_decl = (VariableDecleration*)Memory::global_general_allocator.malloc(sizeof(VariableDecleration));
+                    var_decl->variable_name = p.variable_name;
+                    var_decl->type = p.type;
+                    var_decl->rhs = nullptr;
+                    var_decl->line = decl->function->line;
+
+                    function_env.put_var(var_decl->variable_name, var_decl);
+                }
                 
                 if (decl->function->body.count() > 0 && decl->function->return_type.type != TPT_VOID &&
                     decl->function->body[decl->function->body.count() - 1]->statement &&
@@ -152,7 +220,7 @@ namespace Frontend {
                                 RUNTIME_ASSERT_MSG(false, "return statement is not allowed in a function that returns void\n");
                             } 
 
-                            Type actual_return_type = type_check_expression(s->ret->expression, env);
+                            Type actual_return_type = type_check_expression(s->ret->expression, &function_env);
                             if (decl->function->return_type != actual_return_type) {
                                 RUNTIME_ASSERT_MSG(false, "returning invalid type: %.*s from function: %.*s\n", 
                                     actual_return_type.name.length, actual_return_type.name.data,
@@ -182,24 +250,24 @@ namespace Frontend {
     Type type_check_statement(Statement* s, TypeEnvironment* env) {
         switch (s->type) {
             case STATEMENT_TYPE_ASSIGNMENT: {
-                if (!env->has(s->assignment->variable_name)) {
+                if (!env->has_var(s->assignment->variable_name)) {
                     RUNTIME_ASSERT_MSG(
                         false, "Error Line: %d | Undeclared identifier '%.*s'\n", 
                         s->assignment->line, s->assignment->variable_name.length, s->assignment->variable_name.data
                     );
                 }
 
-                Type variable_type = env->get(s->assignment->variable_name);
+                VariableDecleration* var_decl = env->get_var(s->assignment->variable_name);
                 Type expression_type = type_check_expression(s->assignment->rhs, env);
-                if (variable_type != expression_type) {
+                if (var_decl->type != expression_type) {
                     RUNTIME_ASSERT_MSG(
                         false, "Error Line: %d | Assignment of %.*s to %.*s is not allowed!\n",
-                        s->assignment->line, variable_type.name.length, variable_type.name.data, 
+                        s->assignment->line, var_decl->type.name.length, var_decl->type.name.data, 
                         expression_type.name.length, expression_type.name.data
                     );
                 }
 
-                return variable_type;
+                return var_decl->type;
             } break;
             
             case STATEMENT_TYPE_RETURN: {

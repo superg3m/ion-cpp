@@ -93,7 +93,7 @@ struct Token {
     DS::View<char> sv; // used for identifer names, string literals, the source_view
 
     union {
-        s32 i;
+        int i;
         float f;
         char c;
         bool b;

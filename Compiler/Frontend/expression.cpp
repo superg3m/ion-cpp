@@ -41,11 +41,12 @@ namespace Frontend {
         return ret;
     }
 
-    Expression* Expression::Identifier(Memory::BaseAllocator* allocator, DS::View<char> name, int line) {
+    Expression* Expression::Identifier(Memory::BaseAllocator* allocator, DS::View<char> name, Type type, int line) {
         Expression* ret = (Expression*)allocator->malloc(sizeof(Expression));
-        ret->type = EXPRESSION_TYPE_IDENTIFER;
+        ret->type = EXPRESSION_TYPE_IDENTIFIER;
         ret->identifier = (IdentifierExpression*)allocator->malloc(sizeof(IdentifierExpression));
         ret->identifier->name = name;
+        ret->identifier->type = type;
         ret->identifier->line = line;
         
         return ret;
@@ -74,18 +75,6 @@ namespace Frontend {
         return ret;
     }
 
-    Expression* Expression::Logical(Memory::BaseAllocator* allocator, Token operation, Expression* left, Expression* right, int line) {
-        Expression* ret = (Expression*)allocator->malloc(sizeof(Expression));
-        ret->type = EXPRESSION_TYPE_LOGICAL_OPERATION;
-        ret->logical = (LogicalOperationExpression*)allocator->malloc(sizeof(LogicalOperationExpression));
-        ret->logical->operation = operation;
-        ret->logical->left = left;
-        ret->logical->right = right;
-        ret->logical->line = line;
-
-        return ret;
-    }
-
     Expression* Expression::Grouping(Memory::BaseAllocator* allocator, Expression* value, int line) {
         Expression* ret = (Expression*)allocator->malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_GROUPING;
@@ -96,12 +85,18 @@ namespace Frontend {
         return ret;
     }
 
-    Expression* Expression::FunctionCall(Memory::BaseAllocator* allocator, DS::View<char> name, Type return_type, u32 line) {
+    Expression* Expression::FunctionCall(
+        Memory::BaseAllocator* allocator, 
+        DS::View<char> name, Type return_type, 
+        DS::Vector<Expression*> arguments,
+        u32 line
+    ) {
         Expression* ret = (Expression*)allocator->malloc(sizeof(Expression));
         ret->type = EXPRESSION_TYPE_FUNCTION_CALL;
         ret->function_call = (FunctionCallExpression*)allocator->malloc(sizeof(FunctionCallExpression));
         ret->function_call->function_name = name;
         ret->function_call->return_type = return_type;
+        ret->function_call->arguments = arguments;
         ret->function_call->line = line;
         
         return ret;

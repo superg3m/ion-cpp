@@ -15,8 +15,14 @@ namespace Frontend {
         u32 line;
     };
 
+    struct Parameter {
+        DS::View<char> variable_name;
+        Type type;
+    };
+
     struct FunctionDecleration {
         DS::View<char> function_name;
+        DS::Vector<Parameter> parameters;
         Type return_type;
         DS::Vector<ASTNode*> body;
         u32 line;
@@ -51,12 +57,13 @@ namespace Frontend {
 
         static Decleration* Function(
             Memory::BaseAllocator* allocator, DS::View<char> func_name, 
-            Type return_type, DS::Vector<ASTNode*> body, u32 line
+            DS::Vector<Parameter> parameters, Type return_type, DS::Vector<ASTNode*> body, u32 line
         ) {
             Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
             ret->type = DECLERATION_TYPE_FUNCTION;
             ret->function = (FunctionDecleration*)allocator->malloc(sizeof(FunctionDecleration));
             ret->function->function_name = func_name;
+            ret->function->parameters = parameters;
             ret->function->return_type = return_type;
             ret->function->body = body;
             ret->function->line = line;

@@ -51,19 +51,6 @@ namespace Frontend {
                 return unary_root;
             } break;
 
-            case EXPRESSION_TYPE_LOGICAL_OPERATION: {
-                JSON* logical_root = JSON::Object(allocator);
-
-                JSON* desc = JSON::Object(allocator);
-                desc->object.push("op", JSON::String(allocator, e->logical->operation.sv));
-                desc->object.push("left", expression_to_json(e->logical->left, allocator));
-                desc->object.push("right", expression_to_json(e->logical->right, allocator));
-
-                logical_root->push("Logical", desc);
-                
-                return logical_root;
-            } break;
-
             case EXPRESSION_TYPE_GROUPING: {
                 JSON* grouping_root = JSON::Object(allocator);
                 grouping_root->object.push("Grouping", expression_to_json(e->grouping->value, allocator));
@@ -76,6 +63,18 @@ namespace Frontend {
                 function_call_root->object.push("FunctionCall", JSON::String(allocator, e->function_call->return_type.name));
 
                 return function_call_root;
+            } break;
+
+            case EXPRESSION_TYPE_IDENTIFIER: {
+                JSON* identifier_root = JSON::Object(allocator);
+                JSON* desc = JSON::Object(allocator);
+
+                desc->object.push("name", JSON::String(allocator, e->identifier->name));
+                desc->object.push("type", JSON::String(allocator, e->identifier->type.name));
+
+                identifier_root->object.push("Identifier", desc);
+
+                return identifier_root;
             } break;
 
             default: {

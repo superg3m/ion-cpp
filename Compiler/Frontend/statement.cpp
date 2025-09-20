@@ -21,4 +21,14 @@ namespace Frontend {
         
         return ret;
     }
+
+    Statement* Statement::Scope(Memory::BaseAllocator* allocator, DS::Vector<ASTNode*> body, u32 line) {
+        Statement* ret = (Statement*)allocator->malloc(sizeof(Statement));
+        ret->type = STATEMENT_TYPE_SCOPE;
+        ret->scope = (ScopeStatement*)allocator->malloc(sizeof(ScopeStatement));
+        ret->scope->body = body;
+        ret->scope->line = line;
+        
+        return ret;
+    }
 }
