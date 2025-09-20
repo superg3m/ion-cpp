@@ -59,13 +59,13 @@ namespace Frontend {
             return false;
         }
 
-        void put_func(DS::View<char> key, FunctionDecleration* value) {
+        void put_func(DS::View<char> key, FunctionDeclaration* value) {
             RUNTIME_ASSERT(!this->has_var(key));
             
             this->functions.put(key, value);
         }
 
-        FunctionDecleration* get_func(DS::View<char> key) {
+        FunctionDeclaration* get_func(DS::View<char> key) {
             RUNTIME_ASSERT(this->has_func(key));
             
             TypeEnvironment* current = this;
@@ -82,7 +82,7 @@ namespace Frontend {
 
     private:
         DS::Hashmap<DS::View<char>, VariableDecleration*> variables = DS::Hashmap<DS::View<char>, VariableDecleration*>(&Memory::global_general_allocator);
-        DS::Hashmap<DS::View<char>, FunctionDecleration*> functions = DS::Hashmap<DS::View<char>, FunctionDecleration*>(&Memory::global_general_allocator);
+        DS::Hashmap<DS::View<char>, FunctionDeclaration*> functions = DS::Hashmap<DS::View<char>, FunctionDeclaration*>(&Memory::global_general_allocator);
     };
 
     void type_check_ast_helper(ASTNode* node, TypeEnvironment* env);
@@ -117,7 +117,7 @@ namespace Frontend {
             } break;
 
             case EXPRESSION_TYPE_FUNCTION_CALL: {
-                FunctionDecleration* func_decl = env->get_func(e->function_call->function_name);
+                FunctionDeclaration* func_decl = env->get_func(e->function_call->function_name);
 
                 int param_count = func_decl->parameters.count();
                 int arg_count = e->function_call->arguments.count();
@@ -275,6 +275,10 @@ namespace Frontend {
                 return expression_type;
             } break;
 
+            case STATEMENT_TYPE_PRINT: {
+                return Type();
+            } break;
+
             default: {
                 RUNTIME_ASSERT(false);
             } break;
@@ -319,6 +323,9 @@ namespace Frontend {
         TypeEnvironment global_environment(nullptr);
 
         type_check_ast_helper(node, &global_environment);
+        if (!global_environment.has_func(DS::View("main", sizeof("main") - 1))) {
+            RUNTIME_ASSERT_MSG(false, "Missing main function");
+        }
     }
         
 }

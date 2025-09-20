@@ -114,7 +114,7 @@ namespace Frontend {
                     body_json->array_push(ast_to_json(node, allocator));
                 }
 
-                function_root->push("FunctionDecleration", desc);
+                function_root->push("FunctionDeclaration", desc);
 
                 return function_root;
             } break;
@@ -146,6 +146,13 @@ namespace Frontend {
                 return_root->push("ReturnStatement", expression_to_json(s->ret->expression, allocator));
 
                 return return_root;
+            } break;
+
+            case STATEMENT_TYPE_PRINT: {
+                JSON* print_root = JSON::Object(allocator);
+                print_root->push("PrintStatement", expression_to_json(s->ret->expression, allocator));
+
+                return print_root;
             } break;
 
             default: {

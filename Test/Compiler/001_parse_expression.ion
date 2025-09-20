@@ -1,16 +1,13 @@
 var x: int = 6;
 var y: int = 4 + 3;
 
-func do_something(a: int) -> int {
-    return a;
+func do_something(a: int, b: int) -> int {
+    return a + b;
 }
 
 func main() -> void {
-    var t := do_something(6);
-    // o = "testing";
+    var t := do_something(6, 7);
 
-    // var o: int; // Also typechecker error... [Line: 11 | Duplicate variable decleration: o]
-    // t = 3; // [Error Line: 13 | Undeclared identifier 't']
-    //o = "hello world"; // [Error Line: 15 | Assignment of int to string is not allowed!]
+    print(t);
 }
 

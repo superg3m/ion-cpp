@@ -53,6 +53,7 @@
     X(TKW_VAR, "var")       \
     X(TKW_NULL, "null")     \
     X(TKW_RETURN, "return") \
+    X(TKW_PRINT, "print")   \
 
 #define X_PRIMITIVE_TYPES_TOKENS  \
     X(TPT_VOID, "void")           \

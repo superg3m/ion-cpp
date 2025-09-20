@@ -51,10 +51,16 @@ namespace Frontend {
         u32 line;
     };
 
+    struct PrintStatement {
+        Expression* expr;
+        u32 line;
+    };
+
     enum StatementType {
         STATEMENT_TYPE_ASSIGNMENT,
         STATEMENT_TYPE_RETURN,
         STATEMENT_TYPE_SCOPE,
+        STATEMENT_TYPE_PRINT,
     };
 
     struct Statement {
@@ -63,11 +69,13 @@ namespace Frontend {
             AssignmentStatement* assignment;
             ReturnStatment* ret;
             ScopeStatement* scope;
+            PrintStatement* print;
         };
 
         static Statement* Assignment(Memory::BaseAllocator* allocator, DS::View<char> name, Expression* rhs, u32 line);
         static Statement* Return(Memory::BaseAllocator* allocator, Expression* expression, u32 line);
         static Statement* Scope(Memory::BaseAllocator* allocator, DS::Vector<ASTNode*> body, u32 line);
+        static Statement* Print(Memory::BaseAllocator* allocator, Expression* expr, u32 line);
     private:
         Statement() = default;
     };

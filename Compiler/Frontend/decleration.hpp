@@ -20,7 +20,7 @@ namespace Frontend {
         Type type;
     };
 
-    struct FunctionDecleration {
+    struct FunctionDeclaration {
         DS::View<char> function_name;
         DS::Vector<Parameter> parameters;
         Type return_type;
@@ -37,7 +37,7 @@ namespace Frontend {
         DeclerationType type;
         union {
             VariableDecleration* variable;
-            FunctionDecleration* function;
+            FunctionDeclaration* function;
         };
 
         static Decleration* Variable(
@@ -61,7 +61,7 @@ namespace Frontend {
         ) {
             Decleration* ret = (Decleration*)allocator->malloc(sizeof(Decleration));
             ret->type = DECLERATION_TYPE_FUNCTION;
-            ret->function = (FunctionDecleration*)allocator->malloc(sizeof(FunctionDecleration));
+            ret->function = (FunctionDeclaration*)allocator->malloc(sizeof(FunctionDeclaration));
             ret->function->function_name = func_name;
             ret->function->parameters = parameters;
             ret->function->return_type = return_type;

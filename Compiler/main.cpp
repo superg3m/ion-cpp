@@ -1,6 +1,7 @@
 #include <Core/core.hpp>
 #include "Frontend/parser.hpp"
 #include "Frontend/typechecker.hpp"
+#include "Backend/interpreter.hpp"
 
 #define PROGRAM_CAPACITY KB(20)
 
@@ -35,6 +36,8 @@ int main(int argc, char** argv) {
     Frontend::type_check_ast(ast);
     
     ast->pretty_print(&Memory::global_general_allocator);
+
+    Backend::interpret_program(ast);
 
     return 0;
 }

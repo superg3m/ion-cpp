@@ -264,7 +264,15 @@ namespace Frontend {
             } else {
                 RUNTIME_ASSERT(false);
             } 
-        } else if (current_token.type == TKW_RETURN) {
+        }else if (current_token.type == TKW_PRINT) {
+            Token print_token = parser->expect(TKW_PRINT);
+            parser->expect(TS_LEFT_PAREN);
+            Expression* expr = parse_expression(parser);
+            parser->expect(TS_RIGHT_PAREN);
+            parser->expect(TS_SEMI_COLON);
+            
+            return Statement::Print(parser->allocator, expr, print_token.line);
+        }  else if (current_token.type == TKW_RETURN) {
             return parse_return_statement(parser);
         }
 
